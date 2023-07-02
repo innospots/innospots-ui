@@ -27,11 +27,11 @@
 export default {
   dev: {
     '/innospots/api/': {
-      target: 'http://1.15.20.45:9800/',
+      target: 'http://your.dev.url/',
       changeOrigin: true,
     },
     '/resources': {
-      target: 'http://1.15.20.45:9800/',
+      target: 'http://your.dev.url/',
       changeOrigin: true,
       pathRewrite: { '/resources': '' },
     },
