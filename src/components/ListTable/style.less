@@ -1,0 +1,262 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '../../assets/less/variables.less';
+
+@pagination-item-size: 32px;
+@pagination-prefix-cls: ~'@{ant-prefix}-pagination';
+
+.listTable {
+  position: relative;
+
+  :global {
+    .@{ant-prefix}-table table {
+      border-collapse: @list-table-border-collapse;
+      border-spacing: @list-table-border-spacing;
+    }
+
+    .@{ant-prefix}-checkbox-inner {
+      border-spacing: 0;
+    }
+
+    .@{pagination-prefix-cls} {
+      &-item,
+      &-prev,
+      &-next,
+      &-jump-prev,
+      &-jump-next,
+      &-total-text {
+        height: @pagination-item-size;
+        line-height: @pagination-item-size - 2px;
+      }
+
+      &-prev,
+      &-next,
+      &-item,
+      &-jump-prev,
+      &-jump-next {
+        min-width: @pagination-item-size;
+      }
+
+      &-options {
+        &-quick-jumper {
+          height: @pagination-item-size;
+          line-height: @pagination-item-size - 2px;
+
+          input {
+            height: @pagination-item-size;
+          }
+        }
+      }
+    }
+  }
+
+  &.noSpacing {
+    :global(.@{ant-prefix}-table ) table {
+      border-spacing: 0 !important;
+
+      :global {
+        .@{ant-prefix}-table-tbody {
+          > tr {
+            > td {
+              height: @list-table-td-height-base;
+              border-bottom: 1px solid @table-border-color;
+            }
+
+            > th,
+            > td {
+              &:first-child {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+              }
+
+              &:last-child {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.small {
+    :global(.@{ant-prefix}-table ) table {
+      border-spacing: @list-table-small-border-spacing;
+    }
+
+    :global {
+      .@{ant-prefix}-table {
+        background-color: transparent;
+
+        .@{ant-prefix}-table-tbody > tr > td,
+        .@{ant-prefix}-table-thead > tr > th {
+          height: @height-base;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  &.mini {
+    :global(.@{ant-prefix}-table ) table {
+      border-spacing: @list-table-mini-border-spacing;
+    }
+
+    :global {
+      .@{ant-prefix}-table {
+        .@{ant-prefix}-table-tbody > tr > td,
+        .@{ant-prefix}-table-thead > tr > th {
+          font-size: 12px;
+        }
+
+        .@{ant-prefix}-table-tbody > tr > td {
+          height: @list-table-td-height-mini;
+        }
+
+        .@{ant-prefix}-table-thead > tr > th {
+          height: @list-table-th-height-mini;
+        }
+      }
+    }
+  }
+
+  &.zebra {
+    :global {
+      .@{ant-prefix}-table .@{ant-prefix}-table-tbody {
+        > tr {
+          &:nth-child(even) > td {
+            background-color: @list-table-zebra-td-bg-color;
+          }
+        }
+      }
+    }
+  }
+
+  :global {
+    td {
+      .@{ant-prefix}-card-meta {
+        &::before,
+        &::after {
+          display: block;
+        }
+      }
+    }
+
+    .@{ant-prefix}-card-meta-avatar {
+      padding-right: 0;
+    }
+
+    .@{ant-prefix}-card-meta-detail {
+      .@{ant-prefix}-card-meta-title {
+        margin-bottom: 2px;
+      }
+
+      .@{ant-prefix}-card-meta-description {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .pageNode {
+    margin-top: 20px;
+
+    span {
+      //color: #8C8C8C;
+    }
+  }
+
+  :global {
+    .@{ant-prefix}-avatar {
+      //margin-right: 10px;
+    }
+
+    .@{ant-prefix}-table-selection-column {
+      padding-right: 0;
+      padding-left: 16px;
+      text-align: left;
+    }
+
+    .@{ant-prefix}-table-selection-col {
+      width: 44px;
+    }
+
+    .@{ant-prefix}-table {
+      margin-top: -10px;
+      background-color: transparent;
+
+      .@{ant-prefix}-table-tbody > tr > td {
+        color: @list-table-td-color;
+      }
+
+      .@{ant-prefix}-table-tbody > tr > td,
+      .@{ant-prefix}-table-thead > tr > th {
+        padding-top: 0;
+        padding-bottom: 0;
+        font-size: 14px;
+        border-bottom: 0;
+
+        &:first-child {
+          border-top-left-radius: @list-table-td-border-radius;
+          border-bottom-left-radius: @list-table-td-border-radius;
+        }
+
+        &:last-child {
+          border-top-right-radius: @list-table-td-border-radius;
+          border-bottom-right-radius: @list-table-td-border-radius;
+        }
+      }
+
+      .@{ant-prefix}-table-thead > tr > th {
+        &.@{ant-prefix}-table-column-sort {
+          color: @primary-color;
+        }
+      }
+
+      .@{ant-prefix}-table-thead {
+        > tr {
+          > th {
+            height: @list-table-th-height-base;
+            font-weight: 600;
+            background: @page-background-color;
+          }
+        }
+      }
+
+      .@{ant-prefix}-table-tbody {
+        > tr {
+          &:hover {
+            > td {
+              background-color: @table-row-hover-bg;
+            }
+          }
+
+          > td {
+            height: @list-table-td-height-base;
+            background-color: #fff;
+
+            &.@{ant-prefix}-table-selection-column {
+              padding-right: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}

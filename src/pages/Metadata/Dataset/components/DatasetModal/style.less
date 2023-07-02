@@ -1,0 +1,308 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+@base-form-height: 70px;
+@main-content-height: 578px;
+@left-content-width: 280px;
+@left-header-height: 50px;
+@filter-form-height: 80px;
+@right-content-width: 1120px - @left-content-width;
+@config-content-height: 324px;
+@config-editor-width: 590px;
+@other-config-width: @right-content-width - @config-editor-width;
+@code-height: 276px;
+@preview-header-height: 28px;
+
+.modalBody {
+  margin: -@modal-body-padding;
+  position: relative;
+
+  .popupClassName {
+    :global {
+      .@{ant-prefix}-cascader-menu {
+        height: auto;
+      }
+    }
+  }
+
+  :global {
+    .@{ant-prefix}-tree-title {
+      word-break: break-all;
+    }
+
+    .CodeMirror {
+      height: 100%;
+    }
+  }
+}
+
+.baseForm {
+  height: @base-form-height;
+  padding-left: 130px;
+  border-bottom: 1px solid @border-color-split;
+
+  .formRow {
+    display: flex;
+    align-items: center;
+    height: @base-form-height;
+
+    //:global {
+    //  .@{ant-prefix}-form-item-with-help .@{ant-prefix}-form-item-explain {
+    //    display: none;
+    //  }
+    //  .@{ant-prefix}-form-item-with-help {
+    //    margin-bottom: 0 !important;
+    //  }
+    //}
+
+    .formItem {
+      width: 338px;
+    }
+  }
+}
+
+.mainContent {
+  display: flex;
+  width: 100%;
+  height: @main-content-height;
+
+  .leftContent {
+    width: @left-content-width;
+    height: 100%;
+    padding: 0 24px;
+
+    .header {
+      display: flex;
+      align-items: center;
+      height: @left-header-height;
+    }
+
+    .filterForms {
+      height: @filter-form-height;
+      padding: 8px 0;
+    }
+
+    .treeList {
+      height: @main-content-height - @left-header-height - @filter-form-height - 8px;
+      overflow-y: auto;
+
+      @tree-item-size: 18px;
+
+      :global {
+        .@{ant-prefix}-tree-switcher {
+          width: @tree-item-size;
+          line-height: @tree-item-size;
+
+          .@{ant-prefix}-tree-switcher-icon {
+            vertical-align: bottom;
+          }
+        }
+
+        .@{ant-prefix}-tree {
+          font-size: 12px;
+
+          .@{ant-prefix}-tree-node-content-wrapper {
+            min-height: @tree-item-size;
+
+            .@{ant-prefix}-tree-iconEle {
+              width: @tree-item-size;
+              height: @tree-item-size;
+              line-height: @tree-item-size;
+              vertical-align: middle;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .rightContent {
+    width: @right-content-width;
+    height: 100%;
+    border-left: 1px solid @border-color-split;
+
+    &.previewCollapsed {
+      .configContent {
+        height: calc(100% - @preview-header-height);
+      }
+
+      .preview {
+        .previewData, .footer {
+          display: none;
+        }
+      }
+    }
+
+    .configContent {
+      display: flex;
+      width: 100%;
+      height: @config-content-height;
+
+      @header-height: 48px;
+
+      .configEditor {
+        width: @config-editor-width;
+        height: 100%;
+        border-right: 1px solid @border-color-split;
+
+        .header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: @header-height;
+          padding: 0 16px;
+          border-bottom: 1px solid @border-color-split;
+        }
+
+        .editor {
+          height: calc(100% - @header-height);
+
+          :global {
+            .CodeMirror-gutters {
+              background-color: transparent;
+              border-right: 0;
+            }
+          }
+        }
+      }
+
+      .otherConfig {
+        width: @other-config-width;
+        height: 100%;
+
+        :global {
+          .@{ant-prefix}-tabs > .@{ant-prefix}-tabs-nav {
+            height: @header-height;
+            padding: 0 16px;
+          }
+
+          .@{ant-prefix}-tabs-tab {
+            padding-right: 8px;
+            padding-left: 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.variableList {
+  padding: 0 16px;
+
+  .listItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 24px;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+}
+
+.preview {
+  @header-height: @preview-header-height;
+  @header-bg-color: #fafafa;
+  @preview-height: @main-content-height - @config-content-height - @header-height;
+
+  .previewLabel {
+    color: #1D2129;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      color: @primary-color;
+    }
+  }
+
+  .previewData {
+    height: @preview-height;
+
+    .colTitle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .title {
+        font-size: 13px;
+      }
+
+      .type {
+        padding-left: 4px;
+        color: @text-color-secondary;
+        font-weight: 300;
+        font-size: 12px;
+      }
+    }
+
+    .field {
+      color: #4E5969;
+      font-size: 12px;
+    }
+
+    :global {
+      .@{ant-prefix}-table-thead > tr > th {
+        background-color: #f2f3f5;
+      }
+
+      th,
+      td {
+        padding: 2.5px 8px !important;
+
+        &:first-child {
+          border-top-left-radius: 0 !important;
+          border-bottom-left-radius: 0 !important;
+        }
+
+        &:last-child {
+          border-top-right-radius: 0 !important;
+          border-bottom-right-radius: 0 !important;
+        }
+      }
+    }
+  }
+
+  &.showFooter {
+    .previewData {
+      height: @preview-height - @header-height;
+    }
+
+    .footer {
+      display: flex;
+    }
+  }
+
+  .footer,
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: @header-height;
+    padding: 0 16px;
+    background-color: @header-bg-color;
+    border-top: 1px solid #f5f5f5;
+  }
+
+  .footer {
+    display: none;
+    color: @text-color-secondary;
+    font-size: 12px;
+  }
+}

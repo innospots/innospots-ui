@@ -1,0 +1,53 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+@pagination-prefix-cls: ~'@{ant-prefix}-pagination';
+
+.@{pagination-prefix-cls} {
+  &-item {
+    margin: 0 6px !important;
+    border-width: 0;
+
+    &-link {
+      color: #4E5969 !important;
+      font-size: 12px !important;
+    }
+  }
+
+  &-options {
+    .@{ant-prefix}-select:not(.@{ant-prefix}-select-customize-input) {
+      .@{ant-prefix}-select-selector {
+        border-width: 0 !important;
+        background-color: transparent !important;
+      }
+
+      &:hover {
+        .@{ant-prefix}-select-selector {
+          border-right-width: 0 !important;
+        }
+      }
+    }
+
+    .@{ant-prefix}-select-focused:not(.@{ant-prefix}-select-disabled).@{ant-prefix}-select:not(.@{ant-prefix}-select-customize-input) .@{ant-prefix}-select-selector {
+      border-right-width: 0 !important;
+      box-shadow: none !important;
+    }
+  }
+}

@@ -1,0 +1,152 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+.cardListWrapper {
+  .nameWrapper {
+    .icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid #ccc;
+      border-radius: 100%;
+    }
+
+    .name {
+      margin-bottom: 0;
+      padding-left: 16px;
+    }
+  }
+
+  .tag {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  :global {
+    .@{ant-prefix}-tag {
+      min-width: 48px;
+      margin-right: 0;
+      line-height: @height-sm;
+      text-align: center;
+      border: 0;
+    }
+
+    .@{ant-prefix}-tag-green {
+      color: #31cb8a;
+      background: #dbf4ec;
+    }
+
+    .@{ant-prefix}-tag-blue {
+      color: @primary-color;
+      background: #ecf0ff;
+    }
+
+    .@{ant-prefix}-tag-magenta {
+      color: #f4427d;
+      background: #ffe5ef;
+    }
+  }
+
+  .avatar {
+    position: relative;
+    background: #e5ecff;
+
+    &.sd {
+      &:after {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: block;
+        width: 14px;
+        height: 14px;
+        background-image: url('../../../assets/images/data-source/u18063.png');
+        background-size: 100% auto;
+        content: ' ';
+      }
+    }
+  }
+
+  .infoWrapper {
+    margin: 16px 0 -14px;
+    color: #4e5969;
+
+    :global {
+      p,
+      .@{ant-prefix}-typography {
+        margin-bottom: 0;
+        color: #4e5969;
+        font-weight: 400;
+      }
+    }
+  }
+
+  :global {
+    .@{ant-prefix}-avatar {
+      overflow: initial;
+    }
+
+    .@{ant-prefix}-pro-components-nice-nice-list-style-niceList
+      .@{ant-prefix}-table
+      .@{ant-prefix}-table-tbody
+      > tr
+      > td {
+      height: 68px;
+    }
+
+    .@{ant-prefix}-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      transition: box-shadow 0.3s;
+
+      &:hover {
+        box-shadow: 1px 1px 8px rgba(0, 0, 0, 10%);
+      }
+
+      .@{ant-prefix}-card-meta-title {
+        font-size: 16px;
+      }
+
+      .@{ant-prefix}-card-meta-detail {
+        > div:not(:last-child) {
+          margin-bottom: 8px;
+        }
+      }
+
+      .@{ant-prefix}-card-meta-description {
+        color: #5a5a5a;
+        font-size: 12px;
+      }
+
+      .@{ant-prefix}-card-actions {
+        background-color: #f7f8fa;
+        border-top: 0;
+
+        > li {
+          margin: 13px 0;
+
+          &:not(:last-child) {
+            border-color: #e5e6eb;
+          }
+        }
+      }
+    }
+  }
+}

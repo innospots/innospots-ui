@@ -1,0 +1,63 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+.nodeWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    cursor: default;
+
+    .nodeInner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        background: #F4F7FB;
+        border-radius: 4px;
+
+        :global {
+          .node-icon {
+            font-size: 24px;
+          }
+          .node-image-icon {
+            width: 28px;
+          }
+        }
+    }
+
+    .nodeName {
+        position: absolute;
+        top: 64px;
+        right: 0;
+        left: 0;
+        height: 30px;
+        overflow: hidden;
+        color: #4E5969;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 1;
+        padding: 0 2px;
+        white-space: pre-line;
+        text-align: center;
+        word-break: break-all;
+    }
+}

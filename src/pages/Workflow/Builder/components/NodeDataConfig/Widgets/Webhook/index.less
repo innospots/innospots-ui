@@ -1,0 +1,156 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+.responseFields {
+    position: relative;
+    padding: 0 30px;
+
+    .addButton {
+        position: absolute;
+        top: -32px;
+        right: 30px;
+    }
+}
+
+.requestData {
+    padding-top: 8px;
+
+    .rdDesc {
+        padding-top: 4px;
+        color: @text-color-secondary;
+        font-size: 12px;
+    }
+}
+
+.detailWrap {
+    margin-top: 12px;
+    padding: 20px;
+    background-color: #eef3f9;
+    border-radius: 10px;
+
+    .label {
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+
+    .value {
+        margin-bottom: 12px;
+        text-indent: 1em;
+        word-break: break-all;
+    }
+}
+
+.editIcon {
+    display: inline-block;
+    margin-top: 2px;
+    color: #b6c6dd;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.webhookModalTitle {
+    h1 {
+        margin-bottom: 0;
+        font-size: 18px;
+        line-height: 38px;
+    }
+
+    :global {
+        .@{ant-prefix}-steps-item {
+            flex: auto;
+        }
+
+        .@{ant-prefix}-steps-item-wait
+            > .@{ant-prefix}-steps-item-container
+            > .@{ant-prefix}-steps-item-content
+            > .@{ant-prefix}-steps-item-description {
+            color: #c1c1c1;
+        }
+
+        .@{ant-prefix}-steps-item-container > .@{ant-prefix}-steps-item-content {
+            > .@{ant-prefix}-steps-item-description {
+                color: #666;
+                font-size: 12px;
+            }
+
+            > .@{ant-prefix}-steps-item-title::after {
+                display: none;
+            }
+
+            > .@{ant-prefix}-steps-item-title {
+                margin-bottom: 6px;
+                line-height: 1;
+            }
+        }
+    }
+}
+
+.formLabel {
+    line-height: 36px;
+}
+
+.modalInner {
+    height: 460px;
+
+    :global {
+        .@{ant-prefix}-input-group-addon {
+            background-color: #32cc8a;
+            border-color: transparent;
+
+            .@{ant-prefix}-select,
+            .@{ant-prefix}-select-arrow,
+            .@{ant-prefix}-select-open .@{ant-prefix}-select-selector,
+            .@{ant-prefix}-select-focused .@{ant-prefix}-select-selector,
+            .@{ant-prefix}-select-single.@{ant-prefix}-select-open
+                .@{ant-prefix}-select-selection-item {
+                color: #fff;
+                font-weight: bold;
+            }
+        }
+
+        .@{ant-prefix}-form-item-has-error
+            .@{ant-prefix}-select:not(.@{ant-prefix}-select-disabled):not(.@{ant-prefix}-select-customize-input)
+            .@{ant-prefix}-select-selector {
+            background-color: #32cc8a;
+        }
+    }
+
+    .requestParams {
+        margin-top: 8px;
+    }
+
+    .responseWrapper {
+        .tip {
+            color: #595959;
+        }
+
+        .example {
+            margin-top: 20px;
+
+            .exampleContent {
+                width: 100%;
+                height: 284px;
+                margin-top: 12px;
+                background-color: #fafafa;
+                resize: none;
+            }
+        }
+    }
+}

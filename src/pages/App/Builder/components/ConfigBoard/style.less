@@ -1,0 +1,169 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+.configContainer {
+  .elements {
+    .element {
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px dashed @border-color-base;
+
+      .formConfig {
+        padding: 12px;
+        margin-top: 12px;
+        border-radius: @border-radius-base;
+        background-color: @background-color-light;
+      }
+    }
+  }
+
+  .title {
+    font-weight: 500;
+  }
+
+  .noLine {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    //border-bottom: 1px dashed @border-color-base;
+  }
+
+  .elementNo {
+    color: @text-color-secondary;
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
+.configBoard {
+  height: 100%;
+  position: relative;
+
+  .fieldWrapper {
+    :global {
+      .field-wrapper {
+        //padding-bottom: 2px;
+      }
+    }
+  }
+
+  .isDefault {
+    :global {
+      .pointer-wrapper {
+        visibility: hidden;
+        pointer-events: none;
+      }
+    }
+  }
+
+  .resetButton {
+    width: 120px;
+    height: 40px;
+    top: 24px;
+    right: 340px;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1px solid rgba(219, 227, 235, 1);
+    background-color: rgba(219, 227, 235, 0.0980392156862745);
+    color: #000000a5;
+    cursor: pointer;
+    z-index: 10;
+
+    > span {
+      font-size: 16px;
+      padding-left: 4px;
+    }
+  }
+
+  :global {
+    .fr-generator-container {
+      justify-content: space-between;
+
+      .fr-label.mb2 {
+        width: auto !important;
+      }
+
+      .left-layout {
+        width: 300px;
+        border-right: 1px solid @border-color-base;
+
+        .left-item {
+          width: 8rem;
+          border-radius: 6px;
+        }
+      }
+
+      .mid-layout {
+        border: none;
+        flex: 0 0 430px;
+        margin: 24px 0;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        border-radius: 20px;
+        background-color: #f6fafd;
+
+        > .mv2.mh1 {
+          display: none;
+        }
+
+        .field-wrapper {
+          border: 0;
+          background-color: transparent !important;
+        }
+      }
+
+      .right-layout {
+        width: 320px;
+        padding-top: 0;
+        overflow-y: auto;
+        border-left: 1px solid @border-color-base;
+
+        &::-webkit-scrollbar {
+          width: 5px;
+          background-color: #0002;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: #0004;
+          border-radius: 5px;
+        }
+
+        > div {
+          &:first-child {
+            display: none;
+          }
+        }
+      }
+
+      .dnd-container.edit .fr-field {
+        //margin-bottom: 0;
+      }
+    }
+
+    .frg-options-list .frg-options-input {
+      width: 48%;
+
+      //&:first-child {
+      //  margin-right: 0;
+      //}
+    }
+  }
+}

@@ -1,0 +1,361 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/lib/style/themes/default.less';
+
+@bg-color: #f3f6f9;
+
+.wrapper {
+}
+
+.clearBtn {
+    width: 100%;
+    color: #666;
+    line-height: 50px;
+    text-align: center;
+    background: #f4f7fb;
+    border-radius: 10px;
+    cursor: pointer;
+
+    &:hover {
+        background: #e1effb;
+    }
+}
+
+.result {
+    position: relative;
+    display: flex;
+    //align-items: center;
+    flex-wrap: wrap;
+    min-height: 50px;
+    padding: 0 54px 8px 0;
+    background-color: #fff;
+    border: 1px solid @border-color-base;
+    border-radius: 10px;
+    user-select: none;
+
+    .placeholder {
+        display: inline-block;
+        margin: 13px 0 0 12px;
+        color: #999;
+        font-weight: normal;
+        font-size: 14px;
+        user-select: none;
+    }
+
+    .item {
+        position: relative;
+        //margin-top: 4px;
+        //margin-bottom: 8px;
+        padding: 8px 0 0 12px;
+
+        .itemInner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            min-height: 32px;
+            padding: 0 8px;
+            color: #475669;
+            font-weight: bold;
+            font-size: 12px;
+            //justify-content: center;
+            background-color: #edf2ff;
+            border-radius: 3px;
+
+            .changeBtn {
+                margin-right: 4px;
+                padding: 1px 5px;
+                color: #fff;
+                font-size: 14px;
+                background: #9eceff;
+                border-radius: 4px;
+                cursor: pointer;
+
+                &:hover {
+                    background: #7fb6ff;
+                }
+            }
+
+            .item {
+                padding: 0;
+            }
+
+            .itemInner {
+                padding: 0 4px;
+            }
+
+            &.fh {
+                font-size: 14px;
+
+                &.c {
+                    padding-top: 3px;
+                }
+            }
+
+            &.expr {
+                height: 24px;
+                min-height: 24px;
+                margin: 2px 4px;
+                padding: 0 6px;
+                color: #fff;
+                background-color: #5278ff;
+                cursor: pointer;
+            }
+        }
+
+        .text {
+            max-width: 112px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .backspace {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        width: 41px;
+        height: 24px;
+        background: url('../../assets/images/u4695.png') 0 0 no-repeat;
+        background-size: cover;
+        cursor: pointer;
+    }
+}
+
+.resultWrap {
+    flex-wrap: nowrap;
+}
+
+.messageNode {
+    height: 48px;
+    color: #f00;
+    line-height: 48px;
+}
+
+.exprLayer {
+    position: absolute;
+    top: -76px;
+    left: 50%;
+    width: 500px;
+    height: 64px;
+    margin-left: -250px;
+
+    &.right {
+        left: 0;
+        margin-left: 0;
+
+        &:after {
+            left: 10%;
+        }
+    }
+
+    &.left {
+        right: 0;
+        left: auto;
+        margin-left: 0;
+
+        &:after {
+            right: 10%;
+            left: auto;
+        }
+    }
+
+    &:after {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        display: block;
+        width: 0;
+        height: 0;
+        margin-left: -10px;
+        border-top: 10px solid #edf4fb;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 10px solid transparent;
+        content: ' ';
+    }
+
+    .inner {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 8px;
+        background: #edf4fb;
+        border-radius: 10px;
+        box-shadow: 0 0 4px 0 #c6ced6;
+
+        .result {
+            flex: 1 1 auto;
+            height: 48px;
+            overflow-y: auto;
+
+            .expr {
+                cursor: default;
+            }
+
+            .item {
+                padding: 8px 0 0 12px !important;
+            }
+
+            .itemInner {
+                padding: 0 4px !important;
+            }
+        }
+
+        .btnGroup {
+            display: flex;
+            align-items: center;
+            height: 100%;
+
+            .btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                margin-left: 8px;
+                color: #999;
+                font-size: 14px;
+                background: #d9d9d9;
+                border-radius: 10px;
+                cursor: pointer;
+
+                &.red {
+                    color: rgba(245, 34, 45, 65%);
+                    background: #efcbd3;
+                }
+
+                &.green {
+                    color: #31cb8a;
+                    background: #c9ece5;
+                }
+            }
+        }
+    }
+}
+
+.operationList {
+    //margin-top: 24px;
+}
+
+.fieldNode {
+    .title {
+        margin-bottom: 12px;
+        font-weight: bold;
+    }
+
+    .select {
+        margin-bottom: 8px;
+
+        :global {
+            .@{ant-prefix}-select {
+                width: 100%;
+            }
+        }
+    }
+
+    .filterInput {
+        border-bottom: 1px solid @border-color-base;
+    }
+
+    .listContainer {
+        height: 246px;
+        margin-top: 8px;
+        padding: 12px;
+        overflow-y: auto;
+        background-color: @bg-color;
+        border-radius: 2px;
+
+        .inner {
+            p {
+                color: #666;
+                font-size: 13px;
+                cursor: default;
+                user-select: none;
+
+                &:hover {
+                    color: #333;
+                }
+            }
+
+            .empty {
+                padding: 40px;
+                color: #666;
+                text-align: center;
+            }
+        }
+    }
+}
+
+.calcNode {
+    height: 360px;
+    padding: 20px 24px;
+    background-color: @bg-color;
+    border-radius: 10px;
+
+    .title {
+        margin-bottom: 12px;
+        font-weight: bold;
+    }
+
+    .submitBtn {
+        color: #666;
+        &:not(:hover) {
+            border: 1px solid @border-color-base;
+        }
+    }
+
+    .keyboard {
+        margin-top: 24px;
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            color: #666;
+            background-color: #fff;
+            border: 1px solid @border-color-base;
+            border-radius: 10px;
+            cursor: default;
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            user-select: none;
+
+            &:hover {
+                color: #333;
+                border: 1px solid @primary-color;
+            }
+
+            &:active {
+                opacity: 0.6;
+            }
+
+            > span {
+                &.fh {
+                    font-size: 18px;
+                }
+
+                &.c {
+                    padding-top: 6px;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,221 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+@import './components/Icons/FlagIcon/less/flag-icons.less';
+
+@import './assets/less/reset.less';
+
+html,
+body,
+#root-master {
+  height: 100%;
+}
+
+.colorWeak {
+  filter: invert(80%);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  background-color: #0002;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #0004;
+  border-radius: 5px;
+}
+
+.@{ant-prefix}-layout {
+  min-height: 100vh;
+}
+.@{ant-prefix}-pro-sider.@{ant-prefix}-layout-sider.@{ant-prefix}-pro-sider-fixed {
+  left: unset;
+}
+.@{ant-prefix}-input-affix-wrapper {
+  color: #c9cdd4 !important;
+}
+
+.@{ant-prefix}-dropdown-menu {
+  .@{ant-prefix}-dropdown-menu-item {
+    .anticon {
+      min-width: 12px;
+      margin-right: 8px;
+      font-size: 12px;
+    }
+  }
+}
+
+canvas {
+  display: block;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+@media (max-width: @screen-xs) {
+  .@{ant-prefix}-table {
+    width: 100%;
+    overflow-x: auto;
+    &-thead > tr,
+    &-tbody > tr {
+      > th,
+      > td {
+        white-space: pre;
+        > span {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+// Compatible with IE11
+@media screen and(-ms-high-contrast: active), (-ms-high-contrast: none) {
+  body .@{ant-prefix}-design-pro > .@{ant-prefix}-layout {
+    min-height: 100vh;
+  }
+}
+
+.g-loading {
+  padding: 40px;
+  text-align: center;
+}
+
+.b-button {
+  color: @primary-color !important;
+  cursor: pointer;
+
+  &:hover {
+    color: @primary-7 !important;
+  }
+}
+
+.b-button,
+.g-button {
+  &.disabled {
+    cursor: default;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.g-button {
+  color: @text-color-secondary !important;
+  cursor: pointer;
+
+  &:hover {
+    color: @primary-color !important;
+  }
+
+  &.opa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    background: #f9faff;
+    border-radius: 4px;
+
+    &:hover {
+      background: #f2f5fc;
+    }
+  }
+}
+
+.cur-btn {
+  display: inline-block;
+  height: 28px;
+  padding: 0 8px;
+  color: @primary-color;
+  font-weight: 500;
+  line-height: 28px;
+  background-color: #e6ecff;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: @primary-1;
+  }
+
+  &.disabled {
+    cursor: default;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &.green {
+    color: #fff;
+    background-color: #32cc8a;
+  }
+}
+
+.opa-icon {
+  font-size: 12px;
+}
+
+.@{ant-prefix}-table-thead
+  > tr
+  > th:not(:last-child):not(.@{ant-prefix}-table-selection-column):not(.@{ant-prefix}-table-row-expand-icon-cell):not([colspan])::before {
+  display: none;
+}
+
+.ant-btn-green {
+  color: #fff;
+  background: #31cb8a;
+  border-color: #31cb8a;
+
+  &:hover {
+    color: #fff;
+    background: #51e0a4;
+    border-color: #51e0a4;
+  }
+
+  &:active,
+  &:focus {
+    color: #31cb8a;
+    background: #fff;
+    border-color: #31cb8a;
+  }
+}
+
+.required-marker {
+  display: inline-block;
+  margin-right: 4px;
+  color: #ff4d4f;
+  font-size: 14px;
+  font-family: SimSun, sans-serif;
+  line-height: 1;
+}
+
+.CodeMirror-hints {
+  z-index: 2000 !important;
+}

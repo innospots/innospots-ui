@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Copyright © 2021-2023 Innospots (http://www.innospots.com)
+  -  Licensed to the Apache Software Foundation (ASF) under one or more
+  -  contributor license agreements.  See the NOTICE file distributed with
+  -  this work for additional information regarding copyright ownership.
+  -  The ASF licenses this file to You under the Apache License, Version 2.0
+  -  (the "License"); you may not use this file except in compliance with
+  -  the License. You may obtain a copy of the License at
+  -
+  -  http://www.apache.org/licenses/LICENSE-2.0
+  -
+  -  Unless required by applicable law or agreed to in writing, software
+  -  distributed under the License is distributed on an "AS IS" BASIS,
+  -  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  -  See the License for the specific language governing permissions and
+  -  limitations under the License.
+  -->
+
+<svg version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="6px" height="19px" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <mask fill="white" id="clip64">
+      <path d="M 5.4 0  L 0.6 0  C 0.33490332008122 0  0.120000000000001 0.212664743830373  0.12 0.475  L 0.120000000000001 18.525  C 0.120000000000001 18.7873352561696  0.33490332008122 19  0.6 19  L 5.4 19  C 5.66509667991878 19  5.88 18.7873352561696  5.88 18.525  L 5.88 0.475  C 5.88 0.212664743830373  5.66509667991878 0  5.4 0  Z M 3.48 13.3  L 3.48 5.7  L 4.44 5.7  L 4.44 13.3  L 3.48 13.3  Z M 1.56 13.3  L 1.56 5.7  L 2.52 5.7  L 2.52 13.3  L 1.56 13.3  Z " fill-rule="evenodd" />
+    </mask>
+  </defs>
+  <g transform="matrix(1 0 0 1 -487 -945 )">
+    <path d="M 5.4 0  L 0.6 0  C 0.33490332008122 0  0.120000000000001 0.212664743830373  0.12 0.475  L 0.120000000000001 18.525  C 0.120000000000001 18.7873352561696  0.33490332008122 19  0.6 19  L 5.4 19  C 5.66509667991878 19  5.88 18.7873352561696  5.88 18.525  L 5.88 0.475  C 5.88 0.212664743830373  5.66509667991878 0  5.4 0  Z M 3.48 13.3  L 3.48 5.7  L 4.44 5.7  L 4.44 13.3  L 3.48 13.3  Z M 1.56 13.3  L 1.56 5.7  L 2.52 5.7  L 2.52 13.3  L 1.56 13.3  Z " fill-rule="nonzero" fill="#b6c6dd" stroke="none" transform="matrix(1 0 0 1 487 945 )" />
+    <path d="M 5.4 0  L 0.6 0  C 0.33490332008122 0  0.120000000000001 0.212664743830373  0.12 0.475  L 0.120000000000001 18.525  C 0.120000000000001 18.7873352561696  0.33490332008122 19  0.6 19  L 5.4 19  C 5.66509667991878 19  5.88 18.7873352561696  5.88 18.525  L 5.88 0.475  C 5.88 0.212664743830373  5.66509667991878 0  5.4 0  Z " stroke-width="2" stroke="#797979" fill="none" transform="matrix(1 0 0 1 487 945 )" mask="url(#clip64)" />
+    <path d="M 3.48 13.3  L 3.48 5.7  L 4.44 5.7  L 4.44 13.3  L 3.48 13.3  Z " stroke-width="2" stroke="#797979" fill="none" transform="matrix(1 0 0 1 487 945 )" mask="url(#clip64)" />
+    <path d="M 1.56 13.3  L 1.56 5.7  L 2.52 5.7  L 2.52 13.3  L 1.56 13.3  Z " stroke-width="2" stroke="#797979" fill="none" transform="matrix(1 0 0 1 487 945 )" mask="url(#clip64)" />
+  </g>
+</svg>

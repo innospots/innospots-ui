@@ -1,0 +1,195 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '../../../../../assets/less/variables.less';
+
+.modalWrapper {
+  :global {
+    .ant-modal-content {
+      overflow: hidden;
+    }
+  }
+}
+
+.wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.left {
+  width: 276px;
+  height: 700px;
+  background-color: @layered-modal-bg;
+
+  .inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 16px;
+
+    p {
+      color: #4e5969;
+      line-height: 28px;
+      letter-spacing: 0;
+      text-align: center;
+    }
+  }
+}
+
+.right {
+  position: relative;
+  flex: 1;
+
+  .inner {
+    padding: 24px;
+
+    .title {
+      margin-bottom: 32px;
+      font-weight: 500;
+      font-size: 20px;
+    }
+
+    .formItem {
+      width: 326px;
+    }
+  }
+}
+
+.footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: right;
+  height: 70px;
+  padding-right: 24px;
+  border-top: 1px solid @border-color-base;
+}
+
+@active-color: #4f46e5;
+
+.trigger {
+  .triggerBox {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+    min-height: 280px;
+    padding-right: 8px;
+    background-color: #f7f8fa;
+    border-radius: 4px;
+
+    .triggerItem {
+      position: relative;
+      display: flex;
+      flex-flow: row;
+      width: 210px;
+      min-height: 102px;
+      margin: 16px 0 0 16px;
+      padding: 16px;
+      overflow: hidden;
+      background-color: #fff;
+      border: 1px solid #e5e6eb;
+      border-radius: 4px;
+      cursor: default;
+
+      &.active,
+      &:hover {
+        border-color: @active-color;
+      }
+
+      &.active {
+        &:after {
+          position: absolute;
+          top: -16px;
+          right: -16px;
+          display: block;
+          width: 32px;
+          height: 32px;
+          background-color: @active-color;
+          transform: rotate(45deg);
+          content: ' ';
+        }
+
+        .iconNode {
+          background-color: transparent;
+
+          :global {
+            .anticon {
+              color: @active-color;
+              font-size: 24px;
+            }
+          }
+        }
+
+        .content {
+          .title {
+            color: #4e5969;
+          }
+
+          .desc {
+            color: #86909c;
+          }
+        }
+      }
+
+      .iconNode {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background-color: #f4f7fb;
+        border-radius: 50%;
+
+        .icon {
+          color: #c9cdd4;
+          font-size: 14px;
+        }
+
+        .node-image-icon {
+          width: 14px;
+          height: 14px;
+        }
+      }
+
+      .content {
+        flex: 1;
+        margin-left: 16px;
+
+        .title {
+          margin-bottom: 4px;
+          color: #86909c;
+          font-weight: 500;
+          font-size: 14px;
+        }
+
+        .desc {
+          margin-bottom: 0;
+          //color: #86909C;
+          color: #c9cdd4;
+          font-size: 12px;
+          line-height: 22px;
+        }
+      }
+    }
+  }
+}

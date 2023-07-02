@@ -1,0 +1,79 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: auto;
+}
+
+:global {
+  .ant-layout {
+    background: #f4f7fb;
+  }
+
+  .ant-pro-basicLayout-content {
+    margin: 0 24px;
+  }
+
+  .ant-menu-sub.ant-menu-inline {
+    background-color: #fff;
+  }
+
+  .ant-menu-inline {
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  .ant-pro-sider-logo {
+    justify-content: space-between;
+    height: 76px;
+    padding: 0 24px;
+
+    img {
+      height: 32px;
+    }
+  }
+
+  .ant-pro-sider {
+    &.ant-layout-sider {
+      &.ant-pro-sider-fixed {
+        box-shadow: 0 4px 4px 0 #0000003f;
+      }
+
+      &:not(.ant-layout-sider-collapsed) {
+        .ant-menu-title-content {
+          padding-left: 8px;
+        }
+      }
+    }
+  }
+
+  .ant-pro-global-header {
+    box-shadow: 0 1px 4px 0 #0015291e;
+  }
+}
+
+.logoIcon {
+}

@@ -1,0 +1,241 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '../../assets/less/variables.less';
+@import './var';
+
+.pageContainer {
+  min-height: @container-height;
+  border-radius: 10px;
+
+  .title {
+    font-weight: bolder;
+    font-size: 16px;
+  }
+}
+
+.nodeIcon {
+  width: 56px;
+  height: 56px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f4f7fb;
+
+  :global {
+    .node-icon {
+      font-size: 28px;
+      line-height: 0;
+    }
+
+    .node-image-icon {
+      width: 50%;
+      height: 50%;
+      text-align: center;
+    }
+  }
+}
+
+.nodeTitle {
+  margin: 8px 0 4px;
+}
+
+.nodeDesc {
+  margin-bottom: 8px;
+}
+
+.builderContainer {
+  height: 100%;
+  overflow: hidden;
+  background-color: #eef1f6;
+
+  .builderContent {
+    margin: 84px 20px 20px;
+    border-radius: @builder-border-radius;
+    background-color: #fff;
+    height: calc(100% - 84px - 20px);
+
+    > div {
+      height: 100%;
+    }
+  }
+
+  .configForm,
+  .configPreview {
+    height: 100%;
+  }
+
+  .configForm {
+    > div {
+      height: 100%;
+      display: flex;
+      padding-top: 32px;
+    }
+  }
+
+  .navTabs {
+    width: 215px;
+    height: 100%;
+    border-right: 1px solid @border-color;
+  }
+
+  .configContent {
+    flex: 1;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+
+    .intro {
+      height: 82px;
+      margin: 0 24px;
+      border-bottom: 1px solid @light-border-color;
+
+      .desc {
+        color: #595959;
+      }
+    }
+  }
+
+  .configWrapper {
+    flex: 1;
+    margin: 24px 0 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .connectorConfig {
+    padding: 0 24px;
+
+    .link {
+      margin-top: 24px;
+
+      ul, li {
+        list-style: none;
+      }
+
+      .linkContainer {
+        width: 584px;
+        height: 195px;
+        padding: 8px 0;
+        overflow-y: auto;
+        border-radius: 10px;
+        border: 1px solid @border-color;
+
+        .linkItem {
+          width: 80px;
+          height: 72px;
+          cursor: pointer;
+          display: inline-flex;
+          flex-direction: column;
+          border: 1px solid transparent;
+          border-radius: 10px;
+          margin: 8px 16px;
+          align-items: center;
+          justify-content: center;
+
+          .icon {
+            width: 30px;
+            height: 30px;
+            font-size: 30px;
+          }
+
+          .text {
+            font-size: 12px;
+            margin: 2px 0 0;
+          }
+
+          &.active,
+          &:hover {
+            border-color: @primary-color;
+          }
+
+          &.active {
+            background-color: rgba(237,242,255,98%);
+          }
+        }
+      }
+
+      .linkInfoIcon {
+        text-align: right;
+
+        :global {
+          .anticon {
+            color: @primary-3;
+          }
+        }
+      }
+
+      .linkTitle {
+        text-align: right;
+        margin-top: 8px;
+      }
+    }
+
+    .linkForm {
+      flex: 1;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+  }
+
+  .dataInteraction {
+    padding: 0 24px;
+
+    .configContainer {
+      &:first-child {
+        margin-bottom: 24px;
+        border-bottom: 1px solid @border-color;
+      }
+
+      .formList {
+        margin: 24px 0;
+
+        .formItem {
+          margin-bottom: 24px;
+        }
+
+        .formLabel,
+        .indexLabel {
+          text-align: right;
+        }
+
+        .indexLabel {
+          font-weight: bold;
+        }
+
+        .formLabel {
+          color: @text-color-secondary;
+        }
+      }
+    }
+
+    .titleWrap {
+      padding-left: 36px;
+
+      .title {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

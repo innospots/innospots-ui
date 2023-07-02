@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Copyright © 2021-2023 Innospots (http://www.innospots.com)
+  -  Licensed to the Apache Software Foundation (ASF) under one or more
+  -  contributor license agreements.  See the NOTICE file distributed with
+  -  this work for additional information regarding copyright ownership.
+  -  The ASF licenses this file to You under the Apache License, Version 2.0
+  -  (the "License"); you may not use this file except in compliance with
+  -  the License. You may obtain a copy of the License at
+  -
+  -  http://www.apache.org/licenses/LICENSE-2.0
+  -
+  -  Unless required by applicable law or agreed to in writing, software
+  -  distributed under the License is distributed on an "AS IS" BASIS,
+  -  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  -  See the License for the specific language governing permissions and
+  -  limitations under the License.
+  -->
+
+<svg version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px" xmlns="http://www.w3.org/2000/svg">
+  <g transform="matrix(1 0 0 1 -1295 -108 )">
+    <path d="M 19 3.33333333984375  C 19.1666666601562 1.95262146526677  18.0473785347332 0.83333333984375  16.6666666601563 1  L 3.33333333984375 1  C 1.95262146526677 0.83333333984375  0.83333333984375 1.95262146526677  1 3.33333333984375  L 1 16.6666666601562  C 0.83333333984375 18.0473785347332  1.95262146526677 19.1666666601562  3.33333333984375 19  L 16.6666666601562 19  C 18.0473785347332 19.1666666601562  19.1666666601562 18.0473785347332  19 16.6666666601562  L 19 3.33333333984375  Z M 2.5 3.33333333984375  C 2.5 2.87309604472248  2.87309604472248 2.5  3.33333333984375 2.5  L 16.6666666601562 2.5  C 17.1269039552775 2.5  17.5 2.87309604472248  17.5 3.33333333984375  L 17.5 6  L 2.5 6  L 2.5 3.33333333984375  Z M 3.33333333984375 17.5  C 2.87309604472248 17.5  2.5 17.1269039552775  2.5 16.6666666601563  L 2.5 7.5  L 7 7.5  L 7 17.5  L 3.33333333984375 17.5  Z M 17.5 16.6666666601563  C 17.5 17.1269039552775  17.1269039552775 17.5  16.6666666601563 17.5  L 8.33333333984375 17.5  L 8.33333333984375 7.5  L 17.5 7.5  L 17.5 16.6666666601563  Z " fill-rule="nonzero" fill="#717f93" stroke="none" transform="matrix(1 0 0 1 1295 108 )" />
+  </g>
+</svg>

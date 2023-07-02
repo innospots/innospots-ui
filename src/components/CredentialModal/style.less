@@ -1,0 +1,376 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~@/assets/less/variables.less';
+
+@header-height: 60px;
+@footer-height: 70px;
+
+.layeredModal {
+  //:global {
+  //  .@{ant-prefix}-modal-content {
+  //    overflow: hidden;
+  //    background-color: @layered-modal-bg;
+  //    border-radius: 8px;
+  //
+  //    .@{ant-prefix}-modal-body {
+  //      padding: 0;
+  //    }
+  //  }
+  //}
+
+  .modalBody {
+
+    .header {
+      display: flex;
+      align-items: center;
+      height: @header-height;
+      padding-left: 24px;
+
+      span {
+        font-family: 'PingFang SC';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 20px;
+        line-height: 28px;
+      }
+    }
+
+    .leftContent {
+      background-color: #6aa1ff1a;
+      width: @layered-modal-left-width;
+    }
+
+    .dsTypeList {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 16px 24px;
+
+      .item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 128px;
+        height: 118px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        cursor: default;
+
+        &:nth-child(2n) {
+          margin-left: 24px;
+        }
+
+        &.active,
+        &:hover {
+          border-color: @primary-color;
+        }
+
+        &.active {
+          background-color: #165dff1a;
+        }
+
+        &.disabled {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+
+        img {
+          max-height: 30px;
+          margin-bottom: 8px;
+        }
+
+        .label {
+          text-align: center;
+        }
+      }
+    }
+
+    .rightContent {
+      position: relative;
+      background-color: #fff;
+
+      .header {
+        border-bottom: 1px solid @border-color-split;
+      }
+
+      .formWrapper {
+        padding: 24px;
+
+        .formItems {
+          margin-left: -20px;
+          .formLabel {
+            margin-bottom: 20px;
+            line-height: @height-base;
+            text-align: right;
+
+            .x {
+              color: @error-color;
+            }
+          }
+
+          .formItem {
+            position: relative;
+
+            &.hasError {
+              .error {
+                display: block;
+              }
+
+              :global {
+                .@{ant-prefix}-input,
+                .@{ant-prefix}-input-affix-wrapper {
+                  border-color: @error-color;
+                }
+              }
+            }
+
+            :global(.node-icon) {
+              font-size: 20px;
+            }
+
+            .error {
+              position: absolute;
+              bottom: -20px;
+              display: none;
+              color: @error-color;
+              font-size: 12px;
+            }
+          }
+        }
+
+        .configList {
+          margin-top: 24px;
+
+          :global {
+            .@{ant-prefix}-empty-normal {
+              margin: 4px 0;
+            }
+          }
+
+          .configTitle {
+            height: 48px;
+            font-size: 14px;
+            line-height: 48px;
+          }
+          .configOp {
+            color: #155aff;
+            font-size: 15px;
+            line-height: 48px;
+            text-align: right;
+            > span {
+              cursor: pointer;
+
+              > svg {
+                width: 10px;
+                height: 10px;
+              }
+            }
+          }
+
+          .configEdit {
+            > span {
+              display: inline-block;
+              margin: 0 4px;
+              color: #666;
+              cursor: pointer;
+
+              &:hover {
+                color: #333;
+              }
+            }
+          }
+
+          :global {
+            .@{ant-prefix}-table-body {
+              .@{ant-prefix}-empty-normal {
+                margin: 0;
+              }
+            }
+          }
+        }
+
+        .testAlert {
+          height: 38px;
+          margin-top: 10px;
+          padding: 0 14px;
+          line-height: 38px;
+          background-color: #fff5e4;
+          border-radius: 10px;
+          visibility: hidden;
+
+          &.visible {
+            visibility: visible;
+          }
+
+          > span {
+            padding-left: 10px;
+            color: #fdc465;
+          }
+        }
+      }
+
+      .footer {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        height: @footer-height;
+        padding: 0 24px;
+        border-top: 1px solid @border-color-split;
+
+        > * {
+          margin-left: 16px;
+        }
+      }
+    }
+
+    .applications {
+      padding: 0 24px;
+
+      .appTabs {
+        margin-top: 24px;
+
+        .tabLabel {
+          width: 110px;
+          text-align: right;
+        }
+
+        .appList {
+          margin-left: 30px;
+          min-height: 400px;
+
+          .appItem {
+            width: 80px;
+            height: 72px;
+
+            &.disabled {
+              opacity: 0.5;
+              pointer-events: none;
+            }
+
+            .inner {
+              width: 100%;
+              height: 100%;
+              margin: 0 4px;
+              padding: 12px 0 0;
+              display: flex;
+              text-align: center;
+              align-items: center;
+              justify-content: left;
+              flex-direction: column;
+              border-radius: 10px;
+              border: 1px solid transparent;
+              cursor: pointer;
+
+              &:hover {
+                border-color: @primary-1;
+              }
+
+              &.active {
+                border-color: @primary-color;
+                background-color: #165dff1a;
+              }
+
+              .label {
+                width: 100%;
+                font-size: 12px;
+                margin: 4px 0 0;
+              }
+
+              img {
+                max-height: 30px;
+              }
+
+              :global(.node-icon) {
+                font-size: 30px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.dsType {
+  margin-bottom: 20px;
+  padding: 20px 30px;
+  border-bottom: 1px solid @border-color-base;
+
+  .label {
+    text-align: right;
+  }
+
+  .dsTypeItem {
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .inner {
+      margin: 0 4px;
+      padding: 12px 0;
+      text-align: center;
+      border: 1px solid transparent;
+      border-radius: @border-radius-base;
+      cursor: pointer;
+
+      &:hover {
+        border-color: @primary-1;
+      }
+
+      &.active {
+        border-color: @primary-color;
+      }
+
+      img {
+        max-height: 60px;
+      }
+    }
+  }
+}
+
+.formWrapper {
+  :global {
+    .@{ant-prefix}-form-item {
+      //margin-bottom: 12px;
+    }
+  }
+}
+
+.modalTitle {
+  width: 100%;
+
+  h1 {
+    margin-bottom: 0;
+    font-size: 18px;
+    line-height: 38px;
+  }
+}
+
+.headerTitle {
+  color: #262626;
+  font-size: 16px;
+  font-weight: 500;
+}

@@ -1,0 +1,217 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '../../../../../assets/less/variables';
+
+@modal-width: 1024px - 48px;
+@category-list-width: 130px;
+@form-content-width: @modal-width - @category-list-width;
+
+.modalBody {
+  display: flex;
+
+  ul,
+  li {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.modalTitle {
+  width: 100%;
+
+  h1 {
+    margin-bottom: 0;
+    font-size: 18px;
+    line-height: 38px;
+  }
+}
+
+.otherLocale {
+  :global {
+    .@{ant-prefix}form-item-label {
+      label {
+        visibility: hidden;
+      }
+    }
+  }
+}
+
+.categoryList {
+  width: @category-list-width;
+
+  .listItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 90px;
+    margin-bottom: 24px;
+    background: #f9faff;
+    border-radius: 4px;
+    cursor: pointer;
+
+    .label {
+      margin-bottom: 0;
+      font-size: 16px;
+    }
+
+    .icon {
+      margin-bottom: 4px;
+      font-size: 26px;
+    }
+
+    &:hover:not(.active) {
+      color: #fff;
+      background-color: @primary-3;
+    }
+
+    &.active {
+      color: #fff;
+      background-color: @primary-color;
+      cursor: default;
+    }
+  }
+}
+
+.formContent {
+  width: @form-content-width;
+  padding-left: 24px;
+  border-left: 1px solid @border-color-split;
+
+  .language {
+    line-height: @height-base;
+
+    .national {
+      font-size: 20px;
+    }
+
+    .countryName {
+      display: inline-block;
+      height: @height-base;
+      overflow: hidden;
+      word-break: break-all;
+    }
+  }
+}
+
+.error {
+  color: @error-color;
+  line-height: @height-base;
+}
+
+.menuLink {
+  @max-height: 310px;
+  @item-bg-color: #ecf0ff;
+
+  display: flex;
+
+  .moduleList {
+    width: 104px;
+    height: @max-height;
+    margin-left: 24px;
+    overflow-y: auto;
+
+    .listItem {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 88px;
+      height: 70px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      cursor: default;
+
+      &.active {
+        background: @item-bg-color;
+      }
+
+      &:hover:not(.active) {
+        background: rgba(236, 240, 255, 0.6);
+      }
+
+      .icon {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+      }
+
+      .label {
+        width: 100%;
+        margin-bottom: 0;
+        padding: 0 8px;
+        text-align: center;
+      }
+    }
+  }
+
+  .menuItem {
+    width: 230px;
+    padding: 0 16px;
+    border-left: 1px solid @border-color-split;
+
+    .search {
+      margin-bottom: 16px;
+    }
+
+    .innerList {
+      height: @max-height - @height-base - 16px;
+      overflow-y: auto;
+
+      > li {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: @height-base;
+        padding-left: 24px;
+        border-radius: 4px;
+
+        &.active {
+          background: @item-bg-color;
+          cursor: default;
+        }
+
+        &:hover:not(.active) {
+          color: @primary-3;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+.roleConfig {
+  width: 100%;
+  margin-top: 24px;
+
+  .pic {
+    width: 300px;
+  }
+
+  .roleItem {
+    padding: 4px 4px;
+    cursor: pointer;
+
+    &:hover {
+      border-radius: 2px;
+      background-color: #f6f6f6;
+    }
+  }
+}

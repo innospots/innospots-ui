@@ -1,0 +1,420 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+@bg-color: #f6f8ff;
+
+:global {
+    .jr-btn {
+        display: inline-block;
+        padding-top: 2px;
+        cursor: pointer;
+
+        &:hover {
+            color: @primary-color;
+        }
+    }
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+  display: flex;
+
+  &.right {
+    flex-direction: row-reverse;
+
+    .sider {
+      border-right: 0;
+      border-left: 4px solid @bg-color;
+    }
+
+    :global {
+      .config-panel {
+        right: auto;
+        left: 0;
+      }
+    }
+  }
+
+  .sider {
+    position: relative;
+    flex: 0 0 254px;
+    height: 100%;
+    overflow: hidden;
+    border-right: 4px solid @bg-color;
+
+    &.collapsed {
+      flex-basis: 38px;
+
+      :global {
+        #stencil {
+          display: none;
+        }
+      }
+
+      & + .panel {
+        :global {
+          .execute-preview {
+            left: 59px;
+          }
+        }
+
+        .toolbar {
+          left: 59px;
+        }
+      }
+
+      .headerView {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+
+        .extendBtn {
+          padding: 10px 0 20px;
+        }
+
+        .title {
+          padding: 0;
+          font-weight: normal;
+          letter-spacing: 10px;
+          writing-mode: vertical-lr;
+        }
+      }
+    }
+
+    .siderHeader {
+      height: 50px;
+
+      :global {
+        .@{ant-prefix}-row {
+          height: 100%;
+        }
+      }
+
+      .title {
+        padding-left: 20px;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .extendBtn {
+        padding-right: 14px;
+        cursor: pointer;
+      }
+    }
+
+    :global {
+      .x6-widget-stencil {
+        top: 40px;
+        background-color: #fff;
+
+        .x6-widget-stencil-title {
+          display: none;
+        }
+      }
+
+      .x6-widget-stencil-group > .x6-widget-stencil-group-title {
+        height: 40px;
+        color: #333;
+        font-size: 14px;
+        line-height: 40px;
+        background-color: #fff;
+      }
+
+      .x6-widget-stencil.searchable > .x6-widget-stencil-content {
+        top: 50px;
+      }
+
+      .x6-widget-stencil.collapsable > .x6-widget-stencil-title::before,
+      .x6-widget-stencil-group.collapsable > .x6-widget-stencil-group-title::before {
+        top: 11px;
+      }
+
+      .x6-widget-stencil-group.collapsed {
+        max-height: 41px;
+      }
+
+      .x6-widget-stencil-search-text {
+        background-color: #f4f7fb;
+        border: 0;
+      }
+    }
+  }
+
+  &.preview {
+    .sider {
+      display: none;
+    }
+
+    .panel {
+      overflow: hidden;
+
+      .toolbar {
+        top: 24px;
+        left: 24px;
+        right: auto;
+        height: 42px;
+        position: absolute;
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(18,69,250,.2);
+      }
+
+      .graphWrapper {
+        padding-top: 0;
+      }
+
+      &.expclose {
+        :global {
+          .config-panel {
+            bottom: 40px;
+
+            .config-panel-content {
+              height: calc(100vh - 173px);
+            }
+          }
+        }
+      }
+
+      &.expopen {
+        :global {
+          .config-panel {
+            .config-panel-content {
+              height: calc(100vh - 420px);
+            }
+          }
+        }
+      }
+
+      :global {
+        .config-panel {
+          top: 0;
+          right: 4px;
+          bottom: 0;
+          position: absolute;
+
+          .config-panel-content {
+            height: calc(100vh - 130px);
+          }
+        }
+
+        .execute-preview {
+          left: 0;
+          right: 0;
+          bottom: 0;
+          position: absolute;
+        }
+      }
+    }
+  }
+
+  .panel {
+    position: relative;
+    flex: 1 1 auto;
+    height: 100%;
+    overflow-x: auto;
+
+    &.expopen {
+      :global {
+        .config-panel {
+          bottom: 290px;
+          .config-panel-content {
+            height: calc(100vh - 468px);
+          }
+        }
+      }
+    }
+
+    &.expclose {
+      :global {
+        .config-panel {
+          bottom: 41px;
+          .config-panel-content {
+            height: calc(100vh - 225px);
+          }
+        }
+      }
+    }
+
+    &.showConfig {
+      .breadcrumb {
+        right: 356px;
+      }
+    }
+
+    .breadcrumb {
+      position: fixed;
+      top: 154px;
+      right: 36px;
+      left: 288px;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+
+      .backBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 28px;
+        color: #fff;
+        background-color: #b6c6dd;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .chevronList {
+        display: flex;
+      }
+
+      .chevron {
+        position: relative;
+        min-width: 80px;
+        height: 32px;
+        padding: 0 20px;
+
+        .contentInner {
+          position: relative;
+          z-index: 11;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          font-size: 12px;
+        }
+
+        &:last-child {
+          &:before,
+          &:after {
+            border-right: 0;
+          }
+        }
+      }
+
+      .chevron:before,
+      .chevron:after {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: #e9eef5;
+        border-right: 6px solid #fff;
+        content: '';
+      }
+
+      .chevron:before {
+        top: 0;
+        transform: skew(28deg, 0deg);
+      }
+
+      .chevron:after {
+        bottom: 0;
+        transform: skew(-28deg, 0deg);
+      }
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 84px;
+      right: 20px;
+      left: 275px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      height: 60px;
+      background-color: #fff;
+      border-top-right-radius: 10px;
+
+      .extraComponent {
+        width: 180px;
+
+        .layoutBtn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
+          border-radius: 6px;
+          cursor: pointer;
+
+          &:hover,
+          &.active {
+            background-color: #f4f7fb;
+          }
+        }
+      }
+
+      :global {
+        .x6-toolbar {
+          width: 100%;
+        }
+
+        .x6-toolbar-group::before {
+          height: 60%;
+        }
+
+        .x6-toolbar-item {
+          padding-right: 8px;
+          padding-left: 8px;
+
+          &:hover {
+            background-color: #f4f7fb;
+          }
+        }
+
+        .x6-toolbar-item-text {
+          font-size: 14px;
+        }
+
+        .x6-toolbar-item-icon {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .graphWrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-top: 60px;
+
+      .graphContainer {
+        flex: 1;
+
+        :global {
+          .x6-widget-snapline {
+            > div {
+              border-color: #b6c6dd !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .config {
+    box-sizing: border-box;
+    width: 290px;
+    height: 100%;
+    padding: 0 24px;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+  }
+}

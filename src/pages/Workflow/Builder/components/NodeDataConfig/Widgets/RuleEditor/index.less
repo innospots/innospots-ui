@@ -1,0 +1,184 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+.ruleWrap {
+    max-height: 352px;
+    margin-top: 12px;
+    //min-width: 461px;
+    overflow: auto;
+}
+
+.ruleForm {
+    :global {
+        .cur-btn {
+            display: inline-block;
+            margin-top: 12px;
+        }
+    }
+}
+
+.extendRuleForm {
+    .ruleInner {
+        width: 912px;
+        margin-top: 12px;
+        padding: 8px;
+        overflow-x: auto;
+        background-color: #f6fafd;
+    }
+}
+
+.overview {
+    .title {
+        font-size: 14px;
+    }
+
+    .content {
+        max-width: 271px;
+        padding: 12px;
+        overflow-x: auto;
+        font-size: 13px;
+        background-color: #fafafa;
+        border-radius: 10px;
+
+        :global {
+            ul,
+            li {
+                display: block;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        .ruleView {
+            position: relative;
+
+            .identifier {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 18px;
+                display: none;
+                width: 11px;
+                border: 2px solid #fdc465;
+                border-right: 0;
+                user-select: none;
+
+                &.AND {
+                    border-color: #6a9dff;
+
+                    > span {
+                        background: #e8f0ff;
+                    }
+                }
+
+                > span {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    z-index: 2;
+                    display: block;
+                    width: 42px;
+                    height: 24px;
+                    margin: -12px 0 0 -26px;
+                    color: #333;
+                    font-weight: bold;
+                    line-height: 20px;
+                    text-align: center;
+                    background: #fff5e4;
+                    border: 2px solid rgba(255, 255, 255, 0.5);
+                    border-radius: 12px;
+                    cursor: pointer;
+                }
+            }
+
+            &.multi {
+                > .identifier {
+                    display: block;
+                }
+
+                > .inner {
+                    padding-left: 46px;
+                }
+
+                .groupInner {
+                    padding-left: 50px;
+                }
+            }
+
+            .inner {
+                .ruleGroup {
+                    position: relative;
+                    margin-bottom: 12px;
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    &.multi {
+                        > .identifier {
+                            display: block;
+                        }
+
+                        > .groupInner {
+                            padding-left: 50px;
+                        }
+                    }
+
+                    .groupInner {
+                        .ruleItem {
+                            min-width: 180px;
+                            height: 28px;
+                            margin-bottom: 12px;
+                            padding: 0 12px;
+                            line-height: 28px;
+                            background-color: #e9f0ff;
+                            border-radius: 14px;
+
+                            > div {
+                                width: 100%;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+
+                            span {
+                                color: #595959;
+
+                                &.opt {
+                                    padding: 0 8px;
+                                    font-weight: bold;
+                                }
+                            }
+
+                            &:last-child {
+                                margin-bottom: 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .btnWrapper {
+        padding-top: 12px;
+        text-align: center;
+    }
+}

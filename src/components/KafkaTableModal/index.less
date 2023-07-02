@@ -1,0 +1,163 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+.editIcon {
+  display: inline-block;
+  margin-top: 2px;
+  color: #b6c6dd;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.fieldPreview {
+  :global {
+    .@{ant-prefix}table-small .@{ant-prefix}table-thead > tr > th {
+      background-color: #e0e7f1;
+    }
+
+    .@{ant-prefix}table-empty .@{ant-prefix}table-tbody > tr.@{ant-prefix}table-placeholder {
+      background-color: #f6fafd;
+    }
+  }
+}
+
+.modalTitle {
+  h1 {
+    margin-bottom: 0;
+    font-size: 18px;
+    line-height: 38px;
+  }
+
+  :global {
+    .@{ant-prefix}steps-item {
+      flex: auto;
+    }
+
+    .@{ant-prefix}steps-item-wait
+      > .@{ant-prefix}steps-item-container
+      > .@{ant-prefix}steps-item-content
+      > .@{ant-prefix}steps-item-description {
+      color: #c1c1c1;
+    }
+
+    .@{ant-prefix}steps-horizontal:not(.@{ant-prefix}steps-label-vertical)
+      .@{ant-prefix}steps-item-description {
+      max-width: 200px;
+    }
+
+    .@{ant-prefix}steps-item-container > .@{ant-prefix}steps-item-content {
+      > .@{ant-prefix}steps-item-description {
+        color: #666;
+        font-size: 12px;
+      }
+
+      > .@{ant-prefix}steps-item-title::after {
+        display: none;
+      }
+
+      > .@{ant-prefix}steps-item-title {
+        margin-bottom: 6px;
+        line-height: 1;
+      }
+    }
+  }
+}
+
+.formLabel {
+  line-height: 36px;
+}
+
+.modalInner {
+  height: 438px;
+
+  .requestParams {
+    margin-top: 8px;
+  }
+
+  .tableConfigWrapper {
+    padding-top: 6px;
+
+    .tip {
+      color: #595959;
+    }
+
+    .example {
+      margin-top: 20px;
+
+      .exampleContent {
+        width: 100%;
+        height: 284px;
+        margin-top: 12px;
+        background-color: #fafafa;
+        resize: none;
+      }
+    }
+  }
+
+  .topicListWrap {
+    height: 364px;
+    margin-top: 12px;
+    overflow: hidden;
+    background-color: #fafafa;
+    border-radius: 10px;
+
+    .searchInput {
+      margin: 15px 15px 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e9e9e9;
+
+      :global {
+        .@{ant-prefix}input-affix-wrapper {
+          padding: 0;
+        }
+      }
+    }
+
+    .topicList {
+      height: 300px;
+      padding: 0 15px;
+      overflow-y: auto;
+
+      :global {
+        ul,
+        li {
+          margin: 0;
+          padding: 0;
+        }
+      }
+
+      .listItem {
+        padding: 8px;
+        border-radius: 10px;
+        cursor: default;
+
+        &.active,
+        &:hover {
+          background-color: #e5ecfe;
+        }
+
+        .icon {
+          margin-right: 8px;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}

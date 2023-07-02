@@ -1,0 +1,30 @@
+{
+    "id": "2511846",
+    "name": "flow-node-icon",
+    "font_family": "flownodeiconfont",
+    "css_prefix_text": "flow-node-icon",
+    "description": "",
+    "glyphs": [
+        {
+            "icon_id": "6263352",
+            "name": "播放",
+            "font_class": "play",
+            "unicode": "e66e",
+            "unicode_decimal": 58990
+        },
+        {
+            "icon_id": "19148152",
+            "name": "删 除",
+            "font_class": "delete",
+            "unicode": "e6cd",
+            "unicode_decimal": 59085
+        },
+        {
+            "icon_id": "1040565",
+            "name": "暂停",
+            "font_class": "suspend",
+            "unicode": "e76a",
+            "unicode_decimal": 59242
+        }
+    ]
+}

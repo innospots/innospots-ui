@@ -1,0 +1,69 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+.content {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border: 1px solid #000;
+  border-radius: 10px;
+
+  .label {
+    font-weight: 400;
+    font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
+    font-style: normal;
+  }
+
+  .value {
+    margin-top: -10px;
+    font-weight: 700;
+    font-size: 32px;
+    font-family: 'Arial-BoldMT', 'Arial Bold', 'Arial', sans-serif;
+    font-style: normal;
+  }
+
+  .lineBar {
+    > canvas {
+      height: 300px;
+    }
+  }
+
+  :global {
+    .@{ant-prefix}card-head-title {
+      font-weight: 600;
+    }
+
+    .@{ant-prefix}card-head-wrapper {
+      height: 48px;
+      margin-top: -1px;
+    }
+
+    .@{ant-prefix}card-body {
+      padding: 12px 12px 0;
+    }
+
+    .@{ant-prefix}card-extra {
+      position: absolute;
+      right: 12px;
+    }
+
+    .@{ant-prefix}card-bordered {
+      border-radius: 10px;
+    }
+  }
+}

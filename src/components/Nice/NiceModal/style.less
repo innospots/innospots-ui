@@ -1,0 +1,87 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+@normal-height: 76px;
+@simple-header-height: 60px;
+
+.niceModal {
+  &.simple {
+    :global {
+      .@{ant-prefix}-modal-header,
+      .@{ant-prefix}-modal-footer {
+        height: @simple-header-height;
+        border-color: transparent;
+      }
+
+      .@{ant-prefix}-modal-footer {
+        height: 70px;
+      }
+
+      .@{ant-prefix}-modal-close-x {
+        height: @simple-header-height;
+        line-height: @simple-header-height;
+      }
+    }
+  }
+
+  :global {
+    .@{ant-prefix}-modal-header {
+      box-shadow: 0 1px 0 #f2f3f5;
+    }
+
+    .@{ant-prefix}-modal-header,
+    .@{ant-prefix}-modal-footer {
+      display: flex;
+      align-items: center;
+      height: @normal-height;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .@{ant-prefix}-modal-footer {
+      justify-content: right;
+      padding: 0 24px;
+
+      .@{ant-prefix}-btn {
+        font-size: 16px;
+        line-height: 1;
+
+        &:not(.@{ant-prefix}-btn-primary) {
+          color: @text-color-secondary;
+        }
+      }
+
+      .@{ant-prefix}-btn + .@{ant-prefix}-btn:not(.@{ant-prefix}-dropdown-trigger) {
+        margin-left: 16px;
+      }
+    }
+
+    .@{ant-prefix}-modal-title {
+      font-size: 16px;
+    }
+
+    .@{ant-prefix}-modal-close-x {
+      height: @simple-header-height;
+      color: #bfbfbf;
+      font-size: 14px;
+      line-height: @simple-header-height;
+    }
+  }
+}

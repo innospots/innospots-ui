@@ -1,0 +1,50 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@font-face {
+    font-family: 'flownodeiconfont';
+    src: url('iconfont.eot?t=1619400520377'); /* IE9 */
+    src: url('iconfont.eot?t=1619400520377#iefix') format('embedded-opentype'),
+        /* IE6-IE8 */
+            url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAO4AAsAAAAACFAAAANqAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDHAqDMIJgATYCJAMQCwoABCAFhU0HQRsrB8geg207eUmSMLrb2R8RPJDd2xvsv81szCNcBUR1BFu7pKpoaS7zI5SkItSAWKEtppheevDkNjvPevqFnF39Cf7PMdMljsf11wBQTVnWYZGA4wHV88i4oBNMP0G/YezKi9gNARgiaY8YfnH3CCNojEECEOl5GsBISomuiRXYCFwlMzViJRa2XCTvAiv87xdf6SpskFgKY6/JiecxHH3I/JiqXhqrma9eqRlPD7B5oID2gAaRXGqMpT90t0dhlOABegK2+RkJHzI/3PuY2tiIBHuR2ehfHggkCoQLI9odgO7Io+BDps2CgA/3WJDwMTUKBfBCFHZvbwnAGowND7KRSGXQCA939yBvW9mQNRYiuVF1rBn7PnZpyZUTNccvL754NOfsw/Btj3qcexK1/XF2jFjygTWPy5zPIzWHA43Yfr2n+9mrYNYerD4UkMFvB4P1rmcjPP5fNLM2Hy4zv1fR1ddaOAduhFmbr8em8cF60/WuuPm1xO+um7onfNf+7Jb6nvITv26JX9t+JTm92p61vV7ua9+ZuHOTMRt33VzshG5aueHkorDQBafbHAprf4juU//iHzaLavrwaXN5Aw/uN2/+DI5s9vBe3zEwPQIeg85vjn4GO+fPPME5i3Gbhzubhv0Ibbpz0Mqmbj9M0wcM3NnU/HBrutPnZtqTDQCN1I+qgYTqjqpku+Yeqtc/+xtO7O7z3/Pa+z/iaADeHu09GjkaaejHf/H81vw/xG9ZolWhodJaFtk8LVLTFRtuOBaDAf6LH3x5P4YioHU0CLwJiEHShBag8KY9UmP7g4XDeHDhzSwwtCNpvoMfq1EI7Qa0ZR8AQTQPQOLJT1BEU4/QOBEBFoFiALiIFtPAMFPYFR1ailtmmKHAUYxhF/NIVGINcGMJS1tJTJl67yltcmCKMkpf+UzG5qJwuWPnYt8lKTJzjLGtdMW5BBMjFV7o+xGzYG2koMgtZM7VO4udEsveaSGSCsYYhoEIcBAxSCxdkBQiBEXitneMkQgjtFGgegzV/r57iJQmTIBpmZeS/gxhsORq65AudKRzD+SlTPXKuJf0PFqkrJA/b38kEYNQgYzsZyR4ZCOSXa4vIOh2LJDcw1mzQyezUmJb2cL8iuqL1AAG42ItpFBCCwudzUF3KCYmR8O2aWtSMQAAAA==')
+            format('woff2'),
+        url('iconfont.woff?t=1619400520377') format('woff'),
+        url('iconfont.ttf?t=1619400520377') format('truetype'),
+        /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+            url('iconfont.svg?t=1619400520377#flownodeiconfont') format('svg'); /* iOS 4.1- */
+}
+
+.flownodeiconfont {
+    font-size: 16px;
+    font-family: 'flownodeiconfont' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.flow-node-iconplay:before {
+    content: '\e66e';
+}
+
+.flow-node-icondelete:before {
+    content: '\e6cd';
+}
+
+.flow-node-iconsuspend:before {
+    content: '\e76a';
+}

@@ -1,0 +1,226 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@active-color: #1245fa;
+@border-radius: 4px;
+
+.box-shadow {
+  //box-shadow: 0 0 10px rgba(18, 69, 250, .5);
+  box-shadow: 0 0 6px 2px rgba(18, 69, 250, 0.4);
+}
+
+.node-size {
+  width: 100%;
+  height: 66px;
+}
+
+@keyframes rotateLoading {
+  from {
+    transform: rotateZ(0);
+  }
+
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+.nodeWrapper {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+
+  .statusNode {
+    //absolute会闪
+    position: fixed;
+    top: -9px;
+    right: 15px;
+
+    .icon {
+      font-size: 16px;
+
+      &.warning {
+        color: #ffcc74;
+      }
+
+      &.success {
+        color: #31cc8a;
+      }
+
+      &.fail {
+        color: #ff4445;
+      }
+    }
+  }
+
+  .spin {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+  }
+
+  &.executing {
+    position: relative;
+
+    .spin {
+      display: flex;
+    }
+
+    &:after {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9;
+      content: ' ';
+      display: block;
+      position: absolute;
+      border-radius: @border-radius;
+      background: rgba(18, 69, 250, .15);
+    }
+  }
+
+  &.nodeActive,
+  &.nodeHover {
+    .menu {
+      display: flex;
+    }
+  }
+
+  .loopIcon {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .menu {
+    position: absolute;
+    top: -26px;
+    right: 8px;
+    left: 8px;
+    display: none;
+    justify-content: space-between;
+    height: 26px;
+
+    &.defaultNode {
+      justify-content: space-around;
+    }
+
+    .icon {
+      color: #c0cdda;
+      font-size: 14px;
+      cursor: pointer;
+
+      &:hover {
+        color: @active-color;
+      }
+    }
+  }
+
+  .nodeInner {
+    .node-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: @border-radius;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+
+    &.running,
+    &.active {
+      border: 1px dashed @active-color;
+      .box-shadow;
+    }
+
+    &:hover {
+      .box-shadow;
+    }
+
+    &.running {
+      background-color: #e6eaff;
+
+      .icon {
+        opacity: 0.2;
+      }
+
+      &:before {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        display: block;
+        width: 36px;
+        height: 36px;
+        margin: -18px 0 0 -18px;
+        background: url('../../icons/loading.svg') 0 0 no-repeat;
+        background-size: cover;
+        animation: rotateLoading 6s linear infinite;
+        content: ' ';
+      }
+    }
+
+    :global {
+      .node-icon {
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      .node-image-icon {
+        width: 28px;
+      }
+    }
+  }
+
+  .nodeName,
+  .nodeDesc {
+    //z-index: 100;
+    //position: absolute;
+  }
+
+  .nodeName,
+  .nodeDesc {
+    left: 50%;
+    width: 124px;
+    margin-left: -29px;
+    text-align: center;
+  }
+
+  .nodeName {
+    right: 0;
+    bottom: 0;
+    color: #1D2129;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.1;
+    padding: 8px 0 4px;
+  }
+
+  .nodeDesc {
+    top: 108px;
+    color: #86909C;
+    font-size: 12px;
+    line-height: 16px;
+  }
+}

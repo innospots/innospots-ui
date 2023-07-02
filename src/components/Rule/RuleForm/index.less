@@ -1,0 +1,188 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/lib/style/themes/default.less';
+
+.formWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    //margin-left: 56px;
+
+    .identifier {
+        position: absolute;
+        top: 8px;
+        bottom: 68px;
+        left: 18px;
+        display: none;
+        width: 11px;
+        border: 2px solid #fdc465;
+        border-right: 0;
+        user-select: none;
+
+        &.AND {
+            border-color: #6a9dff;
+
+            > span {
+                background: #e8f0ff;
+            }
+        }
+
+        > span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 2;
+            display: block;
+            width: 42px;
+            height: 24px;
+            margin: -12px 0 0 -26px;
+            color: #333;
+            font-weight: bold;
+            line-height: 20px;
+            text-align: center;
+            background: #fff5e4;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+    }
+
+    &.multi {
+        > .identifier {
+            display: block;
+        }
+    }
+
+    .rightContent {
+        flex: 1 1 auto;
+
+        &.hasChildren {
+            margin-left: 50px;
+
+            //.ruleFormNode {
+            //  .inner {
+            //    padding-left: 50px;
+            //
+            //    &+.insertBtn {
+            //      padding-left: 50px;
+            //    }
+            //  }
+            //}
+        }
+
+        .ruleFormNode {
+            //background: #f3f6f9;
+            position: relative;
+            flex: 1 1 auto;
+            align-items: center;
+            width: 618px;
+            border-radius: @border-radius-base;
+
+            .inner {
+                position: relative;
+
+                :global {
+                    .@{ant-prefix}-input,
+                    .@{ant-prefix}-select:not(.@{ant-prefix}-select-customize-input)
+                        .@{ant-prefix}-select-selector {
+                        padding-left: 10px;
+                        border-color: #dbe3eb;
+                        border-radius: 14px;
+                    }
+                }
+
+                & + .insertBtn {
+                    margin-bottom: 12px;
+
+                    :global {
+                        .@{ant-prefix}-btn {
+                            padding: 0;
+                        }
+                        .@{ant-prefix}-btn > .anticon + span,
+                        .@{ant-prefix}-btn > span + .anticon {
+                            margin-left: 0;
+                        }
+                    }
+                }
+
+                &.multi,
+                &.indent {
+                    padding-left: 50px;
+
+                    & + .insertBtn {
+                        padding-left: 50px;
+                    }
+                }
+
+                &.multi {
+                    > .identifier {
+                        top: 0;
+                        bottom: 2px;
+                        display: block;
+                    }
+                }
+
+                .field {
+                    min-width: 180px;
+                }
+
+                .term {
+                    min-width: 100px;
+                }
+
+                .value {
+                    min-width: 220px;
+                }
+            }
+        }
+    }
+}
+
+.closeBtn,
+.removeBtn {
+    color: #999;
+    font-size: 16px;
+    cursor: pointer;
+    //padding-top: 4px;
+
+    &:hover {
+        color: #333;
+    }
+}
+
+.closeBtn {
+    position: absolute;
+    top: 50%;
+    right: -18px;
+    z-index: 88;
+    width: 28px;
+    height: 28px;
+    margin-top: -35px;
+    padding-top: 3px;
+    font-size: 14px;
+    text-align: center;
+    background-color: #e8f0ff;
+    border-radius: 100%;
+}
+
+.addRuleGroup {
+    margin-top: 20px;
+    text-align: right;
+}

@@ -1,0 +1,78 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+@import '~antd/es/style/themes/index.less';
+
+@base-form-height: 40px;
+@split-size: 24px;
+
+.baseForm {
+  height: @base-form-height;
+  margin-bottom: @split-size;
+
+  .formRow {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    height: @base-form-height;
+  }
+}
+
+.testForm {
+  margin-bottom: @split-size;
+}
+
+.configContainer {
+  :global {
+    .@{ant-prefix}divider-horizontal.@{ant-prefix}divider-with-text-left::before {
+      width: 0;
+    }
+  }
+
+  &.visible {
+    .configForm {
+      display: block;
+    }
+  }
+
+  .configForm {
+    display: none;
+    padding: 0 24px;
+
+    :global {
+      .@{ant-prefix}tabs-nav .@{ant-prefix}tabs-tab {
+        padding-right: 8px;
+        padding-left: 8px;
+      }
+
+      .@{ant-prefix}table-thead > tr > th {
+        font-weight: 400;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.originalJson {
+  height: 220px;
+  margin-top: 16px;
+  padding: 16px;
+  overflow: auto;
+  white-space: pre-line;
+  background-color: #fafafa;
+}
