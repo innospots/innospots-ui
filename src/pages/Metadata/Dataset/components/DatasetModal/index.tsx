@@ -433,9 +433,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
   });
 
   const handleTreeSelect = useMemoizedFn(
-    (selectedKeys, { selected, selectedNodes, node, event }) => {
-      console.info(node);
-    },
+    (selectedKeys, { selected, selectedNodes, node, event }) => {},
   );
 
   const handleLoadData = ({ code, children }: any) =>

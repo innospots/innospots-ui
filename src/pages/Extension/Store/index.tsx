@@ -128,9 +128,6 @@ const Index: React.FC = () => {
           uploadFile: uploadFile,
         });
 
-        if (info.file.status !== 'uploading') {
-          console.log(info.file, info.fileList);
-        }
         if (info.file.status === 'done' && info.file.response?.code === '10000') {
           message.success(`${info.file.name} 文件上传成功`);
 

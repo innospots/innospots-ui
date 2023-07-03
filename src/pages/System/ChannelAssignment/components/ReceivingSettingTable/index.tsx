@@ -226,10 +226,8 @@ const Index: React.FC = (props, ref) => {
     const dataSource = [];
     // 步骤一，先格式化应用名称
     formatModuleEventList(dataSource);
-    console.log('格式化应用名称', dataSource);
     // 步骤二，格式化对应勾选项
     formatModuleSettingData(dataSource);
-    console.log('格式化对应勾选项', dataSource);
     setDataSource(dataSource);
   });
 
