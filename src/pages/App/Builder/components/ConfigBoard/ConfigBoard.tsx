@@ -34,7 +34,11 @@ import DataContext from '../../DataContext';
 
 import styles from './style.less';
 
-Widgets.switch = CustomSwitch;
+const WidgetList: any = {
+  ...Widgets
+};
+
+WidgetList.switch = CustomSwitch;
 
 const ConfigBoard:React.FC = () => {
   const { setFormSchema } = useModel('App', model => ({
@@ -126,7 +130,7 @@ const ConfigBoard:React.FC = () => {
       }}>
         <Generator
           ref={generatorRef}
-          widgets={Widgets}
+          widgets={WidgetList}
           // mapping={Mapping}
           canDelete={getDeleteProps}
           settings={setting.default}

@@ -104,22 +104,26 @@ export default () => {
 
   const saveDatasetRequest = useRequest<any, any[]>(Service.saveDataset, {
     manual: true,
-    onSuccess: (result: ICategoryItem, [data, type]) => {
-      if (result) {
-        let newData;
-        if (type === 'add') {
-          if (selectedCategoryId === result.categoryId || result.categoryId === 0) {
-            newData = addPageListData(dataset, result);
-          }
-          updateCategoryCount(result.categoryId, 1);
-        } else {
-          newData = updatePageListData(dataset, data, 'id');
-        }
-        if (newData) {
-          setDataset(newData as ITableData);
-        }
-      }
-    },
+    // onSuccess: (result: ICategoryItem, [data, type]) => {
+      // if (result) {
+      //   let newData;
+      //   if (type === 'add') {
+      //     if (selectedCategoryId === result.categoryId || result.categoryId === 0) {
+      //       newData = addPageListData(dataset, result);
+      //     }
+      //     updateCategoryCount(result.categoryId, 1);
+      //   } else {
+      //     if (result.categoryId !== data.categoryId) {
+      //       updateCategoryCount(data.categoryId, -1);
+      //       updateCategoryCount(result.categoryId, 1);
+      //     }
+      //     newData = updatePageListData(dataset, data, 'id');
+      //   }
+      //   if (newData) {
+      //     setDataset(newData as ITableData);
+      //   }
+      // }
+    // },
   });
 
   const deleteCategoryRequest = useRequest(Service.deleteCategory, {

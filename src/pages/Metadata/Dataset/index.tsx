@@ -75,11 +75,10 @@ const Index: React.FC = () => {
     deleteCategoryRequest,
   } = useModel('Dataset');
 
-  const { credentials, credentialConfigs, credentialsRequest, credentialConfigsRequest } = useModel(
+  const { credentials, credentialsRequest, credentialConfigsRequest } = useModel(
     'Credential',
     (model) => ({
       credentials: model.credentials,
-      credentialConfigs: model.credentialConfigs,
       credentialsRequest: model.credentialsRequest,
       credentialConfigsRequest: model.credentialConfigsRequest
     }),
@@ -105,6 +104,11 @@ const Index: React.FC = () => {
     };
 
     await datasetRequest.runAsync(postData);
+  };
+
+  const handleSuccess = () => {
+    fetchDatasets();
+    categoryRequest.run();
   };
 
   const onCategoryClicked = (categoryId) => {
@@ -198,10 +202,10 @@ const Index: React.FC = () => {
       {
         title: t('dataset.main.column.source'),
         dataIndex: 'credentialId',
-        render: (credentialId: number) => {
+        render: (credentialId: number, record: any) => {
           const ds = _.find(credentials, (item) => item.credentialId === credentialId);
-          const meta = _.find(credentialConfigs, (item) => item.configCode === ds?.configCode);
-          const iconPath = meta?.icon ? formatResourcePath(meta.icon) : null;
+          // const meta = _.find(credentialConfigs, (item) => item.name === ds?.configCode);
+          const iconPath = record.icon ? formatResourcePath(record.icon) : null;
           return (
             <div className={styles.nameWrapper}>
               { iconPath && <img src={iconPath} className={styles.dataSourceIcon} /> }
@@ -296,7 +300,7 @@ const Index: React.FC = () => {
   };
 
   const renderDatasetModal = () => {
-    return <DatasetModal />;
+    return <DatasetModal onSuccess={handleSuccess} />;
   };
 
   const renderCategoryModal = () => {

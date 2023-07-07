@@ -69,7 +69,9 @@ import VariableModal, { MODAL_NAME as VARIABLE_MODAL_NAME } from '../VariableMod
 
 import styles from './style.less';
 
-type Props = {} & NiceModalProps;
+type Props = {
+  onSuccess: () => void
+} & NiceModalProps;
 
 const { TabPane } = Tabs;
 
@@ -131,7 +133,7 @@ const FIELD_OPTIONS = [
 
 export const MODAL_NAME = 'DatasetModal';
 
-const DatasetModal: React.FC<Props> = ({}) => {
+const DatasetModal: React.FC<Props> = ({ onSuccess }) => {
   const editorRef = useRef<{
     doc: any,
     on: (type: string, handler: (any) => void) => void,
@@ -415,6 +417,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
       if (result) {
         message.success(t('common.error_message.save.success'));
         modal.hide();
+        onSuccess();
       }
     } catch (e) {}
   };
