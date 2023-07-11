@@ -67,6 +67,9 @@ export const logout = (isRedirect?) => {
   };
   if (isRedirect) {
     const { pathname, search } = history.location;
+
+    if (pathname === '/login') return;
+
     query.redirect = [ pathname, search ].join('');
   }
 
