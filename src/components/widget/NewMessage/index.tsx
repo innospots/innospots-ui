@@ -37,8 +37,8 @@ const Index: React.FC<{ itemsNum?: number }> = ({ itemsNum }) => {
     //   paging: false
     // });
     Service.getLatestNews().then((payload: any) => {
-      setNewMessage(payload.news.slice(0, itemsNum || 4) || []);
-      setMessageThumb(payload.sourceUrl);
+      setNewMessage(payload?.news?.slice(0, itemsNum || 4) || []);
+      setMessageThumb(payload?.sourceUrl);
     });
   }, []);
 

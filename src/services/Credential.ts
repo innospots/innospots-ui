@@ -20,52 +20,56 @@ import { fetch } from '@/common/request';
 import {HandleType, ITableData, KeyValues, ArrayType} from '@/common/types/Types';
 import {DEFAULT_PAGINATION_SETTINGS} from '@/common/constants';
 
+export function fetchAppsCategoryApp(): Promise<ArrayType> {
+  return fetch(`schema/connector/config/list`);
+}
+
 export function fetchCredentials<T> (params?: KeyValues): Promise<ArrayType> {
-  return fetch(`apps/credential/simple/list`, {
+  return fetch(`credential/simple/list`, {
     params
   });
 }
 
 export function fetchCredentialSimpleList<T> (appNodeCode: string, params?: KeyValues): Promise<ArrayType> {
-  return fetch(`apps/credential/simple/list/${appNodeCode}`, {
+  return fetch(`credential/simple/list/${appNodeCode}`, {
     params
   });
 }
 
 export function fetchCredentialPageData<T> (params?: KeyValues): Promise<ITableData> {
-  return fetch(`apps/credential/page`, {
+  return fetch(`credential/page`, {
     params
   });
 }
 
-export function fetchAppsCategoryApp(): Promise<ArrayType> {
-  return fetch(`apps/category/list`);
+export function fetchCredentialTypes(): Promise<ArrayType> {
+  return fetch(`credential-type/list`);
 }
 
 export function fetchNodeConfigs(nodeId: number): Promise<ArrayType> {
-  return fetch(`apps/connector/form/${nodeId}`);
+  return fetch(`flow-node/connector/form/${nodeId}`);
 }
 
 export function fetchCredentialConfigs(): Promise<ArrayType> {
-  return fetch(`apps/schema/connector/config/list`);
-  // return fetch(`apps/credential/config/list`);
+  return fetch(`schema/connector/config/list`);
+  // return fetch(`credential/config/list`);
 }
 
 export const deleteCredential = (credentialId: number) => {
-  return fetch(`apps/credential/${credentialId}`, {
+  return fetch(`credential/${credentialId}`, {
     method: 'delete',
   });
 };
 
 export const saveCredential = (data: any, type: HandleType = 'add') => {
-  return fetch(`apps/credential`, {
+  return fetch(`credential`, {
     data,
     method: type === 'add' ? 'POST' : 'PUT',
   });
 };
 
 export const connectionTest = (data: any) => {
-  return fetch(`apps/credential/connection/test`, {
+  return fetch(`credential/connection/test`, {
     data,
     method: 'post',
   });
@@ -77,7 +81,7 @@ export const fetchSchemaRegistries = (
     [key: string]: string | number;
   },
 ) => {
-  return fetch(`apps/schema/registry/list`, {
+  return fetch(`schema/registry/list`, {
     params: {
       ...params,
       credentialId,
@@ -86,22 +90,22 @@ export const fetchSchemaRegistries = (
 };
 
 export const saveSchemaRegistry = (data: any, type: HandleType = 'add') => {
-  return fetch(`apps/schema/registry`, {
+  return fetch(`schema/registry`, {
     data,
     method: type === 'add' ? 'POST' : 'PUT',
   });
 };
 
-export const fetchSchemaRegistryTopics = (credentialId: number, params?: any) => {
-  return fetch(`apps/schema/registry/catalog/list`, {
+export const fetchSchemaRegistryTopics = (credentialKey: number, params?: any) => {
+  return fetch(`schema/registry/catalog/list`, {
     params: {
-      credentialId,
+      credentialKey,
     },
   });
 };
 
 export const fetchSchemaRegistryTopic = (credentialId: number, tableName: string) => {
-  return fetch(`apps/schema/registry/fetch-sample`, {
+  return fetch(`schema/registry/fetch-sample`, {
     params: {
       tableName,
       credentialId,
@@ -110,30 +114,36 @@ export const fetchSchemaRegistryTopic = (credentialId: number, tableName: string
 };
 
 export const deleteSchemaRegistry = (id: number) => {
-  return fetch(`apps/schema/registry/${id}`, {
+  return fetch(`schema/registry/${id}`, {
     method: 'delete',
   });
 };
 
-export const getCredentialDetail = (credentialId: number) => {
-  return fetch(`apps/credential/${credentialId}`);
+export const fetchSchemaRegistry = (params: Record<string, string|number>) => {
+  return fetch(`schema/registry`, {
+    params
+  });
+};
+
+export const getCredentialDetail = (credentialKey: number) => {
+  return fetch(`credential/${credentialKey}`);
 };
 
 export const saveSchemaField = (data: any) => {
-  return fetch(`apps/schema/fields/upsert`, {
+  return fetch(`schema/fields/upsert`, {
     data,
     method: 'post',
   });
 };
 
 export const deleteSchemaField = (fieldId: number) => {
-  return fetch(`apps/schema/fields/${fieldId}`, {
+  return fetch(`schema/fields/${fieldId}`, {
     method: 'delete',
   });
 };
 
 export const schemaFieldsParse = (sourceType: string, data: any) => {
-  return fetch(`apps/schema/fields/parse`, {
+  return fetch(`schema/fields/parse`, {
     data,
     params: {
       sourceType,
@@ -143,13 +153,13 @@ export const schemaFieldsParse = (sourceType: string, data: any) => {
 };
 
 export const fetchSchemaFields = (params) => {
-  return fetch(`apps/schema/fields/list`, {
+  return fetch(`schema/fields/list`, {
     params,
   });
 };
 
 export const fetchDatasetPreview = (params: any) => {
-  return fetch(`apps/schema/registry/fetch-samples`, {
+  return fetch(`schema/registry/fetch-samples`, {
     params: {
       ...DEFAULT_PAGINATION_SETTINGS,
       ...params,

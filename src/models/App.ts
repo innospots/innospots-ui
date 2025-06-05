@@ -16,63 +16,107 @@
  *  limitations under the License.
  */
 
-import { useState } from 'react';
-import { useRequest } from 'ahooks';
 import _ from 'lodash';
+import { useModel } from 'umi';
+import { useRequest } from 'ahooks';
+import { useMemo, useState } from 'react';
 
 import * as Service from '@/services/App';
 
-import { AppInfo, Categories, ITableData } from '@/common/types/Types';
+import { AppInfo, Categories, ICategoryItem, ITableData } from '@/common/types/Types';
 import { addPageListData, deletePageListData, extractResult, updatePageListData } from '@/common/utils';
 
 type CategoryItem = {
-  code: string
-  name: string
-  nodeGroupId: number
-  nodes: AppInfo[]
+  categoryName: string
+  categoryId: number
 }
 
-type NodeCategories = CategoryItem[]
+type AppCategories = CategoryItem[]
 
 export default () => {
-  const [pageData, setPageData] = useState<ITableData>({});
+  const {
+    initAppResources,
+  } = useModel('AppEditor', model => ({
+    initAppResources: model.initAppResources
+  }))
+  const [appData, setAppData] = useState<ITableData>({});
   const [categories, setCategories] = useState<Categories>([]);
   const [formSchema, setFormSchema] = useState<Record<string, any>>({
     displayType: 'column'
   });
   const [executeResult, setExecuteResult] = useState<Record<string, any>>({});
   const [currentAppInfo, setCurrentAppInfo] = useState<AppInfo>();
+  const [appDataset, setAppDataset] = useState<any[]>([]);
+  const [registryListPage, setRegistryListPage] = useState<ITableData>();
+  
+  const [isAudited, setIsAudited] = useState(false);
+  const [widgetProcessing, setWidgetProcessing] = useState<Record<string, boolean>>({});
+
+  const hasWidgetProcessing = useMemo(() => {
+    return Object.values(widgetProcessing).some((processing) => processing);
+  }, [widgetProcessing]);
+
+  const currentAppType = useMemo(() => (currentAppInfo?.appType || 'FORM'), [ currentAppInfo?.appType ])
 
   const categoryRequest = useRequest(Service.fetchCategories, {
     manual: true,
-    onSuccess: (result: NodeCategories) => {
-      setCategories(_.map(result, item => ({
-        nodes: item.nodes,
-        categoryId: item.nodeGroupId,
-        categoryName: item.name,
-        totalCount: item.nodes?.length || 0
-      })));
+    onSuccess: (result: AppCategories) => {
+      setCategories(result);
+    },
+  });
+  const createCategoryRequest = useRequest<ICategoryItem, any[]>(Service.createCategory, {
+    manual: true,
+    onSuccess: (result) => {
+      if (result) {
+        categories.push(result);
+        setCategories([...categories]);
+      }
     },
   });
 
+  const updateCategoryRequest = useRequest(Service.updateCategory, {
+    manual: true,
+    onSuccess: (result, [categoryId, categoryName]) => {
+      if (result) {
+        const index = _.findIndex(categories, (item) => item.categoryId === categoryId);
+        if (index > -1) {
+          categories[index].categoryName = categoryName;
+        }
+        setCategories([...categories]);
+      }
+    },
+  });
+  const deleteCategoryRequest = useRequest(Service.deleteCategory, {
+    manual: true,
+    onSuccess: (result, [categoryId]) => {
+      if (result) {
+        setCategories(_.filter(categories, (item) => item.categoryId !== categoryId));
+      }
+    },
+  })
   const appsRequest = useRequest(Service.fetchApps, {
     manual: true,
     onSuccess: (result: ITableData) => {
-      setPageData(result);
-    },
-  });
-
-  const appExecuteRequest = useRequest<AppInfo, any>(Service.appExecute, {
-    manual: true,
-    onSuccess: (result: any) => {
-      setExecuteResult(extractResult(result))
+      setAppData(result);
     },
   });
 
   const appInfoRequest = useRequest<AppInfo, any>(Service.fetchAppInfo, {
-    manual: true
+    manual: true,
+    onSuccess: (result: AppInfo) => {
+      setCurrentAppInfo(result);
+      if (result) {
+        initAppResources(result.resources as any)
+      }
+    }
   });
 
+  const appDatasetRequest = useRequest<any, any[]>(Service.fetchAppDatasetList, {
+    manual: true,
+    onSuccess: (result) => {
+      setAppDataset(result);
+    }
+  });
   const updateAppInfoRequest = useRequest<AppInfo, any>(Service.updateAppInfo, {
     manual: true
   });
@@ -83,9 +127,9 @@ export default () => {
     //   if (result) {
     //     let newPageData;
     //     if (type === 'put') {
-    //       newPageData = updatePageListData(pageData, result, 'nodeId');
+    //       newPageData = updatePageListData(appData, result, 'nodeId');
     //     } else {
-    //       newPageData = addPageListData(pageData, result);
+    //       newPageData = addPageListData(appData, result);
     //     }
     //
     //     setPageData(newPageData as ITableData);
@@ -97,9 +141,9 @@ export default () => {
     manual: true,
     onSuccess: (result: ITableData, [nodeId]) => {
       if (result) {
-        const newPageData = deletePageListData(pageData, 'nodeId', nodeId);
+        const newPageData = deletePageListData(appData, 'nodeId', nodeId);
         if (newPageData) {
-          setPageData(newPageData as ITableData);
+          setAppData(newPageData as ITableData);
         }
       }
     },
@@ -109,23 +153,52 @@ export default () => {
     manual: true,
     onSuccess: (result: boolean, [nodeId, status]) => {
       if (result) {
-        const page = _.find(pageData.list, (item) => item.nodeId === nodeId);
+        const page = _.find(appData.list, (item) => item.nodeId === nodeId);
         if (page) {
           page.status = status;
         }
-        setPageData({
-          ...pageData,
+        setAppData({
+          ...appData,
         });
       }
     },
   });
 
+  const fetchAppInfo = (appKey: string) => {
+    if (appKey) {
+      appInfoRequest.run(appKey)
+    }
+  }
+
+  const updateWidgetProcessing = (widgetId: string, processing: boolean) => {
+    setWidgetProcessing((prev) => ({ ...prev, [widgetId]: processing }));
+  }
+
+  const registryListRequest = useRequest(Service.fetchRegistryList, {
+    manual: true,
+    onSuccess: (result: ITableData) => {
+      setRegistryListPage(result);
+    }
+  });
+
+  const registryFieldsRequest = useRequest<any, any>(Service.fetchRegistryFields, {
+    manual: true,
+  });
+
   return {
     categories,
     categoryRequest,
+    deleteCategoryRequest,
+    updateCategoryRequest,
+    createCategoryRequest,
 
-    pageData,
+    isAudited,
+    setIsAudited,
+    appData,
     appsRequest,
+
+    appDataset,
+    appDatasetRequest,
 
     formSchema,
     setFormSchema,
@@ -135,12 +208,19 @@ export default () => {
     deleteAppRequest,
     updateStatusRequest,
 
-    executeResult,
-    setExecuteResult,
-    appExecuteRequest,
+    widgetProcessing,
+    hasWidgetProcessing,
+    setWidgetProcessing,
+    updateWidgetProcessing,
 
+    fetchAppInfo,
+    currentAppType,
     currentAppInfo,
     setCurrentAppInfo,
-    updateAppInfoRequest
+    updateAppInfoRequest,
+
+    registryListPage,
+    registryListRequest,
+    registryFieldsRequest,
   }
 }

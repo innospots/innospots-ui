@@ -29,11 +29,12 @@ export default () => {
   const [schemaFields, setSchemaFields] = useState<any[]>([]);
   const [connector, setConnector] = useState<KeyValues>({});
   const [credentials, setCredentials] = useState<ArrayType>([]);
-  const [appCategories, setAppCategories] = useState<ArrayType>([]);
+  const [credentialTypes, setCredentialTypes] = useState<ArrayType>([]);
   const [credentialData, setCredentialData] = useState<ITableData>({});
   const [credentialConfigs, setCredentialConfigs] = useState<ArrayType>([]);
   const [simpleCredentials, setSimpleCredentials] = useState<ArrayType>([]);
 
+  const [appCategories, setAppCategories] = useState<ArrayType>([]);
   const [schemaRegistries, setSchemaRegistries] = useState<ArrayType>([]);
 
   /**
@@ -49,16 +50,23 @@ export default () => {
       pageData = addPageListData(credentialData, data) as ITableData;
       simpleList = addPageListData(credentials, data) as ArrayType;
     } else if (type === 'edit') {
-      pageData = updatePageListData(credentialData, data, 'credentialId') as ITableData;
-      simpleList = updatePageListData(credentials, data, 'credentialId') as ArrayType;
+      pageData = updatePageListData(credentialData, data, 'credentialKey') as ITableData;
+      simpleList = updatePageListData(credentials, data, 'credentialKey') as ArrayType;
     } else if (type === 'delete') {
-      pageData = deletePageListData(credentialData, 'credentialId', data?.credentialId) as ITableData;
-      simpleList = deletePageListData(credentials, 'credentialId', data?.credentialId) as ArrayType;
+      pageData = deletePageListData(credentialData, 'credentialKey', data?.credentialKey) as ITableData;
+      simpleList = deletePageListData(credentials, 'credentialKey', data?.credentialKey) as ArrayType;
     }
 
     setCredentialData(pageData);
     setCredentials(simpleList);
   };
+
+  const appCategoriesRequest = useRequest<ArrayType, any>(Service.fetchAppsCategoryApp, {
+    manual: true,
+    onSuccess: (result: ArrayType) => {
+      setAppCategories(result);
+    },
+  });
 
   /**
    * 获取凭证列表
@@ -90,10 +98,10 @@ export default () => {
     },
   });
 
-  const appCategoriesRequest = useRequest<ArrayType, any>(Service.fetchAppsCategoryApp, {
+  const credentialTypesRequest = useRequest<ArrayType, any>(Service.fetchCredentialTypes, {
     manual: true,
     onSuccess: (result: ArrayType) => {
-      setAppCategories(result);
+      setCredentialTypes(result);
     },
   });
 
@@ -113,9 +121,9 @@ export default () => {
    */
   const deleteCredentialRequest = useRequest(Service.deleteCredential, {
     manual: true,
-    onSuccess: (result, [credentialId]) => {
+    onSuccess: (result, [credentialKey]) => {
       updateCredential('delete', {
-        credentialId,
+        credentialKey,
       });
     },
   });
@@ -203,6 +211,10 @@ export default () => {
     manual: true,
   });
 
+  const fetchSchemaRegistryRequest = useRequest(Service.fetchSchemaRegistry, {
+    manual: true,
+  });
+
   const deleteSchemaRegistryRequest = useRequest(Service.deleteSchemaRegistry, {
     manual: true,
     onSuccess: (result, params) => {
@@ -222,7 +234,8 @@ export default () => {
     credentialData,
     credentialsRequest,
     credentialPageRequest,
-
+    appCategories,
+    appCategoriesRequest,
     simpleCredentials,
     setSimpleCredentials,
     simpleCredentialsRequest,
@@ -230,8 +243,8 @@ export default () => {
     connector,
     setConnector,
 
-    appCategories,
-    appCategoriesRequest,
+    credentialTypes,
+    credentialTypesRequest,
 
     credentialConfigs,
     credentialConfigsRequest,
@@ -255,6 +268,7 @@ export default () => {
     fetchSchemaFieldsRequest,
     checkSchemaRegistryRequest,
     deleteSchemaRegistryRequest,
+    fetchSchemaRegistryRequest,
 
     datasetPreviewRequest
   }

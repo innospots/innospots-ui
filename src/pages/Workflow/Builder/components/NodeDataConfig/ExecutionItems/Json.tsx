@@ -18,7 +18,7 @@
 
 import React from 'react';
 import cls from 'classnames';
-import JSONInput from 'react-json-editor-ajrm';
+import ReactJson from '@microlink/react-json-view';
 
 import { Typography } from 'antd';
 
@@ -31,41 +31,37 @@ import styles from './index.less';
 const { Text } = Typography;
 
 const Json: React.FC<ExecutionItemProps> = ({ executeData }) => {
-    const { t } = useI18n(['workflow']);
+  const { t } = useI18n(['workflow']);
 
-    const getJSONContent = () => {
-        const colors = {
-            keys: '#444',
-            default: '#9d3332',
-            background: '#fafafa',
-        };
-
-        return (
-            <div className={cls(styles.jsonContent, styles.contentBox, 'content-box')}>
-                {executeData ? (
-                    <JSONInput
-                        viewOnly
-                        width="100%"
-                        height="100%"
-                        colors={colors}
-                        placeholder={{
-                            inputs: executeData.inputs,
-                            outputs: executeData.outputs,
-                        }}
-                    />
-                ) : (
-                    <div>
-                        <p style={{ marginTop: 24 }}>
-                            <Text strong>{t('workflow.builder.execution.empty')}</Text>
-                        </p>
-                        <p>{t('workflow.builder.execution.empty.desc')}</p>
-                    </div>
-                )}
-            </div>
-        );
+  const getJSONContent = () => {
+    const colors = {
+      keys: '#444',
+      default: '#9d3332',
+      background: '#fafafa',
     };
 
-    return getJSONContent();
+    return (
+      <div className={cls(styles.jsonContent, styles.contentBox, 'content-box')}>
+        {executeData ? (
+          <ReactJson
+            src={{
+              inputs: executeData.inputs,
+              outputs: executeData.outputs,
+            }}
+          />
+        ) : (
+          <div>
+            <p style={{ marginTop: 24 }}>
+              <Text strong>{t('workflow.builder.execution.empty')}</Text>
+            </p>
+            <p>{t('workflow.builder.execution.empty.desc')}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return getJSONContent();
 };
 
 export default Json;

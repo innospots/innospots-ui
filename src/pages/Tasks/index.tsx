@@ -15,9 +15,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+import {useModel} from "umi";
 import React, {useEffect, useState} from 'react';
-
 import {Button, Col, DatePicker, Form, Popover, Row, Select, Space, Spin, Tag, Typography,} from 'antd';
 
 import Icon, {
@@ -49,12 +48,11 @@ import TaskDashboard from './components/TaskDashboard'
 import {fetchPriorityOptions, fetchTagOptions} from "@/services/Tasks";
 
 import {fetchMember} from "@/services/User";
-import {useModel} from "@@/plugin-model/useModel";
 import ListTable from "@/components/ListTable";
 import {KeyValues} from "@/common/types/Types";
 import IconButton from "@/components/IconButton";
 import UserAvatar from "@/components/UserAvatar";
-
+import PageHelmet from '@/components/PageHelmet';
 import { usePermission } from '@/components/PermissionSection';
 
 import {PRIORITY_TYPES, Status, STATUS_TYPES} from './constants'
@@ -570,6 +568,7 @@ const Index: React.FC = () => {
 
   return (
     <div style={{...pageStyle}}>
+      <PageHelmet title={t('task.main.page.title')} />
       <TaskContext.Provider value={{tabId, filterOptions, dateFormat, onListPageChange}}>
         {renderPageHeader()}
         {renderDataContent()}

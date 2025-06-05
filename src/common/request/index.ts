@@ -24,10 +24,15 @@ import request, { extend, RequestOptionsInit } from 'umi-request';
 import { notification } from 'antd';
 import _ from 'lodash';
 import { history } from 'umi';
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 import { AJAX_PREFIX } from '@/common/constants';
-import { logout } from '@/common/utils';
+import { logout, isRequestSuccess, isTokenExpired, isInvalidUser, isPermissionDenied } from '@/common/utils';
 import { getAuthHeader } from './header';
+
+export const isSuccess = (code: string) => {
+  return isRequestSuccess(code)
+}
 
 export const errorMassage = (res: any) => {
   notification.error({
@@ -42,9 +47,13 @@ let cancelRequestSourceList: {
 export const cancelAllRequest = () => {
   _.each(cancelRequestSourceList, (source) => {
     const key = Object.keys(source)[0];
-    const controller = cancelRequestSourceList[key];
+    const index = _.findIndex(cancelRequestSourceList, (source) => source[key]);
     try {
-      controller.abort();
+      const c = cancelRequestSourceList[index]?.[key];
+      if (c) {
+        c?.abort();
+        cancelRequestSourceList[index] = {};
+      }
     } catch (e) {}
   });
 
@@ -74,25 +83,34 @@ request.interceptors.request.use((url: string, options: RequestOptionsInit) => {
 
 let authTokenError;
 request.interceptors.response.use(async (response: any, options: any) => {
+
+  if (options?.responseType === 'blob') {
+    return response;
+  }
+  
   const data = await response.clone().json();
   const dataCode = data.code;
   const isConfig = options.__type === 'config';
-  const isSuccess = ['10000'].includes(dataCode);
+  const success = isSuccess(dataCode)
 
-  if (!isSuccess && !isConfig) {
-    if (['60003', '60004'].includes(dataCode)) {
-      cancelAllRequest();
+  if (!success && !isConfig && !options?.ignoreError) {
+    if (isTokenExpired(dataCode) || isInvalidUser(dataCode)) {
+      // cancelAllRequest();
 
-      if (!options.ignoreToken) {
-        logout(true);
+      if (isInvalidUser(dataCode)) {
+        errorMassage(data);
       }
-    } else if (dataCode === '70000') {
+
+      // if (!options.ignoreToken) {
+        logout(true);
+      // }
+    } else if (isPermissionDenied(dataCode)) {
       cancelAllRequest();
       history.replace('/403');
     } else {
       errorMassage(data);
     }
-  } else if (isSuccess && !isConfig) {
+  } else if (success && !isConfig) {
     authTokenError = false;
   }
 
@@ -110,6 +128,10 @@ export const dataRequest = extend({
   __type: 'data',
 });
 
+export const globalRequest = extend({
+  __type: 'global',
+});
+
 export const configRequest = extend({
   prefix: '/data/',
   suffix: '.json',
@@ -120,8 +142,15 @@ export function fetch<T>(url: string, options?: RequestOptionsInit): Promise<T> 
   return new Promise(async (resolve, reject) => {
     try {
       const result = await dataRequest(url, options);
-      if (result && result.code === '10000') {
-        resolve(result.body);
+
+      if (result) {
+        if (options?.responseType === 'blob') {
+          resolve(result);
+        } else if (isSuccess(result.code)) {
+          resolve(result.body);
+        } else {
+          reject(result?.message);
+        }
       } else {
         reject(result?.message);
       }
@@ -129,6 +158,20 @@ export function fetch<T>(url: string, options?: RequestOptionsInit): Promise<T> 
       reject(e);
     }
   });
+};
+
+export const fetchEventSourceRequest = (url: string, options: any = {}) => {
+  if (!url.startsWith(AJAX_PREFIX)) {
+    url = `${AJAX_PREFIX}${url}`;
+  }
+  _.extend(options, {
+    headers: {
+      ...getAuthHeader(),
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+    },
+  });
+  return fetchEventSource(url, options);
 };
 
 export default request;

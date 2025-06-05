@@ -17,13 +17,15 @@
  *  limitations under the License.
  */
 
-import { dynamic } from 'umi';
+import { lazy } from 'react';
+import SuspenseRender from '@/components/SuspenseRender';
 
-export default dynamic({
-  loader: async function () {
-    const { default: Component } = await import(
-      /* webpackChunkName: "com__Canvas" */ './Canvas'
-      );
-    return Component;
-  },
-});
+const Canvas = lazy(() => import('./Canvas'));
+
+export default function (props: any) {
+  return (
+    <SuspenseRender>
+      <Canvas {...props} />
+    </SuspenseRender>
+  );
+}

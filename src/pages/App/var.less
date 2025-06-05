@@ -22,3 +22,30 @@
 
 @builder-border-radius: 20px;
 @component-header-height: 50px;
+
+@top-bar-height: 50px;
+@left-sidebar-width: 300px;
+@right-sidebar-width: 320px;
+@right-sidebar-collapsed-width: 36px;
+
+@hover-background-color: rgba(241, 245, 249, 60%);
+@active-background-color: rgba(241, 245, 249, 100%);
+
+.hover() {
+  &:hover {
+    background-color: @hover-background-color;
+  }
+}
+
+.active() {
+  &.active {
+    background-color: @active-background-color;
+  }
+}
+
+.disabled() {
+  &.disabled {
+    opacity: .5;
+    pointer-events: none;
+  }
+}

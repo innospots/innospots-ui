@@ -16,18 +16,18 @@
  *  limitations under the License.
  */
 
-import {fetch} from '@/common/request';
+import {fetch, cancelAllRequest} from '@/common/request';
 import type {HandleType, KeyValues} from '@/common/types/Types';
 import {DEFAULT_LIST_QUERY} from '@/common/constants';
 
 export async function fetchCategories(params?: any) {
-  return fetch(`workflow/category`, {
+  return fetch(`${params?.workflowType}/workflow/category`, {
     params
   });
 }
 
-export async function fetchWorkflows(params?: any) {
-  return fetch(`workflow/instance/page`, {
+export async function fetchWorkflows(workflowType: string, params?: any) {
+  return fetch(`${workflowType}/workflow/instance/page`, {
     ...DEFAULT_LIST_QUERY,
     params
   });
@@ -40,30 +40,42 @@ export async function fetchWorkflowRecord(resourceId: number, params?: any) {
   });
 }
 
-export async function fetchWorkflow(workflowId: number | string) {
-  return fetch(`workflow/instance/${workflowId}`);
+export async function fetchWorkflow(workflowType: string, workflowId: number | string) {
+  return fetch(`${workflowType}/workflow/instance/${workflowId}`);
 }
 
-export async function saveWorkflow(type?: HandleType, data?: any) {
-  return fetch(`workflow/instance`, {
+export async function fetchWorkflowInstance(workflowType: string, registryId: number | string) {
+  return fetch(`${workflowType}/workflow/instance/registry/${registryId}`);
+}
+
+export async function saveWorkflow(workflowType: string, type?: HandleType, data?: any) {
+  return fetch(`${workflowType}/workflow/instance`, {
     method: type === 'edit' ? 'PUT' : 'POST',
     data
   });
 }
 
-export async function updateStatus(workflowId: number, status: string) {
-  return fetch(`workflow/instance/${workflowId}/${status}`, {
+export async function stopWorkflow(workflowType: string, flowKey: string) {
+  cancelAllRequest()
+
+  return fetch(`${workflowType}/workflow/execute/stop/workflow/${flowKey}`, {
+    method: 'POST'
+  });
+}
+
+export async function updateStatus(workflowType: string, workflowId: number, status: string) {
+  return fetch(`${workflowType}/workflow/instance/${workflowId}/${status}`, {
     method: 'PUT'
   });
 }
 
-export async function deleteWorkflow(workflowInstanceId: number, isReally?: boolean) {
+export async function deleteWorkflow(workflowType: string, workflowInstanceId: number, isReally?: boolean) {
   let method = 'PUT';
-  let url = `workflow/instance/${workflowInstanceId}/recycle`;
+  let url = `${workflowType}/workflow/instance/${workflowInstanceId}/recycle`;
 
   if (isReally) {
     method = 'DELETE';
-    url = `workflow/instance/${workflowInstanceId}`;
+    url = `${workflowType}/workflow/instance/${workflowInstanceId}`;
   }
 
   return fetch(url, {
@@ -71,9 +83,15 @@ export async function deleteWorkflow(workflowInstanceId: number, isReally?: bool
   });
 }
 
-export async function deleteCategory(categoryId: number) {
-  return fetch(`workflow/category/${categoryId}`, {
+export async function deleteCategory(workflowType: string, categoryId: number) {
+  return fetch(`${workflowType}/workflow/category/${categoryId}`, {
     method: 'DELETE'
+  });
+}
+
+export async function fetchJobFlows(params?: any) {
+  return fetch(`job/workflow/instance/page`, {
+    params
   });
 }
 
@@ -81,31 +99,27 @@ export async function saveCategory(
   type: HandleType,
   {
     categoryId,
-    categoryName
+    categoryName,
+    workflowType
   }: {
     categoryId?: number;
+    workflowType?: string;
     categoryName: string;
   }
 ) {
   if (type === 'add') {
-    return fetch(`workflow/category`, {
+    return fetch(`${workflowType}/workflow/category`, {
       params: {
         categoryName
       },
       method: 'post'
     });
   } else {
-    return fetch(`workflow/category/${categoryId}?categoryName=${categoryName}`, {
+    return fetch(`${workflowType}/workflow/category/${categoryId}?categoryName=${categoryName}`, {
       method: 'put'
     });
   }
 }
-
-export const fetchNodes = async (params?: any) => {
-  return fetch('apps/app-node-definition/page', {
-    params
-  });
-};
 
 export async function fetchNodeList<T>(params?: any): Promise<T> {
   return fetch('apps/app-node-definition/list/online', {
@@ -127,12 +141,6 @@ export const createNodeData = async (data: any) => {
   });
 };
 
-export const changeNodeStatus = async (nodeId: number, status: string) => {
-  return fetch(`apps/app-node-definition/${nodeId}/status/${status}`, {
-    method: 'put'
-  });
-};
-
 export const deleteNode = async (nodeId: number) => {
   return fetch(`apps/app-node-definition/${nodeId}`, {
     method: 'delete'
@@ -143,13 +151,13 @@ export const fetchNode = async (nodeId: number) => {
   return fetch(`apps/app-node-definition/${nodeId}`);
 };
 
-export const fetchWebhookAddress = async () => {
-  return fetch(`workflow/management/webhook-address`);
+export const fetchWebhookAddress = async (workflowType: string) => {
+  return fetch(`${workflowType}/workflow/definition/webhook-address`);
 };
 
 export const fetchWorkflowTemplates = async (params?) => {
   // return fetch(`apps/workflow-template/list/online`);
-  return fetch(`apps/definition/list/online`, { params });
+  return fetch(`flow-node/definition/list/online`, { params });
 };
 
 export const fetchTemplatePage = async (params?: any): Promise<any> => {
@@ -160,6 +168,12 @@ export const fetchTemplatePage = async (params?: any): Promise<any> => {
 
 export const fetchTemplateDetail = async (flowTplId: number, params?: any): Promise<any> => {
   return fetch(`apps/workflow-template/${flowTplId}`, {
+    params
+  });
+};
+
+export const fetchWebhookRegistries = async (workflowType, params?: any): Promise<any> => {
+  return fetch(`${workflowType}/workflow/trigger/webhook/registries`, {
     params
   });
 };
@@ -183,12 +197,6 @@ export const deleteTemplate = async (flowTplId: number) => {
   });
 };
 
-export const deleteNodeGroup = async (nodeGroupId: number) => {
-  return fetch(`apps/workflow-template/node-group/${nodeGroupId}`, {
-    method: 'delete'
-  });
-};
-
 export const saveGroupNodes = async (flowTplId: number, nodeGroupId: number, params: KeyValues) => {
   return fetch(`apps/workflow-template/${flowTplId}/node-group/${nodeGroupId}/node-ids`, {
     params,
@@ -206,5 +214,15 @@ export const saveTemplateGroup = async (type: string, flowTplId: number, params:
   return fetch(path, {
     params,
     method: type === 'add' ? 'post' : 'put'
+  });
+};
+
+export const fetchWorkflowRevisions = async (templateCode: string, workflowInstanceId: string) => {
+  return fetch(`${templateCode}/workflow/builder/${workflowInstanceId}/revisions`);
+};
+
+export const saveToDraft = async (templateCode: string, workflowInstanceId: string, revision: number) => {
+  return fetch(`${templateCode}/workflow/builder/${workflowInstanceId}/draft/${revision}`, {
+    method: 'PUT'
   });
 };

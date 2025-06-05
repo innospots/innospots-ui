@@ -22,6 +22,10 @@ import { AvatarSize } from 'antd/es/avatar/SizeContext';
 import multiAvatar from '@multiavatar/multiavatar';
 import NiceAvatar from '@/components/Nice/NiceAvatar';
 
+const isImage = (src: string) => {
+  return /^data:image\//.test(src) || /^http/.test(src);
+};
+
 const UserAvatar:React.FC<{
   userInfo: {
     avatarKey?: string,
@@ -32,7 +36,9 @@ const UserAvatar:React.FC<{
   style?: React.CSSProperties
 }> = ({ size, userInfo, style, ...rest }) => {
 
-  return userInfo.avatarKey ? (
+  const avatarKey = userInfo.avatarKey;
+
+  return avatarKey && !isImage(avatarKey) ? (
     <div
       style={{
         width: '100%',
@@ -40,14 +46,14 @@ const UserAvatar:React.FC<{
         ...style
       }}
       dangerouslySetInnerHTML={{
-        __html: multiAvatar(userInfo.avatarKey)
+        __html: multiAvatar(avatarKey)
       }}
       { ...rest }
     />
   ) : (
     <NiceAvatar
       size={size || 40}
-      src={userInfo.avatarBase64}
+      src={userInfo.avatarBase64 || avatarKey}
       style={{
         backgroundColor: '#1245fa',
         ...style

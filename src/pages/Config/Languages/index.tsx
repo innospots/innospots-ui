@@ -16,54 +16,83 @@
  *  limitations under the License.
  */
 
-import React, {useMemo, useEffect, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import {Row, Col, Space, Upload, Button, UploadProps, message, Modal} from 'antd';
-import { PlusOutlined, UploadOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  UploadOutlined,
+  VerticalAlignTopOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Col,
+  message,
+  Modal,
+  Row,
+  Space,
+  Upload,
+  UploadProps,
+} from 'antd';
 
 import _ from 'lodash';
 import { useModel } from 'umi';
 
-import { useSetState, useMemoizedFn, useDeepCompareEffect } from 'ahooks';
+import { useDeepCompareEffect, useMemoizedFn, useSetState } from 'ahooks';
 
-import {KeyValues} from '@/common/types/Types';
-import {AJAX_PREFIX, DEFAULT_PAGINATION_SETTINGS} from '@/common/constants';
-
-import PageTitle from '@/components/PageTitle';
-import ListTable from '@/components/ListTable';
+import { AJAX_PREFIX, DEFAULT_PAGINATION_SETTINGS } from '@/common/constants';
+import { KeyValues } from '@/common/types/Types';
+import { isRequestSuccess } from '@/common/utils';
 import FlagIcon from '@/components/Icons/FlagIcon';
+import ListTable from '@/components/ListTable';
+import PageTitle from '@/components/PageTitle';
 import LanguageModal, { MODAL_NAME } from './components/LanguageModal';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
-import StatusTag, { Status } from '@/components/StatusTag';
+import { HandleType } from '@/common/types/Types';
 import IconButton from '@/components/IconButton';
+import PageHelmet from '@/components/PageHelmet';
 import PageLoading from '@/components/PageLoading';
 import PermissionSection from '@/components/PermissionSection';
-import { HandleType } from '@/common/types/Types';
+import StatusTag, { Status } from '@/components/StatusTag';
 
+import { getAuthHeader } from '@/common/request/header';
 import styles from './style.less';
-import {getAuthHeader} from "@/common/request/header";
 
 const Index: React.FC = () => {
-  const { currencies, fetchCurrenciesRequest } = useModel('Currency');
+  const { currencies, fetchCurrenciesRequest } = useModel(
+    'Currency',
+    (model) => ({
+      currencies: model.currencies,
+      fetchCurrenciesRequest: model.fetchCurrenciesRequest,
+    }),
+  );
 
-  const { languageData, deleteLanguageRequest, fetchLanguagesRequest } = useModel('I18n');
+  const { languageData, deleteLanguageRequest, fetchLanguagesRequest } =
+    useModel('I18n', (model) => ({
+      languageData: model.languageData,
+      deleteLanguageRequest: model.deleteLanguageRequest,
+      fetchLanguagesRequest: model.fetchLanguagesRequest,
+    }));
 
   const [modal] = useModal(MODAL_NAME);
 
-  const { t, loading: i18nLoading } = useI18n(['language', 'common', 'translation']);
+  const { t, loading: i18nLoading } = useI18n([
+    'language',
+    'common',
+    'translation',
+  ]);
 
   const [uploadModalData, setUploadModalData] = useState<{
-    visible: boolean,
+    visible: boolean;
     uploadFile: {
-      status?: string
+      status?: string;
       response?: {
-        code?: string
-        body?: {}
-        message?: string
-      }
-    }
+        code?: string;
+        body?: {};
+        message?: string;
+      };
+    };
   }>({
     visible: false,
     uploadFile: {},
@@ -149,7 +178,10 @@ const Index: React.FC = () => {
           uploadFile: uploadFile,
         });
 
-        if (info.file.status === 'done' && info.file.response?.code === '10000') {
+        if (
+          info.file.status === 'done' &&
+          isRequestSuccess(info.file.response?.code)
+        ) {
           message.success(t('common.error_message.upload.success'));
         } else if (info.file.status === 'error') {
           message.error(t('common.error_message.upload.fail'));
@@ -162,10 +194,10 @@ const Index: React.FC = () => {
         width="400px"
         footer={null}
         title={t('translation.upload.title')}
-        visible={uploadModalData.visible}
+        open={uploadModalData.visible}
         onCancel={() => {
           if (uploadModalData.uploadFile?.status === 'uploading') {
-            message.warn('Uploading...');
+            message.warning('Uploading...');
           } else {
             setUploadModalData({
               visible: false,
@@ -196,10 +228,20 @@ const Index: React.FC = () => {
               uploadModalData.uploadFile?.status !== 'uploading'
                 ? t('translation.upload.result.title')
                 : ''}
-              {uploadModalData.uploadFile?.response?.code === '10000' ? (
-                <pre>{JSON.stringify(uploadModalData.uploadFile?.response?.body, null, 2)}</pre>
+              {isRequestSuccess(
+                uploadModalData.uploadFile?.response?.code as string,
+              ) ? (
+                <pre>
+                  {JSON.stringify(
+                    uploadModalData.uploadFile?.response?.body,
+                    null,
+                    2,
+                  )}
+                </pre>
               ) : (
-                <div style={{ color: 'red' }}>{uploadModalData.uploadFile?.response?.message}</div>
+                <div style={{ color: 'red' }}>
+                  {uploadModalData.uploadFile?.response?.message}
+                </div>
               )}
             </div>
           )}
@@ -211,22 +253,28 @@ const Index: React.FC = () => {
   const renderPageTitle = () => {
     return (
       <>
-        <PageTitle title={t('language.main.heading_title')} />
-        <Space className={styles.headerButton}>
-          <PermissionSection itemKey="I18nLanguage-updateLanguage">
-            <Button icon={<UploadOutlined />} onClick={uploadDocument}>{t('language.main.button.package')}</Button>
-          </PermissionSection>
+        <PageTitle
+          title={t('language.main.heading_title')}
+          rightContent={
+            <Space>
+              <PermissionSection itemKey="I18nLanguage-updateLanguage">
+                <Button icon={<UploadOutlined />} onClick={uploadDocument}>
+                  {t('language.main.button.package')}
+                </Button>
+              </PermissionSection>
 
-          <PermissionSection itemKey="I18nLanguage-createLanguage">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => handleHeaderButtonClick('add')}
-            >
-              {t('language.main.button.add')}
-            </Button>
-          </PermissionSection>
-        </Space>
+              <PermissionSection itemKey="I18nLanguage-createLanguage">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => handleHeaderButtonClick('add')}
+                >
+                  {t('language.main.button.add')}
+                </Button>
+              </PermissionSection>
+            </Space>
+          }
+        />
       </>
     );
   };
@@ -261,7 +309,10 @@ const Index: React.FC = () => {
         title: t('language.main.column.currency'),
         dataIndex: 'currencyId',
         render: (currencyId: string) => {
-          const curCurrency = _.find(currencyListData, (c) => c.value === currencyId);
+          const curCurrency = _.find(
+            currencyListData,
+            (c) => c.value === currencyId,
+          );
           return <span>{curCurrency?.label}</span>;
         },
       },
@@ -330,6 +381,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('language.main.heading_title')} />
       {renderPageTitle()}
       {renderListTable()}
       {renderLanguageModal()}

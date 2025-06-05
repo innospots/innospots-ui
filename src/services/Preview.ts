@@ -22,22 +22,22 @@ export async function fetchResultCode() {
     return dataRequest(`workflow/flow-execution/result-code`);
 }
 
-export async function fetchStrategyDetail(workflowId?: any) {
-    return dataRequest(`workflow/instance/${workflowId}`);
+export async function fetchStrategyDetail(workflowType: string, workflowId?: any) {
+    return dataRequest(`${workflowType}/workflow/instance/${workflowId}`);
 }
 
-export async function fetchStrategyStatisticData(workflowId?: any) {
-    return dataRequest(`workflow/stat/${workflowId}`);
+export async function fetchStrategyStatisticData(workflowType: string, workflowId?: any) {
+    return dataRequest(`${workflowType}/workflow/stat/${workflowId}`);
 }
 
 export async function fetchChangeRecordList(workflowId?: any) {
-    return dataRequest(`operate-log/page?module=workflow&&resourceId=${workflowId}`);
+    return dataRequest(`operate-log/page?module=workflow-management&resourceId=${workflowId}`);
 }
 
-export async function fetchExecutionRecord(data?: any) {
+export async function fetchExecutionRecord(workflowType: string, data?: any) {
     const workflowId = data.workflowId
     delete data.workflowId
-    return dataRequest(`workflow/flow-execution/page/workflow-instance/${workflowId}`, {
+    return dataRequest(`${workflowType}/workflow/flow-execution/page/workflow-instance/${workflowId}`, {
         params: data
     });
 }

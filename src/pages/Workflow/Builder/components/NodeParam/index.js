@@ -27,115 +27,112 @@ import styles from './index.less';
 const { TextArea } = Input;
 
 const NodeParam = () => {
-    const { node, pageMode, onChange } = useContext(CurContext);
-    const nodeData = node.data || {};
-    const configData = nodeData.configData || {};
-    const { t } = useI18n(['workflow', 'common']);
+  const { node, pageMode, onChange } = useContext(CurContext);
+  const nodeData = node.data || {};
+  const configData = nodeData.configData || {};
+  const { t } = useI18n(['workflow', 'common']);
 
-    const [form] = Form.useForm();
-    const isEdit = pageMode === 'edit';
+  const [form] = Form.useForm();
+  const isEdit = pageMode === 'edit';
 
-    const isShowFailureBranch = useMemo(() => {
-        const config = configData.config || {};
-        return config.failureBranch && nodeData.continueOnFail;
-    }, [(configData.config || {}).failureBranch, nodeData.continueOnFail]);
+  const isShowFailureBranch = useMemo(() => {
+    const config = configData.config || {};
+    return config.failureBranch && nodeData.continueOnFail;
+  }, [(configData.config || {}).failureBranch, nodeData.continueOnFail]);
 
-    useEffect(() => {
-        form.setFieldsValue(nodeData);
-    }, [nodeData]);
+  useEffect(() => {
+    form.setFieldsValue(nodeData);
+  }, [nodeData]);
 
-    const handleValueChange = (changedValues) => {
-        const values = {
-            ...nodeData,
-            ...changedValues,
-        };
-        if ('continueOnFail' in changedValues) {
-            if (!changedValues.continueOnFail) {
-                values.failureBranch = false;
-            }
-        }
-        onChange(values, {
-            overwrite: true,
-        });
+  const handleValueChange = (changedValues) => {
+    const values = {
+      ...nodeData,
+      ...changedValues,
     };
+    if ('continueOnFail' in changedValues) {
+      if (!changedValues.continueOnFail) {
+        values.failureBranch = false;
+      }
+    }
+    onChange(values, {
+      overwrite: true,
+    });
+  };
 
-    return (
-        <div className={styles.params}>
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={nodeData}
-                onValuesChange={handleValueChange}
-            >
-                <Form.Item name="description" label={t('workflow.builder.settings.input.desc')}>
-                    <TextArea disabled={!isEdit} placeholder={t('common.input.placeholder')} />
-                </Form.Item>
-                <Form.Item
-                    name="color"
-                    label={t('workflow.builder.settings.colorpicker.icon_color')}
-                >
-                    <Input disabled={!isEdit} placeholder={t('common.input.placeholder')} />
-                </Form.Item>
-                <Divider />
-                <Row align="middle" style={{ marginBottom: 20 }}>
-                    <Col>{t('workflow.builder.settings.always_output_data')}：</Col>
-                    <Col>
-                        <Form.Item noStyle name="storeOutput" valuePropName="checked">
-                            <Switch disabled={!isEdit} size="small" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row align="middle" style={{ marginBottom: 20 }}>
-                    <Col>{t('workflow.builder.settings.retry_on_fail')}：</Col>
-                    <Col>
-                        <Form.Item noStyle name="retryOnFail" valuePropName="checked">
-                            <Switch disabled={!isEdit} size="small" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row align="middle" style={{ marginBottom: 20 }}>
-                    <Col>{t('workflow.builder.settings.continue_on_fail')}：</Col>
-                    <Col>
-                        <Form.Item noStyle name="continueOnFail" valuePropName="checked">
-                            <Switch disabled={!isEdit} size="small" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                {isShowFailureBranch && (
-                    <Row align="middle" style={{ marginBottom: 20 }}>
-                        <Col>{t('workflow.builder.settings.failure_branch')}：</Col>
-                        <Col>
-                            <Form.Item noStyle name="failureBranch" valuePropName="checked">
-                                <Switch disabled={!isEdit} size="small" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                )}
-            </Form>
+  return (
+    <div className={styles.params}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={nodeData}
+        onValuesChange={handleValueChange}
+      >
+        <Form.Item name="description" label={t('workflow.builder.settings.input.desc')}>
+          <TextArea disabled={!isEdit} placeholder={t('common.input.placeholder')} />
+        </Form.Item>
+        <Form.Item name="color" label={t('workflow.builder.settings.colorpicker.icon_color')}>
+          <Input disabled={!isEdit} placeholder={t('common.input.placeholder')} />
+        </Form.Item>
+        <Divider />
+        <Row align="middle" style={{ marginBottom: 20 }}>
+          <Col>{t('workflow.builder.settings.always_output_data')}：</Col>
+          <Col>
+            <Form.Item noStyle name="storeOutput" valuePropName="checked">
+              <Switch disabled={!isEdit} size="small" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row align="middle" style={{ marginBottom: 20 }}>
+          <Col>{t('workflow.builder.settings.retry_on_fail')}：</Col>
+          <Col>
+            <Form.Item noStyle name="retryOnFail" valuePropName="checked">
+              <Switch disabled={!isEdit} size="small" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row align="middle" style={{ marginBottom: 20 }}>
+          <Col>{t('workflow.builder.settings.continue_on_fail')}：</Col>
+          <Col>
+            <Form.Item noStyle name="continueOnFail" valuePropName="checked">
+              <Switch disabled={!isEdit} size="small" />
+            </Form.Item>
+          </Col>
+        </Row>
+        {isShowFailureBranch && (
+          <Row align="middle" style={{ marginBottom: 20 }}>
+            <Col>{t('workflow.builder.settings.failure_branch')}：</Col>
+            <Col>
+              <Form.Item noStyle name="failureBranch" valuePropName="checked">
+                <Switch disabled={!isEdit} size="small" />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
+      </Form>
 
-            <div>
-                {/*<p className={styles.title}>{t('workflow.builder.settings.colorpicker.icon_color')}</p>*/}
-                {/*<Popover*/}
-                {/*  content={*/}
-                {/*    <div>*/}
-                {/*      <BlockPicker triangle="hide" />*/}
-                {/*    </div>*/}
-                {/*  }*/}
-                {/*  trigger="click"*/}
-                {/*>*/}
-                {/*  <Button block>*/}
-                {/*    <div className={styles.colorPicker}>*/}
-                {/*      <span*/}
-                {/*        className={styles.colorBlock}*/}
-                {/*        style={{backgroundColor:'red'}}*/}
-                {/*      />*/}
-                {/*      <span className={styles.value}>#1245FA</span>*/}
-                {/*    </div>*/}
-                {/*  </Button>*/}
-                {/*</Popover>*/}
-            </div>
-        </div>
-    );
+      <div>
+        {/*<p className={styles.title}>{t('workflow.builder.settings.colorpicker.icon_color')}</p>*/}
+        {/*<Popover*/}
+        {/*  content={*/}
+        {/*    <div>*/}
+        {/*      <BlockPicker triangle="hide" />*/}
+        {/*    </div>*/}
+        {/*  }*/}
+        {/*  trigger="click"*/}
+        {/*>*/}
+        {/*  <Button block>*/}
+        {/*    <div className={styles.colorPicker}>*/}
+        {/*      <span*/}
+        {/*        className={styles.colorBlock}*/}
+        {/*        style={{backgroundColor:'red'}}*/}
+        {/*      />*/}
+        {/*      <span className={styles.value}>#1245FA</span>*/}
+        {/*    </div>*/}
+        {/*  </Button>*/}
+        {/*</Popover>*/}
+      </div>
+    </div>
+  );
 };
 
 export default NodeParam;

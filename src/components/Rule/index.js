@@ -16,5 +16,5 @@
  *  limitations under the License.
  */
 
-export RuleForm from './RuleForm';
-export RuleView from './RuleView';
+export { default as RuleForm } from './RuleForm';
+export { default as RuleView } from './RuleView';

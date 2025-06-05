@@ -17,10 +17,8 @@
  */
 
 import React, { useEffect } from 'react';
-
 import { useModel } from 'umi';
-
-import { Form, Input, message, Switch } from 'antd';
+import { Form, Input, message } from 'antd';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
@@ -51,15 +49,6 @@ const RoleModal: React.FC = () => {
     }
   }, [visible, modalType, initValues]);
 
-  const handleFormSubmit = () => {
-    formRes.validateFields().then((values) => {
-      saveRoleData({
-        ...initValues,
-        ...values,
-      });
-    });
-  };
-
   const saveRoleData = async (values: any) => {
     try {
       const result = await saveRoleRequest.runAsync(modalType, values);
@@ -70,9 +59,18 @@ const RoleModal: React.FC = () => {
     } catch (e) {}
   };
 
+  const handleFormSubmit = () => {
+    formRes.validateFields().then((values) => {
+      saveRoleData({
+        ...initValues,
+        ...values,
+      });
+    });
+  };
+
   const renderForm = () => {
     return (
-      <Form form={formRes} preserve={false} {...formItemLayout} style={{ marginBottom: -24 }}>
+      <Form form={formRes} preserve={false} {...formItemLayout}>
         <Form.Item
           name="roleCode"
           label={t('role.form.role_code.label')}
@@ -98,7 +96,7 @@ const RoleModal: React.FC = () => {
     <NiceModal
       simple
       width={488}
-      visible={visible}
+      open={visible}
       destroyOnClose
       title={t(`role.form.${modalType}.title`)}
       okButtonProps={{

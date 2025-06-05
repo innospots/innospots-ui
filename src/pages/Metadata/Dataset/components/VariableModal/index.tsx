@@ -317,7 +317,7 @@ const VariableModal: React.FC<Props> = ({ onSuccess, ...rest }) => {
         form={formRes}
         preserve={false}
         {...formItemLayout}
-        style={{ marginBottom: -24 }}
+       
         onValuesChange={handleFormChange}
       >
         <Form.Item

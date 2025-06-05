@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 
 @bg-color: #f6f8ff;
 
@@ -205,10 +207,10 @@
 
       :global {
         .config-panel {
-          top: 0;
-          right: 4px;
-          bottom: 0;
-          position: absolute;
+          // top: 0;
+          // right: 4px;
+          // bottom: 0;
+          // position: absolute;
 
           .config-panel-content {
             height: calc(100vh - 130px);
@@ -245,9 +247,9 @@
     &.expclose {
       :global {
         .config-panel {
-          bottom: 41px;
+          bottom: 21px !important;
           .config-panel-content {
-            height: calc(100vh - 225px);
+            height: calc(100vh - 185px) !important;
           }
         }
       }

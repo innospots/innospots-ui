@@ -1,0 +1,275 @@
+@max-width: 768px;
+@min-width: 375px;
+
+@chat-header-height: 80px;
+@chat-header-height-mobile: 56px;
+
+/* @import '~antd/es/style/themes/index.less';*/
+
+.chat {
+  height: 100%;
+  max-width: @max-width;
+  min-width: @min-width;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .chatList {
+    flex: 1;
+    padding: 16px;
+    min-height: 1px;
+    
+    .chatListItem {
+      gap: 8px;
+      width: 100%;
+      display: flex;
+      margin-bottom: 16px;
+
+      &.user {
+        flex-direction: row-reverse;
+
+        .bubble {
+          color: #fff;
+          background-color: #5988FB;
+          border-bottom-right-radius: 0;
+        }
+      }
+
+      &.system {
+
+        .bubble {
+          background-color: #fff;
+          border-bottom-left-radius: 0;
+        }
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+      }
+
+      .bubbleWrapper {
+        max-width: calc(100% - 42px);
+      }
+
+      .bubble {
+        padding: 11px 16px;
+        border-radius: 20px;
+
+        .bubbleText {
+          word-wrap: break-word;
+        }
+      }
+    }
+  }
+
+  .chatHeader {
+    padding: 0 16px;
+    height: @chat-header-height;
+    box-shadow: 3px 3px 9px 0px rgba(0, 0, 0, 0.06);
+    background: linear-gradient(135.00deg, rgb(123, 85, 235) 0%,rgb(83, 81, 241) 100%);
+
+    .inner {
+      color: #fff;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .extra {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 16px;
+    }
+    
+    .iconButton {
+      cursor: pointer;
+    }
+  }
+
+  .composer {
+    margin: 0 16px 16px;
+    background: #fff;
+    border: 1px solid rgba(100, 116, 139, 0.15);
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    position: relative;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+
+    @button-size: 24px;
+
+    .controls {
+      right: 8px;
+      bottom: 7px;
+      position: absolute;
+
+      .sendButton,
+      .stopButton,
+      .iconButton {
+        line-height: 1;
+        cursor: pointer;
+        font-size: @button-size;
+        color: @primary-color;
+
+        &:hover {
+          color: @primary-color-hover;
+        }
+      }
+      
+      .iconButton {
+        width: @button-size;
+        height: @button-size;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          height: 18px;
+        }
+      }
+
+      &.loading {
+        // padding: 0 4px 1px 0;
+
+        .sendButton {
+          display: none;
+        }
+
+        .stopButton {
+          display: block;
+        }
+      }
+
+      .stopButton {
+        height: @button-size;
+        display: none;
+      }
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+
+    textarea::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    textarea:hover::-webkit-scrollbar-thumb {
+      background: #f0f3fb;
+      border-radius: 5px;
+    }
+  }
+
+  .smallStyles() {
+    .chatHeader {
+      height: @chat-header-height-mobile;
+
+      .title {
+        font-size: 14px;
+        font-weight: 400;
+      }
+    }
+
+    .composer {
+      min-height: 40px;
+    }
+  }
+
+  &.small {
+    .smallStyles();
+  }
+
+  @media (max-width: 768px) {
+    .smallStyles();
+  }
+}
+
+.recorderToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 2000;
+  width: 160px;
+  height: 160px;
+  padding: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  text-align: center;
+}
+
+.recorder {
+  flex: 1;
+}
+
+.recorderWaves {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  transition: .3s;
+}
+
+.recorderWave1,
+.recorderWave2,
+.recorderWave3 {
+  position: absolute;
+  z-index: -1;
+  animation: wave 10s linear infinite;
+}
+
+.recorderWave1 {
+  top: -25px;
+  left: 14px;
+  font-size: 176px;
+  opacity: 0.2;
+}
+
+.recorderWave2 {
+  top: -12px;
+  left: -21px;
+  font-size: 186px;
+  opacity: 0.4;
+}
+
+.recorderWave3 {
+  top: 40px;
+  left: 55px;
+  font-size: 71px;
+  opacity: 0.8;
+}
+
+.recorderBtn {
+  margin-right: 32px;
+  line-height: 32px;
+  text-align: center;
+  transition: .3s;
+  cursor: pointer;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+@keyframes wave {
+  0% {
+    transform: translateY(5%) rotate(0);
+  }
+  50% {
+    transform: translateY(-5%) rotate(180deg);
+  }
+  100% {
+    transform: translateY(5%) rotate(360deg);
+  }
+}

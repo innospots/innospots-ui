@@ -98,7 +98,7 @@ export default () => {
   /**
    * 编辑翻译
    */
-  const saveTransRequest = useRequest(Service.saveTrans, {
+  const updateTransRequest = useRequest(Service.updateTrans, {
     manual: true,
     onSuccess: (result: boolean, [data]) => {
       if (result) {
@@ -108,6 +108,20 @@ export default () => {
         }
       }
     },
+  });
+
+  /**
+   * 新建翻译
+   */
+  const saveTransRequest = useRequest(Service.saveTrans, {
+    manual: true
+  });
+
+  /**
+   * 删除翻译
+   */
+  const deleteTransRequest = useRequest(Service.deleteTrans, {
+    manual: true
   });
 
   const fetchLocalesRequest = useRequest(Service.fetchLocales, {
@@ -184,11 +198,13 @@ export default () => {
 
     appListRequest,
     getLanguageList,
+    deleteTransRequest,
     translationRequest,
     appModuleListRequest,
     translationHeaderColumnRequest,
 
     saveTransRequest,
+    updateTransRequest,
     saveLanguageRequest,
     fetchLocalesRequest,
     deleteLanguageRequest,

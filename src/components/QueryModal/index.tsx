@@ -1,0 +1,809 @@
+/*
+ * Copyright © 2021-2023 Innospots (http://www.innospots.com)
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+
+import { useModel } from 'umi';
+import _ from 'lodash';
+import cls from 'classnames';
+import { useRequest } from 'ahooks';
+import { format } from 'sql-formatter';
+
+import {
+  Row,
+  Col,
+  Tabs,
+  Cascader,
+  Form,
+  Tree,
+  Space,
+  Empty,
+  Input,
+  Table,
+  Select,
+  Button,
+  message,
+  Dropdown,
+  Popconfirm,
+  TableColumnsType
+} from 'antd';
+import {
+  UpOutlined,
+  DownOutlined,
+  TableOutlined,
+  SearchOutlined,
+  DollarOutlined,
+  FileDoneOutlined,
+  CaretRightOutlined,
+  NumberOutlined,
+  CalendarOutlined,
+  FunctionOutlined,
+  RightCircleOutlined,
+  FieldStringOutlined,
+  MinusCircleOutlined
+} from '@ant-design/icons';
+
+import { useReactive, useMemoizedFn, useDebounceFn, useUpdateEffect } from 'ahooks';
+
+import useI18n from '@/common/hooks/useI18n';
+import useModal from '@/common/hooks/useModal';
+import {KeyValues} from '@/common/types/Types';
+import {ExpressionInput} from '@/components/Expression';
+
+import { fetchSchemaRegistryTopics } from '@/services/DataSource';
+
+import NiceModal, { NiceModalProps } from '@/components/Nice/NiceModal';
+
+import styles from './style.less';
+import { randomString } from '@/common/utils';
+
+const AceCodeEditor = React.lazy(() => import('@/components/AceCodeEditor'))
+
+type Props = {
+  onSuccess?: () => void
+} & NiceModalProps;
+
+const { TabPane } = Tabs;
+
+const numberList = [20, 50, 100];
+const TYPE_ICONS = {
+  DATE: <CalendarOutlined />,
+  LONG: <NumberOutlined />,
+  DOUBLE: <NumberOutlined />,
+  NUMERIC: <NumberOutlined />,
+  INTEGER: <NumberOutlined />,
+  CURRENCY: <DollarOutlined />,
+  STRING: <FieldStringOutlined />,
+};
+
+let createTimer, changeTimer;
+
+const FIELD_OPTIONS = [
+  {
+    value: 'STRING',
+    label: '字符',
+  },
+  {
+    value: 'INTEGER',
+    label: '数值',
+  },
+  {
+    value: 'DATE',
+    label: '日期',
+  },
+  {
+    value: 'CATEGORY',
+    label: '分类',
+    children: [
+      {
+        value: 'COUNTRY',
+        label: '国家',
+      },
+      {
+        value: 'PROVINCE',
+        label: '省份',
+      },
+      {
+        value: 'CITY',
+        label: '城市',
+      },
+      {
+        value: 'DISTRICT',
+        label: '区县',
+      },
+    ],
+  },
+];
+
+export const MODAL_NAME = 'QueryModal';
+
+const QueryModal: React.FC<Props> = ({ onSuccess }) => {
+  const editorRef = useRef<{
+    beautifyCode: () => void,
+  }>(null);
+  const modalBody = useRef(null);
+  const [formRes] = Form.useForm();
+  const [sqlCode, setSqlCode] = useState('');
+  const [queryCode, setQueryCode] = useState('');
+  const [dataCollapsed, setDataCollapsed] = useState(false);
+  const [paramsCollapsed, setParamsCollapsed] = useState(false);
+  const formStatus = useReactive<{
+    name: any;
+    category: any;
+  }>({
+    name: undefined,
+    category: undefined,
+  });
+  const dataSet = useReactive({
+    list: [],
+  });
+  const variableData = useReactive<{
+    type: string;
+    list: any[];
+    data: any;
+    visible: boolean;
+  }>({
+    type: 'create',
+    list: [],
+    data: null,
+    visible: false,
+  });
+  const dataPreview = useReactive<{
+    time: number;
+    columns: any[];
+    dataSource: any[];
+    pageBody: {
+      pagination: {
+        total: number;
+      }
+    };
+    isExecute: boolean;
+  }>({
+    time: 0,
+    columns: [],
+    dataSource: [],
+    pageBody: {
+      pagination: {
+        total: 0
+      }
+    },
+    isExecute: false,
+  });
+  const dataViewValues = useReactive({
+    sql: '',
+    model: {},
+    credentialKey: '',
+    pageSize: numberList[0],
+  });
+
+  const [modal, modalInfo] = useModal(MODAL_NAME);
+  const { visible, modalType, initValues } = modalInfo;
+  const previewDataCount = dataPreview.pageBody?.pagination?.total || 0;
+
+  const { categories, selectedCategoryId, saveDatasetRequest, datasetExecuteRequest } =
+    useModel('Dataset');
+
+  const { credentials, credentialsRequest, fetchSchemaFieldsRequest } = useModel('Credential', (model) => ({
+    credentials: model.credentials,
+    credentialsRequest: model.credentialsRequest,
+    fetchSchemaFieldsRequest: model.fetchSchemaFieldsRequest,
+  }));
+
+  const schemaRegistryTopicsRequest = useRequest(fetchSchemaRegistryTopics, {
+    manual: true,
+    debounceWait: 300,
+  });
+
+  const { t } = useI18n(['dataset', 'common']);
+  const isUpdate = modalType === 'edit' && initValues;
+
+  const filterCredentials = useMemo(() => {
+    return _.map(credentials, item => ({
+      label: item.name,
+      value: item.credentialKey,
+    }))
+  }, [ credentials ])
+
+  useEffect(() => {
+    if (visible) {
+      setInitValues();
+      credentialsRequest.runAsync();
+    }
+  }, [visible, isUpdate]);
+
+  useEffect(() => {
+    if (!visible) {
+      setQueryCode('');
+      dataViewValues.model = {};
+    }
+  }, [visible]);
+
+  useUpdateEffect(() => {
+    if (dataViewValues.credentialKey) {
+      const params: {
+        queryCode?: string;
+      } = {};
+
+      if (queryCode) {
+        params.queryCode = queryCode;
+      }
+      fetchTopics(dataViewValues.credentialKey, params);
+    }
+  }, [dataViewValues.credentialKey, queryCode]);
+
+  const setInitValues = () => {
+    dataPreview.time = 0;
+    dataPreview.columns = [];
+    dataPreview.dataSource = [];
+    dataPreview.pageBody.pagination = {
+      total: 0,
+    };
+    dataPreview.isExecute = false;
+
+    if (isUpdate) {
+      formRes.setFieldsValue(initValues);
+      dataViewValues.sql = initValues.script;
+      dataViewValues.credentialKey = initValues.credentialKey;
+      variableData.list = initValues.variables || [];
+      try {
+        dataViewValues.model = JSON.parse(initValues.model);
+      } catch (e) {}
+    } else {
+      dataViewValues.sql = '';
+      dataViewValues.model = {};
+      dataViewValues.credentialKey = '';
+
+      formRes.setFieldsValue({
+        categoryId: selectedCategoryId,
+      });
+    }
+
+    dataViewValues.pageSize = numberList[0];
+    setSqlCode(dataViewValues.sql)
+  };
+
+  const handleFormSubmit = () => {
+    formRes.validateFields().then((values) => {
+      if (_.isUndefined(values.name) || _.isNull(values.name) || !values.name) {
+        formStatus.name = 'error';
+      } else {
+        formStatus.name = undefined;
+      }
+      // if (_.isUndefined(values.categoryId)) {
+      //   formStatus.category = 'error';
+      // } else {
+      //   formStatus.category = undefined;
+      // }
+
+      if (_.isUndefined(formStatus.name)) {
+        let postData: {
+          code?: string;
+          name?: string;
+          registryType?: string;
+        } = {};
+
+        if (isUpdate) {
+          postData = {
+            ...initValues,
+          };
+        }
+
+        postData = {
+          ...postData,
+          ...values,
+          script: {script: sqlCode},
+          schemaFields: variableData.list,
+          credentialKey: dataViewValues.credentialKey,
+          configs:{model: JSON.stringify(dataViewValues.model)},
+          categoryId: 0
+        };
+
+        if (!postData.code) {
+          postData.code = randomString(6);
+        }
+
+        if (!postData.registryType) {
+          postData.registryType = 'VIEW';
+        }
+
+        saveDataViewData(postData);
+      }
+    });
+  };
+
+  const fetchTopics = async (credentialKey: number, params: any) => {
+    try {
+      dataSet.list = [];
+      const result = await schemaRegistryTopicsRequest.runAsync(credentialKey, params);
+      // @ts-ignore
+      dataSet.list = result;
+    } catch (e) {}
+  };
+
+  const saveDataViewData = async (values: any) => {
+    try {
+      const result = await saveDatasetRequest.runAsync(values, modalType);
+      if (result) {
+        message.success(t('common.error_message.save.success'));
+        modal.hide();
+        onSuccess?.();
+      }
+    } catch (e) {}
+  };
+
+  const { run: updateQueryCode } = useDebounceFn(
+    (event) => {
+      setQueryCode(event.target.value);
+    },
+    {
+      wait: 500,
+    },
+  );
+
+  const handleDataSourceChange = useMemoizedFn((credentialKey: number) => {
+    dataViewValues.credentialKey = credentialKey;
+  });
+
+  const handleTreeSelect = useMemoizedFn(
+    (selectedKeys, { selected, selectedNodes, node, event }) => {},
+  );
+
+  const handleLoadData = ({ code, children }: any) =>
+    new Promise<void>(async (resolve) => {
+      if (children) {
+        resolve();
+        return;
+      }
+      const list = await fetchSchemaFieldsRequest.runAsync({
+        tableName: code,
+        credentialKey: dataViewValues.credentialKey,
+      });
+      const curItem = _.find(dataSet.list, (item: any) => item.code === code);
+
+      if (curItem) {
+        curItem.children = _.map(list, (item: any) => ({
+          ...item,
+          icon: () => TYPE_ICONS[item.valueType],
+          isLeaf: true,
+        }));
+      }
+
+      dataSet.list = [...dataSet.list];
+
+      resolve();
+    });
+
+  const handleSQLFormat = () => {
+    if (editorRef.current) {
+      editorRef.current.beautifyCode();
+    }
+  };
+
+  const handleDataPreview = async () => {
+    if (dataViewValues.credentialKey) {
+      let time = +new Date();
+      const listData = await datasetExecuteRequest.runAsync({
+        script: sqlCode
+      }, {
+        page: 1,
+        size: dataViewValues.pageSize,
+        credentialKey: dataViewValues.credentialKey,
+      });
+
+      dataPreview.isExecute = true;
+
+      if (listData) {
+        const model = {};
+
+        dataPreview.time = +new Date() - time;
+        dataPreview.pageBody = listData.pageBody;
+        dataPreview.columns = _.map(listData.columns, (item: any) => {
+          const title = item.name;
+
+          model[title] = {
+            type: item.type || 'STRING',
+            category: item.category || 'UNCATEGORIZED',
+          };
+
+          return {
+            title,
+            width: 150,
+            ellipsis: true,
+            dataIndex: title,
+            render: (value) => (<span className={styles.field}>{ value }</span>)
+          };
+        });
+        dataPreview.dataSource = _.map(listData.rows, (dataList: any[]) => {
+          const data = {};
+          _.map(dataPreview.columns, (col: any, index) => {
+            const value = (data[col.dataIndex] = dataList[index]);
+            // const valWidth = getTextWidth(value);
+            // const colWidth = getTextWidth(col.title);
+            // col.width = Math.max(valWidth, colWidth);
+          });
+
+          return data;
+        });
+
+        dataViewValues.model = model;
+      }
+    }
+  };
+
+  const handleEditorDidMount = (editor: any) => {
+    // editRef.current = editor;
+  };
+
+  const handleSQLChange = (newValue) => {
+    setSqlCode(newValue)
+  }
+
+  const handleVariableSuccess = useMemoizedFn((type, values) => {
+    if (type === 'add') {
+      // @ts-ignore
+      variableData.list.push(values);
+    } else {
+      const index = _.findIndex(variableData.list, (item: any) => item.id === values.id);
+      if (index > -1) {
+        // @ts-ignore
+        variableData.list[index] = values;
+      }
+    }
+    variableData.visible = false;
+  });
+
+  const renderBaseForm = () => {
+    return (
+      <div className={styles.baseForm}>
+        <Form form={formRes} preserve={false} layout="inline">
+          <Row className={styles.formRow} gutter={[48, 0]}>
+            <Col>
+              <Form.Item
+                required
+                name="name"
+                label={t('dataset.form.input.name.label')}
+                validateStatus={formStatus.name}
+              >
+                <Input
+                  className={styles.formItem}
+                  placeholder={t('dataset.form.input.name.placeholder')}
+                  onChange={(e) => {
+                    if (_.isUndefined(e.target.value) || !e.target.value) {
+                      formStatus.name = 'error';
+                    } else {
+                      formStatus.name = undefined;
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </div>
+    );
+  };
+
+  const renderLeftContent = () => {
+    let treeData = dataSet.list;
+
+    // if (queryCode) {
+    //     // @ts-ignore
+    //     treeData = _.filter(treeData, (item: any) => item.code.indexOf(queryCode) > -1)
+    // }
+
+    const datasourceValue =
+      dataViewValues.credentialKey === '' ? undefined : dataViewValues.credentialKey;
+
+    return (
+      <div className={styles.leftContent}>
+        <div className={styles.header}>
+          <span>{t('dataset.form.select.datasource.label')}</span>
+        </div>
+        <div className={styles.filterForms}>
+          <Select
+            size="small"
+            value={datasourceValue}
+            options={filterCredentials}
+            placeholder={t('dataset.form.select.datasource.placeholder')}
+            style={{ width: '100%', marginBottom: 8 }}
+            onChange={handleDataSourceChange}
+          />
+          <Input
+            size="small"
+            prefix={<SearchOutlined />}
+            placeholder={t('dataset.form.search.placeholder')}
+            onChange={updateQueryCode}
+          />
+        </div>
+        <div className={styles.treeList}>
+          {treeData?.length && dataViewValues.credentialKey !== '' ? (
+            <Tree
+              showIcon
+              treeData={treeData}
+              icon={<TableOutlined />}
+              fieldNames={{
+                key: 'code',
+                title: 'name',
+              }}
+              loadData={handleLoadData}
+              onSelect={handleTreeSelect}
+            />
+          ) : (
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderConfigEditor = () => {
+    const runDisabled =
+      !dataViewValues.credentialKey || dataViewValues.credentialKey < 0 || !sqlCode;
+
+    return (
+      <div className={styles.configEditor}>
+        <div className={styles.header}>
+          <div>
+            <Space size={16}>
+              <Button
+                size="small"
+                type="primary"
+                icon={<CaretRightOutlined />}
+                disabled={runDisabled}
+                loading={datasetExecuteRequest.loading}
+                onClick={handleDataPreview}
+              >
+                {t('dataset.form.button.run')}
+              </Button>
+              <Button
+                size="small"
+                type="text"
+                icon={<FileDoneOutlined />}
+                onClick={handleSQLFormat}
+              >
+                {t('dataset.form.button.format')}
+              </Button>
+            </Space>
+          </div>
+          <div>
+            <Row>
+              <Col style={{ lineHeight: '28px' }}>{t('dataset.form.select.pagesize.label')}：</Col>
+              <Col>
+                <Select
+                  size="small"
+                  placeholder={t('common.select.placeholder')}
+                  style={{ width: 90 }}
+                  value={dataViewValues.pageSize}
+                  options={numberList.map((n) => ({
+                    value: n,
+                    label: t('common.data.items', {
+                      count: n,
+                    }),
+                  }))}
+                  onChange={(pageSize: number) => (dataViewValues.pageSize = pageSize)}
+                />
+              </Col>
+            </Row>
+          </div>
+        </div>
+        <div className={styles.editor}>
+          <AceCodeEditor
+            mode="sql"
+            ref={editorRef}
+            defaultValue={sqlCode}
+            name="QueryCodeEditor"
+            placeholder={t('common.input.placeholder')}
+            onChange={handleSQLChange}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const renderOtherConfig = () => {
+    const columns: TableColumnsType<KeyValues> = [
+      {
+        title: '字段',
+        dataIndex: 'code',
+        render: (code: string, record: any, index: number) => (
+          <Input
+            size="small"
+            value={code}
+            placeholder={t('common.input.placeholder')}
+          />
+        )
+      },
+      {
+        title: '默认值',
+        dataIndex: 'value',
+        render: (value, record: any, index: number) => (
+          <ExpressionInput size="small"/>
+        )
+      },
+      {
+        title: () => (
+          <span className="b-button">新增</span>
+        ),
+        width: 50,
+        align: 'center',
+        dataIndex: 'key',
+        render: (key, record: any, index: number) => (
+          <Popconfirm
+            title={t('common.text.delete_confirmation')}
+            okText={t('common.button.confirm')}
+            cancelText={t('common.button.cancel')}
+          >
+            <span className="g-button">
+              <MinusCircleOutlined/>
+            </span>
+          </Popconfirm>
+        )
+      }
+    ];
+
+    return (
+      <div className={styles.otherConfig}>
+        {
+          paramsCollapsed ? (
+            <div className={styles.paramsLabel} onClick={() => setParamsCollapsed(false)}>
+              <FunctionOutlined /><span className={styles.label}>参数配置</span>
+            </div>
+          ) : (
+            <Tabs
+              tabBarExtraContent={
+                <span className="g-button" onClick={() => setParamsCollapsed(true)}>
+                  <RightCircleOutlined />
+                </span>
+              }
+            >
+              <TabPane key="1" tab={(<div><FunctionOutlined />参数配置</div>)}>
+                <div style={{padding: '0 8px'}}>
+                  <Table
+                    size="small"
+                    columns={columns}
+                    pagination={false}
+                    scroll={{
+                      y: 320
+                    }}
+                  />
+                </div>
+              </TabPane>
+            </Tabs>
+          )
+        }
+      </div>
+    );
+  };
+
+  const renderConfigContent = () => {
+    return (
+      <div className={cls(styles.configContent, {
+        [styles.collapsed]: paramsCollapsed
+      })}>
+        {renderConfigEditor()}
+        {renderOtherConfig()}
+      </div>
+    );
+  };
+
+  const renderDataPreview = () => {
+    const model = dataViewValues.model;
+    const columns = _.map(dataPreview.columns, (col: any) => {
+      const curModel = model?.[col.title];
+      return {
+        ...col,
+        title: (
+          <div className={styles.colTitle}>
+            <span className={styles.title}>{col.title}</span>
+            <Cascader
+              size="small"
+              options={FIELD_OPTIONS}
+              expandTrigger="hover"
+              popupClassName={styles.popupClassName}
+              onChange={(s) => {
+                try {
+                  let type = s[s.length - 1];
+                  type = ['COUNTRY', 'PROVINCE', 'CITY', 'DISTRICT'].includes(type as string) ? 'STRING' : type;
+                  dataViewValues.model[col.title].type = type;
+                } catch (e) {}
+              }}
+              getPopupContainer={() => modalBody.current as any}
+            >
+              <span className={styles.type}>
+                <span className="g-button">{TYPE_ICONS[curModel?.type]}</span>
+              </span>
+            </Cascader>
+          </div>
+        ),
+      };
+    });
+
+    return (
+      <div
+        className={cls(styles.preview, {
+          [styles.showFooter]: previewDataCount > 0,
+        })}
+      >
+        <div className={styles.header}>
+          <Dropdown overlay={<></>}>
+            <span className={styles.previewLabel} onClick={() => setDataCollapsed(!dataCollapsed)}>
+              {t('dataset.form.preview')} {dataCollapsed ? <UpOutlined /> : <DownOutlined />}
+            </span>
+          </Dropdown>
+        </div>
+        <div className={styles.previewData}>
+          <Table
+            size="small"
+            columns={columns}
+            scroll={{ y: 198 - (previewDataCount > 0 ? 28 : 0) }}
+            pagination={false}
+            dataSource={dataPreview.dataSource}
+            loading={datasetExecuteRequest.loading}
+          />
+        </div>
+        <div className={styles.footer}>
+          <span>{t('dataset.form.result', { data: previewDataCount || '-' })}</span>
+          <span>{t('dataset.form.execute.time', { data: dataPreview.time || '-' })}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRightContent = () => {
+    return (
+      <div className={cls(styles.rightContent, {
+        [styles.previewCollapsed]: dataCollapsed
+      })}>
+        {renderConfigContent()}
+        {renderDataPreview()}
+      </div>
+    );
+  };
+
+  const renderMainContent = () => {
+    return (
+      <div className={styles.mainContent}>
+        {renderLeftContent()}
+        {renderRightContent()}
+      </div>
+    );
+  };
+
+  return (
+    <NiceModal
+      width={1120}
+      destroyOnClose
+      title={t(`dataset.form.${modalType || 'edit'}.title`)}
+      okButtonProps={{
+        loading: saveDatasetRequest.loading,
+        disabled: !dataPreview.isExecute,
+        onClick: handleFormSubmit,
+      }}
+      visible={visible}
+      style={{ top: 20 }}
+      onCancel={modal.hide}
+    >
+      <div className={styles.modalBody} ref={modalBody}>
+        {renderBaseForm()}
+        {renderMainContent()}
+      </div>
+    </NiceModal>
+  );
+};
+
+export default QueryModal;

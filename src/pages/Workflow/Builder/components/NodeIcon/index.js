@@ -16,27 +16,39 @@
  *  limitations under the License.
  */
 
-import React from 'react';
 import { createFromIconfontCN } from '@ant-design/icons';
 import {Image} from 'antd';
 import _ from 'lodash';
 
-import {formatImagePath} from '@/common/utils';
+import AppIcons from '@/components/IconSelect/Icons';
+
+import {formatImagePath, formatResourcePath} from '@/common/utils';
 
 import styles from './index.less';
 
 //https://www.iconfont.cn/manage/index?manage_type=myprojects&projectId=2511846
 const NodeIcon = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/c/font_2511846_2yqi0vs7069.js',
+  // scriptUrl: '//at.alicdn.com/t/c/font_2511846_2yqi0vs7069.js',
+  scriptUrl: require('../../fonts/node-icon/iconfont.js'),
 });
 
-export const renderNodeIcon = (nodeInfo) => {
+export const renderNodeIcon = (nodeInfo, config = {}) => {
+  const {
+    baseUrl
+  } = config
   const icon = nodeInfo.icon || '';
-  const isImg = /^\/image/i.test(icon) || /^\//.test(icon) || /^data:image\//.test(icon);
+  const isBase64Img = /^data:image\//.test(icon)
+  const isApiImg = /^\/image/i.test(icon)
+  const isImg = isApiImg || /^\//.test(icon) || isBase64Img;
   const isStringIcon = _.isString(icon);
-
+  // console.log(icon, isImg, isStringIcon);
   if (!isStringIcon) {
     return icon;
+  }
+
+  const AppIcon = AppIcons[icon];
+  if (AppIcon) {
+    return <AppIcon />;
   }
 
   if (!icon) {
@@ -46,9 +58,16 @@ export const renderNodeIcon = (nodeInfo) => {
   }
 
   if (isImg) {
+    let imgPath
+    if (isBase64Img || isApiImg) {
+      imgPath = formatImagePath(icon, baseUrl)
+    } else {
+      imgPath = formatResourcePath(icon)
+    }
+
     return (
-      <div className="node-image-icon">
-        <Image height="100%" alt={nodeInfo.code} src={formatImagePath(icon)} preview={false} />
+      <div className="node-image-icon" style={{lineHeight: 1}}>
+        <Image height="100%" alt={nodeInfo.code} src={imgPath} preview={false} />
       </div>
     );
   }
@@ -64,7 +83,7 @@ export const renderNodeIcon = (nodeInfo) => {
 export const DefaultNodeIcon = ({ name }) => {
 
   return (
-    <span className={styles.nodeIcon}>{ (name || '').toUpperCase().charAt(0) }</span>
+    <span className={[styles.nodeIcon, 'char-icon'].join(' ')}>{ (name || '').toUpperCase().charAt(0) }</span>
   )
 }
 

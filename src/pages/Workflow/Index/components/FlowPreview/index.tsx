@@ -16,13 +16,15 @@
  *  limitations under the License.
  */
 
-import { dynamic } from 'umi';
+import { lazy } from 'react';
+import SuspenseRender from '@/components/SuspenseRender';
 
-export default dynamic({
-  loader: async function () {
-    const { default: Component } = await import(
-      /* webpackChunkName: "com__FlowPreview" */ './FlowPreview'
-      );
-    return Component;
-  },
-});
+const FlowPreview = lazy(() => import('./FlowPreview'));
+
+export default function (props: any) {
+  return (
+    <SuspenseRender>
+      <FlowPreview {...props} />
+    </SuspenseRender>
+  );
+}

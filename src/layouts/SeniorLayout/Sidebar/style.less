@@ -1,0 +1,88 @@
+@import '../vars.less';
+
+.menuBox {
+  display: flex;
+  height: 100%;
+}
+
+.submenu {
+  flex: 1;
+  width: @submenu-width;
+  height: 100%;
+  background: #fff;
+  min-width: 1px;
+  padding: 24px 6px 0;
+}
+
+.sidebar {
+  width: @sidebar-width;
+  height: 100%;
+  background: linear-gradient(179.4deg, #FFFFFF -1.51%, #ECF1FF 204.15%);
+  border-right: 1px solid #E5E6EB;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // justify-content: space-between;
+
+  .logoBox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: @logo-box-height;
+  }
+
+  .logo {
+    width: @logo-size;
+    height: @logo-size;
+  }
+
+  .menuItems {
+    flex: 1;
+    min-height: 1px;
+    width: 100%;
+    padding-left: 5px;
+  }
+
+  .sidebarItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    max-width: 60px;
+    height: 66px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    color: @sidebar-item-text-color;
+    border-radius: @border-radius-base;
+
+    .text {
+      margin: 4px 0;
+      font-size: 12px;
+    }
+
+    .icon {
+      font-size: 18px;
+    }
+
+    &:hover,
+    &.selected {
+      background-color: @sidebar-selected-bg-color;
+
+      .icon, .text {
+        color: @sidebar-item-text-hover-color;
+      }
+    }
+  }
+
+  .iconButton {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+  }
+}

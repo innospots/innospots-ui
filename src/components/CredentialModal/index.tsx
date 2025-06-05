@@ -16,34 +16,42 @@
  *  limitations under the License.
  */
 
-import React, {useRef, useState, useEffect, useMemo} from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import cls from 'classnames';
 import _ from 'lodash';
 import { useModel } from 'umi';
 
-import {Row, Col, Tabs, Empty, Modal, Typography, Spin, Form, Table, Select, Switch, Input, Radio, Button, message, TableColumnsType} from 'antd';
 import {
-  PlusOutlined,
-  EditOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  SearchOutlined,
-  LoadingOutlined,
-} from '@ant-design/icons';
+  Row,
+  Col,
+  Empty,
+  Modal,
+  Typography,
+  Spin,
+  Form,
+  Table,
+  Select,
+  Switch,
+  Input,
+  Radio,
+  Button,
+  message,
+  TableColumnsType,
+} from 'antd';
+import { PlusOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 import Blowfish from '@/common/utils/Blowfish';
-import Steps from "@/components/Steps";
-import IconButton from "@/components/IconButton";
+import Steps from '@/components/Steps';
+import IconButton from '@/components/IconButton';
 import { renderNodeIcon } from '@/pages/Workflow/Builder/components/NodeIcon';
 
 import { fetchSecretKey } from '@/services/DataSource';
 import { getCredentialDetail } from '@/services/Credential';
+import { BASE_URL, GRID_LAYOUT_CONFIG } from '@/common/constants';
 
 import styles from './style.less';
-
-const defaultPic = require('@/assets/images/common/s_logo.png');
 
 const { TextArea } = Input;
 const { Paragraph } = Typography;
@@ -58,78 +66,39 @@ const getNewConfig = () => ({
   isEdit: true,
 });
 
-type CredentialType = {
-  name: string;
-  code: string;
-  nodeId: number;
-  configCode: string;
-  connectType: string;
-  credentialType: string;
-  icon?: string;
-  config: boolean;
-  enabled?: boolean;
-  elements?: any[];
-};
-
-type NodeType = {
-  defaults?: Record<string, any>;
-  elements?: any[];
-};
-
 let configDataClone;
-
-const STEPS = [{
-  title: '选择应用',
-  description: '选择需要接入平台的应用',
-}, {
-  title: '凭据设置',
-  description: '应用连接参数和账户鉴权信息',
-}];
-
-const DEFAULT_FORM_ITEMS = [{
-  name: 'name',
-  label: '凭据名称',
-  required: true,
-  placeholder: '请输入'
-}];
 
 export const MODAL_NAME = 'CredentialModal';
 
-const getImage = (src, style?: any) => <img src={src || defaultPic} style={style} onError={(event) => ((event.target as any).src = defaultPic)} alt=""/>
-
 const CredentialModal: React.FC<{
-  initNodeId?: number
-}> = ({ initNodeId }) => {
+  onSuccess?: (result) => void
+}> = ({ onSuccess }) => {
   const { t } = useI18n(['datasource', 'credential', 'common']);
-
-  const blowfishRef = useRef(null);
-  const [formIns] = Form.useForm();
-  const [curStep, setCurStep] = useState<number>(-1);
-  const [appInfo, setAppInfo] = useState<Record<string, any>>({});
-  const [formError, setFormError] = useState({});
-  const [appKeywords, setAppKeywords] = useState<string>('');
-  // const [defaultValue, setDefaultValue] = useState<any>({});
-  const [testResult, setTestResult] = useState<boolean | undefined>();
-  const [configData, setConfigData] = useState<any[]>([]);
-  const [dataSource, setDataSource] = useState<CredentialType | undefined>();
-  const [submitAble, setSubmitAble] = useState(false);
-  const [nodeConfig, setNodeConfig] = useState<NodeType | undefined>();
-  const [nodeConfigEls, setNodeConfigEls] = useState<any[]>([]);
-  const [credentialDetail, setCredentialDetail] = useState<any>({});
 
   const {
     appCategories,
     appCategoriesRequest,
-    nodeConfigsRequest,
+    credentialTypes,
+    credentialTypesRequest,
     saveCredentialRequest,
-    connectionTestRequest
+    connectionTestRequest,
   } = useModel('Credential');
 
-  const {
-    appInfoRequest
-  } = useModel('App', model => ({
-    appInfoRequest: model.appInfoRequest
-  }));
+  const blowfishRef = useRef(null);
+  const [formIns] = Form.useForm();
+  const [baseFormIns] = Form.useForm();
+  const [baseFormValue, setBaseFormValue] = useState<any>({});
+  const [curStep, setCurStep] = useState<number>(-1);
+  const [readOnlyList, setReadOnlyList] = useState({});
+  const [formError, setFormError] = useState({});
+  const [modalLoading, setModalLoading] = useState<boolean>(
+    credentialTypesRequest.loading || appCategoriesRequest.loading,
+  );
+  const [testResult, setTestResult] = useState<boolean | undefined>();
+  const [configData, setConfigData] = useState<any[]>([]);
+  const [dataSource, setDataSource] = useState<any>();
+  const [submitAble, setSubmitAble] = useState(false);
+  const [credentialDetail, setCredentialDetail] = useState<any>({});
 
   const [modal, modalInfo] = useModal(MODAL_NAME);
 
@@ -139,8 +108,24 @@ const CredentialModal: React.FC<{
   const testLoading = connectionTestRequest.loading;
   const confirmLoading = saveCredentialRequest.loading;
 
-  const steps = useMemo(() => <Steps items={STEPS} current={curStep} />, [curStep]);
-  const isShowPrevBtn = useMemo(() => (!isEdit && !initNodeId), [ isEdit, initNodeId ]);
+  const steps = useMemo(
+    () => (
+      <Steps
+        items={[
+          {
+            title: t('credential.form.tab.base'),
+            description: t('credential.form.tab.base_desc'),
+          },
+          {
+            title: t('credential.form.tab.auth'),
+            description: t('credential.form.tab.auth_desc'),
+          },
+        ]}
+        current={curStep}
+      />
+    ),
+    [curStep],
+  );
 
   const modalTitle = useMemo(() => {
     return (
@@ -160,184 +145,81 @@ const CredentialModal: React.FC<{
   }, [testResult]);
 
   useEffect(() => {
-    setFormError({})
-  }, [dataSource?.configCode]);
-
-  useEffect(() => {
-    if (curStep === 1 && dataSource?.nodeId) {
-      fetchNodeConfigs(dataSource.nodeId)
-    } else if (curStep === 0) {
-      setNodeConfig({
-        elements: []
-      })
-    }
-  }, [ curStep, dataSource?.nodeId ]);
+    setFormError({});
+  }, [baseFormValue?.credentialType?.typeCode]);
 
   useEffect(() => {
     if (visible) {
       appCategoriesRequest.run();
+      credentialTypesRequest.run();
     } else {
-      setNodeConfig({});
       setCurStep(-1);
       setFormError({});
       setConfigData([]);
+      setBaseFormValue({});
+      setReadOnlyList({});
+      setCredentialDetail({});
       formIns.resetFields();
+      baseFormIns.resetFields();
     }
   }, [visible]);
 
   useEffect(() => {
-    if (visible && appCategories.length) {
+    if (visible) {
       if (isEdit) {
-        if (initValues?.credentialId) {
-          fetchCredentialDetail(initValues?.credentialId)
+        if (initValues?.credentialKey) {
+          fetchCredentialDetail(initValues?.credentialKey);
         }
-      } else {
-        if (initNodeId) {
-          getDefaultDataSource();
-        } else {
-          setCurStep(0);
-          setDataSource(undefined);
-        }
-        createBlowfish()
-      }
-    }
-  }, [visible, isEdit, initNodeId, initValues, appCategories]);
-
-  const fetchCredentialDetail = async (credentialId: number) => {
-    const result = await getCredentialDetail(credentialId) as any;
-    if (result) {
-      setCredentialDetail(result);
-      const ds = _.find(appCategories[0].nodes, item => item.code === result.appNodeCode);
-      if (ds) {
-        setCurStep(1);
-        setDataSource(ds);
-        encryptFormValues(result)
       } else {
         setCurStep(0);
-        setDataSource(undefined);
-        createBlowfish()
+        createBlowfish();
       }
     }
-  }
+  }, [visible, isEdit, initValues]);
 
-  const getDefaultDataSource = () => {
-    const findResult = getDataSource(initNodeId);
-    if (findResult) {
-      setCurStep(1);
-    } else {
-      setCurStep(0);
-    }
-    setDataSource(findResult);
-  }
+  useEffect(() => {
+    if (!credentialDetail.credentialKey) return;
 
-  const getDataSource = (nodeId) => {
-    let findResult;
-    _.find(appCategories, category => {
-      if (category.code === 'all') {
-        findResult = _.find(category.nodes, node => node.nodeId === nodeId);
-        return true;
-      }
+    const { name, credentialTypeCode } = credentialDetail;
+
+    const curCredentialType = _.find(
+      credentialTypes || [],
+      (c) => c.typeCode === credentialTypeCode,
+    );
+    baseFormIns.setFieldsValue({
+      name,
+      credentialType: { ...curCredentialType },
+    });
+    setBaseFormValue({
+      name,
+      credentialType: { ...curCredentialType },
     });
 
-    return findResult
-  }
+    encryptFormValues(credentialDetail);
+  }, [credentialDetail.credentialKey, credentialTypes]);
 
-  const updateConfigs = (info = appInfo, configCode?: string) => {
-    const connectorConfigs = info.connectorConfigs;
-    const curConfig = configCode ? _.find(connectorConfigs, item => item.configCode === configCode) : connectorConfigs[0];
+  const fetchCredentialDetail = async (credentialKey: number) => {
+    const originLoading = modalLoading;
+    setModalLoading(true);
 
-    if (curConfig) {
-      setConfigData(_.map(curConfig.props, (value, key) => ({
-        key,
-        value,
-        index: configIndex++,
-      })))
+    const result = (await getCredentialDetail(credentialKey)) as any;
+    if (result) {
+      setCredentialDetail(result);
+      setCurStep(isEdit ? 1 : 0);
     }
-  }
+    setModalLoading(originLoading || false);
+  };
 
-  const updateConfigForms = (configs = nodeConfigEls, configCode?: string) => {
-    const appTypeItem = {
-      type: 'APP_TYPE',
-      name: 'appNodeCode',
-      label: '应用类型',
-      icon: dataSource?.icon,
-      value: dataSource?.code
-    };
-    let otherElements: any[] = [];
-    const elements: any[] = [ ...DEFAULT_FORM_ITEMS ];
-
-    elements.push(appTypeItem);
-
-    let curConfig: any = {};
-    if (configs && configs.length) {
-      curConfig = configCode ? (_.find(configs, item => item.code === configCode) || configs[0]) : configs[0];
-      if (configs.length > 1) {
-        elements.push({
-          type: 'SELECT',
-          name: 'configCode',
-          label: '授权类型',
-          required: true,
-          value: curConfig.code,
-          options: _.map(configs, item => ({ value: item.code, label: item.name })),
-          placeholder: '请选择授权类型'
-        });
-        otherElements = _.map(curConfig.elements, item => ({
-          ...item,
-          name: ['formValues', curConfig.code, item.name]
-        }));
-      } else {
-        otherElements = _.map(curConfig.elements, item => ({
-          ...item,
-          name: ['formValues', item.name]
-        }));
+  const createBlowfish = () =>
+    new Promise<any>(async (resolve) => {
+      if (!blowfishRef.current) {
+        const key = await fetchSecretKey();
+        // @ts-ignore
+        blowfishRef.current = new Blowfish(key);
       }
-    }
 
-    const configData = {
-      ...nodeConfig,
-      code: curConfig.code,
-      defaults: curConfig.defaults,
-      elements: elements.concat(otherElements)
-    };
-
-    try {
-      _.each(configData.elements, item => {
-        if (['SWITCH', 'SELECT', 'RADIO'].includes(item.type)) {
-          const formName = item.name.join(',');
-          if (_.isUndefined(configData.defaults[formName]) && _.isUndefined(item.value)) {
-            // @ts-ignore
-            item.value = false;
-          }
-        }
-      })
-    } catch (e) {}
-
-    setNodeConfig(configData);
-  }
-
-  const fetchNodeConfigs = async (nodeId: number) => {
-    const result = await nodeConfigsRequest.runAsync(nodeId);
-    const infoResult = await appInfoRequest.runAsync(nodeId);
-
-    updateConfigForms(result, initValues?.configCode);
-
-    if (!isEdit) {
-      updateConfigs(infoResult)
-    }
-
-    setAppInfo(infoResult);
-    setNodeConfigEls(result);
-  }
-
-  const createBlowfish = () => new Promise<any>(async (resolve) => {
-    if (!blowfishRef.current) {
-      const key = await fetchSecretKey();
-      // @ts-ignore
-      blowfishRef.current = new Blowfish(key);
-    }
-
-    resolve(blowfishRef.current)
-  })
+      resolve(blowfishRef.current);
+    });
 
   const encryptFormValues = async (formData: any) => {
     try {
@@ -365,35 +247,33 @@ const CredentialModal: React.FC<{
       }
 
       const newFormValues = {
-        ...formData
+        ...formData,
       };
-
-      if (newFormValues.configCode) {
-        newFormValues.formValues = {
-          [newFormValues.configCode]: formValues || {}
-        }
-      }
 
       newFormValues.formValues = {
         ...(newFormValues.formValues || {}),
         // @ts-ignore
-        ...(formValues || {})
-      }
-
-      formIns.setFieldsValue(newFormValues);
+        ...(formValues || {}),
+      };
+      console.log(newFormValues, 'encryptFormValues');
+      formIns.setFieldsValue(newFormValues.formValues);
     } catch (e) {
       console.error(e);
     }
   };
 
   const handleValuesChange = (changedValues: any) => {
-    setSubmitAble(false);
-    
-    if ('configCode' in changedValues) {
-      updateConfigs(appInfo, changedValues.configCode);
-      updateConfigForms(nodeConfigEls, changedValues.configCode);
+    if ('name' in changedValues) {
+      baseFormIns.setFieldsValue({
+        ...baseFormValue,
+        name: changedValues.name,
+      });
+      setBaseFormValue({
+        ...baseFormValue,
+        name: changedValues.name,
+      });
     }
-
+    setSubmitAble(false);
     _.each(_.keys(changedValues), (k) => {
       delete formError[k];
     });
@@ -407,12 +287,12 @@ const CredentialModal: React.FC<{
     return _.map(configData, (item) => ({
       key: item.key,
       value: item.value,
-      index: item.index
+      index: item.index,
     }));
   };
 
   const handleAddConfigData = () => {
-    const isEdit = _.find(configData, item => item.isEdit);
+    const isEdit = _.find(configData, (item) => item.isEdit);
 
     if (isEdit) {
       message.error(t('common.error_message.save.config'));
@@ -439,19 +319,33 @@ const CredentialModal: React.FC<{
     if (!bf) return '';
 
     // @ts-ignore
-    return bf.base64Encode(bf.encrypt(text))
-  }
+    return bf.base64Encode(bf.encrypt(text));
+  };
 
   const testData = async (data: any) => {
     setTestResult(false);
-    const result = await connectionTestRequest.runAsync(data);
-    if (result) {
-      message.success(t('datasource.form.msg.test_success'));
-    } else {
-      message.success('Test failed');
-    }
+    const result = (await connectionTestRequest.runAsync(data)) as any;
 
-    setTestResult(!!result);
+    if (result?.authority_url) {
+      window.open(result?.authority_url, '_blank', 'width=600,height=640');
+      // @ts-ignore
+      window.__authCallback = (result: boolean) => {
+        if (result) {
+          // @ts-ignore
+          window.__authCallback = null;
+          validate((value) => {
+            testData(value);
+          });
+        }
+      };
+    } else {
+      if (result) {
+        message.success(t('datasource.form.msg.test_success'));
+      } else {
+        message.success('Test failed');
+      }
+      setTestResult(!!result);
+    }
   };
 
   const submitData = async (data: any) => {
@@ -467,6 +361,7 @@ const CredentialModal: React.FC<{
     if (resultData) {
       message.success(t('common.error_message.save.success'));
       modal.hide();
+      onSuccess?.(resultData)
     }
   };
 
@@ -487,12 +382,10 @@ const CredentialModal: React.FC<{
       .validateFields()
       .then((errorInfo) => {
         setFormError({});
-
+        console.log(baseFormValue);
         const errorFields = errorInfo.errorFields;
         if (!errorFields || !errorFields.length) {
-          const values = formIns.getFieldsValue();
-          const formValues = values.configCode ? values.formValues?.[values.configCode] : values.formValues;
-
+          const formValues = formIns.getFieldsValue();
           let configs = new Map();
           _.forEach(configData, (item) => {
             let k = item.key;
@@ -503,12 +396,11 @@ const CredentialModal: React.FC<{
 
           if (callback) {
             callback({
+              name: baseFormValue.name,
               props: configsJson,
-              // @ts-ignore
-              configCode: nodeConfig.code,
-              connectorName: appInfo.connectorName,
+              credentialTypeCode: baseFormValue?.credentialType?.typeCode,
+              connectorName: baseFormValue?.credentialType?.connectorName,
               encryptFormValues: encryptString(JSON.stringify(formValues)),
-              ..._.pick(values, ['name', 'configCode', 'appNodeCode'])
             });
           }
         }
@@ -524,18 +416,51 @@ const CredentialModal: React.FC<{
   };
 
   const handleToConfig = () => {
-    setCurStep(1);
-  }
+    baseFormIns.validateFields().then((values) => {
+      if (!isEdit) {
+        setAuthConfigData(baseFormValue.credentialType);
+      }
+      setTimeout(() => setCurStep(1), 0);
+    });
+  };
+
+  // 格式化鉴权设置下的表单数据和列表数据
+  const setAuthConfigData = (data: any) => {
+    const { props, formValues } = data;
+
+    const formValue: any = {};
+    const readList: any = [];
+    formValues.map((form: any) => {
+      formValue[form.name] = form.value;
+      readList[form.name] = form.readOnly;
+    });
+
+    setDataSource(formValue);
+    setReadOnlyList(readList);
+    setConfigData(
+      Object.keys(props || {}).map((key) => {
+        return {
+          key,
+          value: props[key],
+          index: configIndex++,
+        };
+      }),
+    );
+    console.log(setAuthConfigData, formValues, readList);
+  };
 
   const renderFormContent = () => {
+    const { connectorName, authOption } = baseFormValue.credentialType || {};
+
+    const curApp = _.find(appCategories || [], (app) => app.name === connectorName);
+    const nodeConfig = _.find(curApp?.authOptions || [], (auth) => auth.code === authOption);
+
     return (
       <div className={styles.formItems}>
-        <Form form={formIns} initialValues={nodeConfig?.defaults} onValuesChange={handleValuesChange}>
+        <Form form={formIns} initialValues={dataSource} onValuesChange={handleValuesChange}>
           <Row>
             <Col span={24}>
-              <Row>
-                {_.map(nodeConfig?.elements, (item) => getFormItem(item))}
-              </Row>
+              <Row>{_.map(nodeConfig?.elements, (item) => getFormItem(item))}</Row>
             </Col>
           </Row>
         </Form>
@@ -548,14 +473,15 @@ const CredentialModal: React.FC<{
 
     const props = {
       SWITCH: {
-        valuePropName: 'checked'
-      }
+        valuePropName: 'checked',
+      },
     };
-    const { readOnly, placeholder } = formItem;
+    let { name, readOnly, placeholder } = formItem;
+    readOnly = readOnlyList[name] || readOnly;
     const elProps = {
       placeholder,
       disabled: readOnly,
-      autoComplete: 'off'
+      autoComplete: 'off',
     };
 
     switch (formItem.type) {
@@ -563,51 +489,61 @@ const CredentialModal: React.FC<{
         element = (
           <Radio.Group style={{ marginTop: 8 }}>
             {_.map(formItem.options, (option) => {
-              return <Radio disabled={readOnly} value={option.value}>{option.name}</Radio>;
+              return (
+                <Radio disabled={readOnly} value={option.value}>
+                  {option.name}
+                </Radio>
+              );
             })}
           </Radio.Group>
         );
         break;
 
       case 'SELECT':
-        element = (
-          <Select style={{width: '100%'}} options={formItem.options} { ...elProps } />
-        );
+        const options = formItem.options || []
+        element = <Select style={{ width: '100%' }} options={options.map(obj => {
+          return {
+            value: obj.value,
+            label: obj.label || obj.name
+          }
+        })} {...elProps} />;
         break;
 
       case 'SWITCH':
-        element = <Switch disabled={readOnly} style={{marginTop: 8}} />;
+        element = <Switch disabled={readOnly} style={{ marginTop: 8 }} />;
         break;
 
       case 'APP_TYPE':
         element = (
-          <Row gutter={8} style={{height: 38}} align="middle">
-            <Col flex="28px">{ renderNodeIcon(formItem) }</Col>
-            <Col>{ formItem.value }</Col>
+          <Row gutter={8} style={{ height: 38 }} align="middle">
+            <Col flex="28px">{renderNodeIcon(formItem)}</Col>
+            <Col>{formItem.value}</Col>
           </Row>
         );
         break;
 
       case 'PASSWORD':
-        element = <Input.Password { ...elProps } />;
+        element = <Input.Password {...elProps} />;
         break;
 
       case 'TEXTAREA':
-        element = <TextArea { ...elProps } />;
+        element = <TextArea {...elProps} />;
         break;
 
       default:
-        element = <Input { ...elProps } />;
+        element = <Input {...elProps} />;
         break;
-    };
+    }
+    const itemKey = _.isArray(formItem.name) ? formItem.name.join('-') : formItem.name;
+    const layout = GRID_LAYOUT_CONFIG
 
     return (
-      <React.Fragment key={formItem.name}>
-        <Col className={styles.formLabel} span={4}>
+      <React.Fragment key={itemKey}>
+        <Col className={styles.formLabel} span={layout[formItem.gridSize]?.labelCol || 4}>
           {formItem.required && <span className={styles.x}>* </span>}
           {formItem.label}：
         </Col>
-        <Col span={8}>
+        <Col span={layout[formItem.gridSize]?.wrapperCol || 8}>
           <div className={cls(styles.formItem, { [styles.hasError]: !!formError[formItem.name] })}>
             <Form.Item
               noStyle
@@ -619,7 +555,7 @@ const CredentialModal: React.FC<{
                   required: formItem.required,
                 },
               ]}
-              { ...props[formItem.type] }
+              {...props[formItem.type]}
             >
               {element}
             </Form.Item>
@@ -631,7 +567,7 @@ const CredentialModal: React.FC<{
   };
 
   const renderConfigList = () => {
-    if (!configData.length) return null;
+    // if (!configData.length) return null;
 
     const columns: TableColumnsType<any> = [
       {
@@ -687,9 +623,16 @@ const CredentialModal: React.FC<{
                 <>
                   <span
                     onClick={() => {
-                      if(_.isEmpty(configData[index].key?.trim()) || _.isEmpty(configData[index].value?.trim())){
-                        message.warning(`${t('datasource.form.column.key')}或${t('datasource.form.column.value')}不能为空！`)
-                        return
+                      if (
+                        _.isEmpty(configData[index].key?.trim()) ||
+                        _.isEmpty(configData[index].value?.trim())
+                      ) {
+                        message.warning(
+                          `${t('datasource.form.column.key')}或${t(
+                            'datasource.form.column.value',
+                          )}不能为空！`,
+                        );
+                        return;
                       }
                       configDataClone = null;
                       configData[index].isEdit = false;
@@ -784,66 +727,107 @@ const CredentialModal: React.FC<{
           [styles.visible]: testLoading,
         })}
       >
-        {testLoading ? (
+        {testLoading && (
           <>
             <Spin indicator={loadingIcon} />{' '}
             <span>{t('datasource.form.msg.check_connection')}</span>
           </>
-        ) : null}
+        )}
       </div>
     );
   };
 
   const renderConfigContent = () => {
+    const curCredentialType = baseFormValue.credentialType || {};
     return (
       <div className={styles.rightContent}>
-        <div className={styles.formWrapper}>
-          {renderFormContent()}
-          {renderConfigList()}
-          {renderTestAlert()}
-        </div>
+        <Row style={{ flexWrap: 'nowrap' }}>
+          <Col flex="auto">
+            <div className={styles.formWrapper}>{renderFormContent()}</div>
+          </Col>
+
+          <Col flex="92px" className={styles.curApp}>
+            <div className={styles.appItem}>
+              <div className={cls(styles.inner)}>
+                {renderNodeIcon(curCredentialType, { baseUrl: BASE_URL })}
+
+                <Paragraph ellipsis className={styles.label}>
+                  {curCredentialType.name}
+                </Paragraph>
+              </div>
+            </div>
+          </Col>
+        </Row>
+
+        {renderConfigList()}
+        {renderTestAlert()}
       </div>
     );
   };
 
-  const renderApplications = (nodes: any[]) => {
-    const configs = _.filter(nodes, item => (item.name || '').toLowerCase().indexOf(appKeywords.toLowerCase()) > -1);
-
+  const renderCredentialTypes = () => {
     return (
       <div className={styles.appList}>
-        {
-          !configs.length ? (
-            <Row key={['empty', 'categoryCode'].join('-')} justify="center" align="middle" style={{width: '100%'}}>
-              <Col><Empty /></Col>
-            </Row>
-          ) : (
-            <Row key={['configs', 'categoryCode'].join('-')} gutter={[0, 12]} justify="start" align="top">
-              {
-                _.map(configs, (item, index) => (
-                  <Col span={4} key={['config', index].join('')} onClick={() => setDataSource(item)}>
-                    <Row align="middle">
-                      <Col span={24}>
-                        <div className={styles.appItem}>
-                          <div className={cls(styles.inner, {
-                            [styles.active]: dataSource?.code === item.code
-                          })}>
-                            { renderNodeIcon(item) }
-                            <Paragraph ellipsis className={styles.label}>{ item.name }</Paragraph>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
+        {!credentialTypes.length ? (
+          <Row
+            key={['empty', 'categoryCode'].join('-')}
+            justify="center"
+            align="middle"
+            style={{ width: '100%' }}
+          >
+            <Col>
+              <Empty />
+            </Col>
+          </Row>
+        ) : (
+          <Row
+            key={['configs', 'categoryCode'].join('-')}
+            gutter={[0, 12]}
+            justify="start"
+            align="top"
+          >
+            {_.map(credentialTypes, (item, index) => (
+              <Col
+                span={4}
+                key={['config', index].join('')}
+                onClick={() => {
+                  const baseInfo = baseFormIns.getFieldsValue();
+                  baseFormIns.setFieldsValue({
+                    ...baseInfo,
+                    credentialType: item,
+                  });
+                  setBaseFormValue({
+                    ...baseInfo,
+                    credentialType: item,
+                  });
+                }}
+              >
+                <Row align="middle">
+                  <Col span={24}>
+                    <div className={styles.appItem}>
+                      <div
+                        className={cls(styles.inner, {
+                          [styles.active]:
+                            baseFormValue?.credentialType?.typeCode === item.typeCode,
+                        })}
+                      >
+                        {renderNodeIcon(item, { baseUrl: BASE_URL })}
+                        <Paragraph ellipsis className={styles.label}>
+                          {item.name}
+                        </Paragraph>
+                      </div>
+                    </div>
                   </Col>
-                ))
-              }
-            </Row>
-          )
-        }
+                </Row>
+              </Col>
+            ))}
+          </Row>
+        )}
       </div>
-    )
-  }
+    );
+  };
 
-  const renderSelectApplication = () => {
+  /*const renderSelectApplication = () => {
     return (
       <div className={styles.applications}>
         { renderHeader() }
@@ -851,7 +835,7 @@ const CredentialModal: React.FC<{
           <Tabs
             tabPosition="left"
             style={{ height: 508 }}
-            items={appCategories.map(item => ({
+            items={credentialTypes.map(item => ({
               label: (
                 <div className={styles.tabLabel}>{item.name}</div>
               ),
@@ -877,70 +861,101 @@ const CredentialModal: React.FC<{
         </Col>
       </Row>
     )
-  }
+  }*/
 
   const renderFooter = () => {
     return (
       <div className={styles.footer}>
-        {
-          curStep === 0 ? (
+        {curStep === 0 ? (
+          <Button type="primary" onClick={handleToConfig}>
+            {t('common.button.next')}
+          </Button>
+        ) : (
+          <>
+            {
+              !isEdit && (
+                <Button onClick={() => setCurStep(0)}>{t('common.button.prev')}</Button>
+              )
+            }
+            <Button
+              color="cyan"
+              variant="solid"
+              onClick={handleUrlTest}
+              loading={testLoading}
+              disabled={testLoading}
+            >
+              {t('datasource.form.button.test_connection')}
+            </Button>
             <Button
               type="primary"
-              disabled={!dataSource}
-              onClick={handleToConfig}
+              disabled={!submitAble}
+              loading={confirmLoading}
+              onClick={handleSubmit}
             >
-              {t('common.button.next')}
+              {t('common.button.confirm')}
             </Button>
-          ) : (
-            <>
-              {
-                isShowPrevBtn && (
-                  <Button onClick={() => setCurStep(0)}>
-                    {t('common.button.prev')}
-                  </Button>
-                )
-              }
-              <Button
-                className={`ant-btn-green`}
-                onClick={handleUrlTest}
-                loading={testLoading}
-                disabled={testLoading}
-              >
-                {t('datasource.form.button.test_connection')}
-              </Button>
-              <Button
-                type="primary"
-                disabled={!submitAble}
-                loading={confirmLoading}
-                onClick={handleSubmit}
-              >
-                {t('common.button.confirm')}
-              </Button>
-            </>
-          )
-        }
+          </>
+        )}
       </div>
+    );
+  };
+
+  const renderBaseConfig = () => {
+    const formItemLayout = {
+      labelCol: { span: 7 },
+      wrapperCol: { span: 16 },
+    };
+
+    return (
+      <Spin spinning={modalLoading}>
+        <div className={styles.formItems}>
+          <Form form={baseFormIns} {...formItemLayout} onValuesChange={handleValuesChange}>
+            <Row>
+              <Col span={24}>
+                <Form.Item
+                  name="name"
+                  label={t('credential.form.label.name')}
+                  rules={[{ required: true, max: 50, message: t('credential.form.error.name') }]}
+                >
+                  <Input placeholder={t('credential.form.error.name')} style={{ width: '80%' }} />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name="credentialType"
+                  label={t('credential.form.label.type')}
+                  rules={[{ required: true, message: t('credential.form.error.type') }]}
+                >
+                  {renderCredentialTypes()}
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </div>
+      </Spin>
     );
   };
 
   return (
     <Modal
-      width={1008}
+      width={908}
       open={visible}
       title={modalTitle}
       footer={renderFooter()}
       style={{ top: 20 }}
-      bodyStyle={{ minHeight: 500 }}
+      styles={{
+        body: {
+          minHeight: 400,
+        },
+      }}
       wrapClassName={styles.layeredModal}
       onCancel={() => modal.hide()}
     >
-      {
-        curStep > -1 && (
-          <div className={styles.modalBody}>
-            { curStep === 0 ? renderSelectApplication() : renderConfigContent() }
-          </div>
-        )
-      }
+      {curStep > -1 && (
+        <div className={styles.modalBody}>
+          {curStep === 0 ? renderBaseConfig() : renderConfigContent()}
+        </div>
+      )}
     </Modal>
   );
 };

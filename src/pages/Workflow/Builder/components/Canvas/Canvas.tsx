@@ -16,38 +16,57 @@
  *  limitations under the License.
  */
 
-import React, { useRef, useMemo, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import _ from 'lodash';
-import cls from 'classnames';
-import { useModel } from 'umi';
-import { Row, Col, message, Typography } from 'antd';
-import { JQuery } from '@antv/x6';
 import {
-  HomeOutlined,
+  BorderOuterOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
   FullscreenOutlined,
-  PlusCircleOutlined,
-  PlayCircleOutlined,
-  PauseCircleOutlined,
+  HomeOutlined,
+  LoadingOutlined,
   MinusCircleOutlined,
-  BorderOuterOutlined,
+  PauseCircleOutlined,
+  PlayCircleOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons';
-import { Menu, Toolbar } from '@antv/x6-react-components';
+import { JQuery } from '@antv/x6';
+import { Toolbar } from '@antv/x6-react-components';
 import '@antv/x6-react-components/es/menu/style/index.css';
 import '@antv/x6-react-components/es/toolbar/style/index.css';
+import { useUnmountedRef, useUpdateEffect } from 'ahooks';
+import { Col, message, Row, Typography } from 'antd';
+import cls from 'classnames';
+import _ from 'lodash';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useModel, useParams } from 'umi';
 
 import FlowGraph from '../../Graph';
 import ConfigPanel from '../ConfigPanel';
-import ExecutePreview from '../ExecutePreview';
+import TestPanel from '../TestPanel';
+import ExecuteMessage, { ExecuteType } from '../ExecuteMessage';
+// import ExecutePreview from '../ExecutePreview';
+
+import PageLoading from '@/components/PageLoading';
+import * as BuilderService from '@/services/Builder';
+import CurContext from '../../common/context';
 
 import useI18n from '@/common/hooks/useI18n';
-
-import CurContext from '../../common/context';
-import * as BuilderService from '@/services/Builder';
-
 import { randomString } from '@/common/utils';
 import localStorage from '@/common/utils/LocalStorage';
+import {
+  permissionWarning,
+  usePermission,
+} from '@/components/PermissionSection';
+
+import { getInputFields } from '@/components/PageDesign/utils';
+
+import { BUTTON_PERMISSION_MAP } from '@/pages/Workflow/Index/config';
 
 import styles from './index.less';
 
@@ -70,32 +89,24 @@ const curFlowIdData = {
   nodeIds: {},
 };
 
-//WEBHOOK: 1, STREAM:2, SCHEDULE:3, DUMMY:4
-const FLOW_TPL_IDS = {
-  WEBHOOK: 1,
-  STREAM: 2,
-  SCHEDULE: 3,
-  DUMMY: 4,
-};
-
 const DEFAULT_NODE_CODES = {
   WEBHOOK: 'WEBHOOK',
   SCHEDULE: 'CRONTIMER',
   STREAM: 'KAFKA_TRIGGER',
 };
 
-let flowTemplate: { nodeGroups: any[], tplCode?: string } = { nodeGroups: [] }, curFlowInstance;
+let flowTemplate: { nodeGroups: any[]; tplCode?: string } = { nodeGroups: [] },
+  curFlowInstance;
 let curLoopNode,
   flowCacheList: {
-    id: string
-    cells?: []
-    flowData: any
-    nodeData: any
-    jsonData: any
-    flowInstance: any
+    id: string;
+    cells?: [];
+    flowData: any;
+    nodeData: any;
+    jsonData: any;
+    flowInstance: any;
   }[] = [],
   loopNodeData;
-const ZOOM_VALUE_LIST = [25, 50, 75, 100, 125, 150, 200, 300, 400];
 
 const defaultPreviewStatus = localStorage.get('flowPreviewStatus') || 'open';
 
@@ -112,27 +123,99 @@ const templateExcludes = (tplCode) => {
   return excludes;
 };
 
-const Canvas:React.FC<{
-  mode?: 'preview' | 'edit',
-  workflowInstanceId: string|number,
-  onNodeChange?: (isChange: boolean) => void,
-  onGetFlowInstance?: (instance) => void,
-}> = ({ mode = 'edit', workflowInstanceId, onGetFlowInstance, onNodeChange }, ref) => {
-  const { t } = useI18n(['workflow', 'common']);
+const Canvas: React.FC<{
+  mode?: 'preview' | 'edit';
+  workflowInstanceId: string | number;
+  onMounted?: () => void;
+  onNodeChange?: (isChange: boolean) => void;
+  onGetFlowInstance?: (instance) => void;
+}> = (
+  {
+    mode = 'edit',
+    workflowInstanceId,
+    onGetFlowInstance,
+    onNodeChange,
+    onMounted,
+  },
+  ref,
+) => {
+  const { t, loading: i18nLoading } = useI18n(['workflow', 'common']);
   const {
+    executeLoading,
+    executeFlowLoading,
+    setWorkflowType,
     setExecuteLoading,
+    setExecutionPageData,
     publishBuilderRequest,
     executeBuilderRequest,
     saveBuilderDraftRequest,
     executeBuilderNodeRequest,
     executeWorkflowInstanceRequest,
-  } = useModel('Builder');
-  const { workflow, setWorkflow, fetchWorkflowRequest } = useModel('Workflow');
+    fetchWorkflowBuilderRequest,
+  } = useModel('Builder', (model) => ({
+    executeLoading: model.executeLoading,
+    executeFlowLoading: model.executeFlowLoading,
+    setWorkflowType: model.setWorkflowType,
+    setExecuteLoading: model.setExecuteLoading,
+    setExecutionPageData: model.setExecutionPageData,
+    publishBuilderRequest: model.publishBuilderRequest,
+    executeBuilderRequest: model.executeBuilderRequest,
+    saveBuilderDraftRequest: model.saveBuilderDraftRequest,
+    executeBuilderNodeRequest: model.executeBuilderNodeRequest,
+    fetchWorkflowBuilderRequest: model.fetchWorkflowBuilderRequest,
+    executeWorkflowInstanceRequest: model.executeWorkflowInstanceRequest,
+  }));
+  const {
+    // clearPageState,
+    setWidgetInited,
+  } = useModel('AppEditor', (model) => ({
+    // clearPageState: model.clearPageState,
+    setWidgetInited: model.setWidgetInited,
+  }));
+  const { setInputData } = useModel('AppData', (model) => ({
+    setInputData: model.setInputData,
+  }));
+  const { workflow, setWorkflow, fetchWorkflowRequest, workflowVersion } =
+    useModel('Workflow', (model) => ({
+      workflow: model.workflow,
+      setWorkflow: model.setWorkflow,
+      workflowVersion: model.workflowVersion,
+      fetchWorkflowRequest: model.fetchWorkflowRequest,
+    }));
+
+  const unmountedRef = useUnmountedRef();
+
+  const [testNode, setTestNode] = useState<any>(null);
+  const [executeMessageHeight, setExecuteMessageHeight] = useState(0);
+  const [executeState, setExecuteState] = useState<{
+    node?: any;
+    nodeCode?: string;
+    execType: ExecuteType;
+    execTimer?: number;
+    nodeId?: string;
+    nodeKey?: string;
+    templateCode?: string;
+    workflowInstanceId?: string | number;
+  }>({
+    execType: 'note',
+    execTimer: 0,
+  });
+
+  const { workflowType } = useParams<{ workflowType: string }>();
+  const buttonPermissions = BUTTON_PERMISSION_MAP[workflowType] || {};
+
+  const [hasOptAuth] = usePermission(buttonPermissions.builderOpt);
+  const [hasExecuteAuth] = usePermission(buttonPermissions.executeWorkflow);
+  const [hasPublishAuth] = usePermission(buttonPermissions.builderPublish);
+
+  // 是否审批流程/调度流程
+  const isApprovalOrSchedule = ['approval', 'job'].includes(workflowType);
 
   const isPreview = mode === 'preview';
   const selectCellRef = useRef<any>(null);
   const graphContainerRef = useRef(null);
 
+  const [executeStopping, setExecuteStopping] = useState(false);
   const [curConfigCell, setCurConfigCell] = useState(null);
 
   const [curZoom, setCurZoom] = useState(100);
@@ -143,8 +226,8 @@ const Canvas:React.FC<{
   const [curNodeData, setCurNodeData] = useState({});
   const [collapsed, setCollapsed] = useState(false);
   const [flowInstance, setFlowInstance] = useState<{
-    flowKey?: string
-    workflowInstanceId?: number
+    flowKey?: string;
+    workflowInstanceId?: number;
   }>({});
   const [curLayout, setCurLayout] = useState('left');
   const [selectedId, setSelectedId] = useState('');
@@ -168,25 +251,43 @@ const Canvas:React.FC<{
   const [previewStatus, setPreviewStatus] = useState(defaultPreviewStatus);
   const [previewNodeVisible, setPreviewNodeVisible] = useState(false);
 
-  const isShowExecutePreview = useMemo(() => {
+  const isShowExecuteNote = useMemo(() => {
     const nodeCode = _.get(selectCellRef.current, 'data.code');
-    return !(!previewNodeVisible || !nodeCode || ['START', 'WEBHOOK'].includes(nodeCode));
+    return !(
+      !previewNodeVisible ||
+      !nodeCode ||
+      ['START', 'WEBHOOK'].includes(nodeCode)
+    );
   }, [previewNodeVisible, _.get(selectCellRef.current, 'data.code')]);
 
-  // const dataSourceList = dataSource.listData
+  useUpdateEffect(() => {
+    if (
+      (workflowVersion as number) > -1 &&
+      !_.isUndefined(workflow?.revision) &&
+      workflow?.revision != workflowVersion
+    ) {
+      // workflowBuilderFetched.current = true;
+      // getWorkflowBuilder(workflowInstanceId, workflowVersion);
+    }
+  }, [workflowVersion, workflow?.revision]);
 
   useEffect(() => {
-    createGraph();
-    return () => setWorkflow({});
+    return () => {
+      setWorkflow({});
+    };
   }, []);
 
   useEffect(() => {
+    setWidgetInited(false);
+  }, [selectCellRef.current]);
+
+  useEffect(() => {
     curFlowInstance = flowInstance;
-    onGetFlowInstance?.(flowInstance)
+    onGetFlowInstance?.(flowInstance);
   }, [flowInstance]);
 
   useEffect(() => {
-    onNodeChange?.(nodeChange)
+    onNodeChange?.(nodeChange);
   }, [nodeChange]);
 
   useEffect(() => {
@@ -196,12 +297,15 @@ const Canvas:React.FC<{
   }, [statusMap]);
 
   useEffect(() => {
-    fetchWorkflowRequest.run(workflowInstanceId);
-  }, [workflowInstanceId]);
+    if (workflowInstanceId && workflowType) {
+      fetchWorkflowRequest.run(workflowType, workflowInstanceId);
+    }
+  }, [workflowInstanceId, workflowType]);
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (workflow.templateCode) {
-      getFlowTemplate();
+      createGraph();
+      getFlowTemplate(workflow.templateCode);
     }
   }, [workflow.templateCode]);
 
@@ -217,18 +321,43 @@ const Canvas:React.FC<{
   }, [previewStatus]);
 
   useEffect(() => {
+    setWorkflowType(workflowType);
+  }, [workflowType]);
+
+  useEffect(() => {
     addEvents();
     return () => removeEvents();
   }, []);
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     FlowGraph.zoomGraph(curZoom / 100);
   }, [curZoom]);
+
+  useUpdateEffect(() => {
+    if (!isPreview) {
+      FlowGraph.createStencil(
+        flowTemplate.nodeGroups,
+        templateExcludes(workflow.templateCode),
+        {
+          placeholder: t('common.input.placeholder'),
+          notFoundText: t('common.text.empty'),
+        },
+        nodeConfigData,
+      );
+    }
+  }, [isPreview]);
 
   useImperativeHandle(ref, () => ({
     saveFlowInstance: (silence?: boolean) => saveFlowDraft(silence),
     publishFlowInstance: () => publishFlow(),
-  }))
+  }));
+
+  const showNoPermission = () => {
+    permissionWarning({
+      title: t('common.tips.title'),
+      content: t('common.error_message.no_auth_warning'),
+    });
+  };
 
   const getNodeByCode = (code) => {
     let node;
@@ -243,7 +372,10 @@ const Canvas:React.FC<{
   const getLoopDefaultNodes = () => {
     const startNode = getNodeByCode('START');
     const nextLoopNode = getNodeByCode('NEXT_LOOP');
-    const ids = [['fn' + randomString(7)].join(''), ['fn' + randomString(7)].join('')];
+    const ids = [
+      ['fn' + randomString(7)].join(''),
+      ['fn' + randomString(7)].join(''),
+    ];
 
     return {
       edges: [
@@ -318,7 +450,10 @@ const Canvas:React.FC<{
   };
 
   const showLoopFlow = (cacheId) => () => {
-    const cacheIndex = _.findIndex(flowCacheList, (item) => item.id === cacheId);
+    const cacheIndex = _.findIndex(
+      flowCacheList,
+      (item) => item.id === cacheId,
+    );
     if (cacheIndex > -1) {
       const cache = flowCacheList[cacheIndex];
       if (cache && cache.flowData) {
@@ -342,21 +477,22 @@ const Canvas:React.FC<{
     JQuery(window).on('resize.flow', onWindowResize);
   };
 
-  const fetchExecution = (nodeId) => {
-    //nodeExecutionRequest.run(nodeExecutionId);
-  };
-
-  const getFlowTemplate = async () => {
-    const result = await BuilderService.fetchTemplate();
+  const getFlowTemplate = async (templateCode: string) => {
+    const result = await BuilderService.fetchTemplate(templateCode, {
+      includeNodes: true,
+      excludeTrigger: true,
+    });
 
     if (result) {
-      const nodeGroups = flowTemplate.nodeGroups = result.appNodeGroups;
+      const nodeGroups = (flowTemplate.nodeGroups = result);
       if (nodeGroups && nodeGroups.length) {
         _.each(nodeGroups, (group) => {
           _.each(group.nodes, (node) => {
-            nodeConfigData[node.code] = {
-              ...node,
-            };
+            if (node) {
+              nodeConfigData[node.code] = {
+                ...node,
+              };
+            }
           });
         });
 
@@ -371,7 +507,6 @@ const Canvas:React.FC<{
             nodeConfigData,
           );
         }
-
       }
       getWorkflowBuilder();
     }
@@ -399,10 +534,28 @@ const Canvas:React.FC<{
   const doNodeExecute = async (node, force, nodeInfo?: any, testData?: any) => {
     setTimeout(() => updateSelectedCell(node), 0);
 
+    setExecutionPageData({
+      page: 1,
+      size: 20,
+    });
+
     node = node || selectCellRef.current;
     nodeInfo = nodeInfo || node.data;
 
     if (nodeInfo?.primitive === 'trigger') {
+      if (testData && nodeInfo) {
+        nodeInfo.data = {
+          ...nodeInfo.data,
+          webhook_config: testData,
+        };
+      }
+      updateNodeData(
+        nodeInfo,
+        {
+          overwrite: true,
+        },
+        node,
+      );
       executeWorkflowInstance(testData);
       return;
     }
@@ -416,12 +569,16 @@ const Canvas:React.FC<{
         setAllExecuteData(resultDataCache);
       } else {
         if (nodeInfo) {
-          updateNodeData({
-            ...nodeInfo,
-            executing: true
-          }, {
-            overwrite: true,
-          }, node);
+          updateNodeData(
+            {
+              ...nodeInfo,
+              executing: true,
+            },
+            {
+              overwrite: true,
+            },
+            node,
+          );
         }
 
         setExecuteLoading(true);
@@ -430,6 +587,7 @@ const Canvas:React.FC<{
 
         const resData = await executeBuilderNodeRequest.runAsync({
           nodeKey,
+          workflowType,
           workflowInstanceId,
           data: testData || {},
         });
@@ -465,12 +623,18 @@ const Canvas:React.FC<{
     }
   };
 
-  const getWorkflowBuilder = async (insId = workflowInstanceId) => {
-    const resData = await BuilderService.fetchWorkflowBuilder({
+  const getWorkflowBuilder = async (
+    insId: string | number = workflowInstanceId,
+    version: number | string = 0,
+  ) => {
+    const resData = await fetchWorkflowBuilderRequest.runAsync(workflowType, {
+      version,
       workflowInstanceId: insId,
     });
 
-    if (resData) {
+    onMounted?.();
+
+    if (resData && !unmountedRef.current) {
       setFlowInstance(resData);
 
       if (resData && resData.nodes && resData.nodes.length) {
@@ -494,12 +658,23 @@ const Canvas:React.FC<{
           }
 
           flowJson.nodes = _.map(flowJson.nodes, (item) => {
-            const includes = (ports, name) => !!_.find(ports, port => port.name === name);
-            const configData = _.cloneDeep(nodeConfigData[item.data.code] || {});
+            const includes = (ports, name) =>
+              !!_.find(ports, (port) => port.name === name);
+            const configData = _.cloneDeep(
+              nodeConfigData[item.data.code] || {},
+            );
             const nodePorts = {
-              inPorts: _.filter(item.data.ports, port => port.data?.group === 'in' || includes(configData.inPorts, port.name)),
+              inPorts: _.filter(
+                item.data.ports,
+                (port) =>
+                  port.data?.group === 'in' ||
+                  includes(configData.inPorts, port.name),
+              ),
               outPorts: _.filter(
-                item.data.ports, port => port.data?.group === 'out' || includes(configData.outPorts, port.name),
+                item.data.ports,
+                (port) =>
+                  port.data?.group === 'out' ||
+                  includes(configData.outPorts, port.name),
               ),
             };
 
@@ -508,6 +683,7 @@ const Canvas:React.FC<{
               if (ports.length) {
                 configData[type] = _.map(ports, (item) => {
                   const portData = item.data || {};
+                  portData.group = type === 'inPorts' ? 'in' : 'out';
                   return {
                     name: item.id,
                     count: portData.count,
@@ -525,6 +701,7 @@ const Canvas:React.FC<{
             return item;
           });
 
+          FlowGraph.clear();
           FlowGraph.fromJSON(flowJson);
         }
 
@@ -536,7 +713,7 @@ const Canvas:React.FC<{
 
         _.find(flowTemplate.nodeGroups, (group) => {
           return !!_.find(group.nodes, (node) => {
-            if (node.code === workflowType) {
+            if (node?.code === workflowType) {
               defNode = node;
               return true;
             }
@@ -550,70 +727,6 @@ const Canvas:React.FC<{
           });
         }
       }
-    }
-  };
-
-  const handleCellCallback = (name, event) => {
-    const cell = event.cell;
-    switch (name) {
-      case 'node:cur-select':
-        updateSelectedCell(cell);
-        break;
-
-      case 'node:dblclick':
-        if (!isPreview) {
-          updateSelectedCell(cell, 'dblclick');
-        }
-        break;
-
-      case 'blank:click':
-        updateSelectedCell(null);
-        break;
-
-      case 'node:removed':
-        resetChildrenData(cell);
-        saveFlowCache();
-        updateSelectedCell(null);
-        break;
-
-      case 'edge:removed':
-        const nodeId = event.cell.target.cell;
-        const targetNode = FlowGraph.graph.getCell(nodeId);
-        // FlowGraph.resetNodeData(targetNode)
-        resultDataCache[nodeId] = null;
-
-        setStatusMap({
-          ...statusMap,
-          [nodeId]: 'WARNING',
-        });
-
-        resetChildrenData(targetNode);
-        saveFlowCache();
-        break;
-
-      case 'node:added':
-      case 'edge:connected':
-        saveFlowCache();
-        break;
-
-      case 'node:menu-click':
-        handleNodeMenuClick(event);
-        break;
-
-      /**
-       * 分支节点处理事件
-       */
-      // case 'switch:change':
-      //   handleSwitchNodeChange(event);
-      //   break;
-
-      // case 'change:data':
-      //   setNodeChange(!(event.options || {}).curSilent)
-      //   break
-
-      default:
-        // console.info(name, event)
-        break;
     }
   };
 
@@ -632,6 +745,11 @@ const Canvas:React.FC<{
 
   const handleNodeMenuClick = (event) => {
     if (event.type === 'execute') {
+      if (!hasExecuteAuth) {
+        showNoPermission();
+        return;
+      }
+
       const node = event.cell || selectCellRef.current;
       const configData = _.get(node, 'data.configData', {});
       if (configData.runMethod === 'CONFIG') {
@@ -639,7 +757,7 @@ const Canvas:React.FC<{
         updateSelectedCell(node);
         setTimeout(() => updateSelectedCell(node, 'dblclick'), 300);
       } else {
-        doNodeExecute(event.cell, true);
+        triggerExecute(event.cell);
       }
     } else if (event.type === 'loop-edit') {
       loopNodeEdit(event.cell);
@@ -677,6 +795,22 @@ const Canvas:React.FC<{
     updateStencilItems();
   };
 
+  const showExecuteMessage = (cell) => {
+    const nodeCode = _.get(cell, 'data.code');
+    const state: any = {
+      execType: 'note',
+      nodeId: cell.id,
+      nodeCode,
+    };
+
+    if (nodeCode === 'START') {
+      state.templateCode = workflow.templateCode;
+      state.workflowInstanceId = workflowInstanceId;
+    }
+
+    setExecuteState(state);
+  };
+
   const updateSelectedCell = (cell, event?: string) => {
     if (curLoopNode) {
       FlowGraph.graph.getNodes().forEach((node) => {
@@ -689,6 +823,15 @@ const Canvas:React.FC<{
           },
         );
       });
+    }
+
+    if (
+      !selectCellRef.current ||
+      (cell && selectCellRef.current.id !== cell.id)
+    ) {
+      if (cell) {
+        getOutputFieldsByNodeKey(cell.id);
+      }
     }
 
     if (selectCellRef.current && cell && selectCellRef.current.id !== cell.id) {
@@ -740,6 +883,7 @@ const Canvas:React.FC<{
 
     const selected = !!cell;
 
+    setTestNode(null);
     setIsSelected(selected);
     setSelectedId(cell ? cell.id : '');
 
@@ -747,6 +891,8 @@ const Canvas:React.FC<{
 
     if (selected) {
       setCurNodeData(selectCellRef.current.data);
+    } else {
+      // clearPageState();
     }
   };
 
@@ -754,9 +900,12 @@ const Canvas:React.FC<{
 
   const createGraph = () => {
     const options = getGraphOptions();
-    FlowGraph.init({
-      ...options,
-    }, mode);
+    FlowGraph.init(
+      {
+        ...options,
+      },
+      mode,
+    );
   };
 
   const getGraphOptions = () => {
@@ -777,11 +926,78 @@ const Canvas:React.FC<{
     };
   };
 
+  const triggerExecute = (cell) => {
+    const nodeCode = _.get(cell, 'data.code');
+    if (nodeCode === 'START') {
+      executeWorkflowEvent();
+    } else {
+      // doNodeExecute(cell, true);
+      // 执行节点事件
+      const nodeKey = _.get(cell, 'data.nodeKey');
+      executeNodeEvent(nodeKey, cell);
+    }
+  };
+
+  const executeNodeEvent = (nodeKey: string, node: any) => {
+    if (!hasExecuteAuth) {
+      showNoPermission();
+      return;
+    }
+
+    setPreviewNodeVisible(true);
+
+    setExecuteState({
+      node,
+      nodeKey,
+      execType: 'node',
+      execTimer: +new Date(),
+      workflowInstanceId,
+      templateCode: workflow.templateCode,
+    });
+  };
+
+  const executeWorkflowEvent = () => {
+    if (!hasExecuteAuth) {
+      showNoPermission();
+      return;
+    }
+
+    setPreviewNodeVisible(true);
+
+    setExecuteState({
+      execType: 'flow',
+      execTimer: +new Date(),
+      workflowInstanceId,
+      templateCode: workflow.templateCode,
+    });
+  };
+
+  const getStartNode = () => {
+    const startNode = _.find(flowInstance.nodes, (node) => {
+      return node.primitive === 'trigger';
+    });
+
+    if (startNode) {
+      setTestNode(startNode);
+      setSelectedId('');
+      setIsSelected(false);
+      setCurNodeData({});
+      setPreviewNodeVisible(false);
+    }
+  };
+
   const executeTriggerNode = () => {
+    if (!hasExecuteAuth) {
+      showNoPermission();
+      return;
+    }
+
+    setPreviewNodeVisible(true);
+
     const originalData = FlowGraph.getJSONData();
     _.find(originalData.nodes, (node) => {
       const configData = _.get(node, 'data.configData', {
-        primitive: undefined
+        primitive: undefined,
       });
       if (configData.primitive === 'trigger') {
         // @ts-ignore
@@ -796,43 +1012,48 @@ const Canvas:React.FC<{
   };
 
   const executeWorkflowInstance = async (testData: any) => {
-    setExecuteLoading(true);
+    try {
+      setExecuteLoading(true);
 
-    await saveWorkflowBuilderCache();
+      await saveWorkflowBuilderCache();
 
-    const resData = await executeWorkflowInstanceRequest.runAsync({
-      workflowInstanceId,
-      data: testData,
-    });
+      const resData = await executeWorkflowInstanceRequest.runAsync({
+        workflowType,
+        workflowInstanceId,
+        data: testData,
+      });
 
-    postExecuteOutput([]);
+      postExecuteOutput([]);
 
-    setExecuteLoading(false);
+      setExecuteLoading(false);
 
-    if (resData) {
-      _.each(_.keys(resData), (_nodeKey) => {
-        const curNodeResult = resData[_nodeKey];
-        if (curNodeResult) {
-          if (curNodeResult.outputFields) {
-            const _node = FlowGraph.graph.getCellById(_nodeKey);
-            if (_node) {
-              _node.updateData({
-                outputFields: curNodeResult.outputFields,
-              });
+      if (resData) {
+        _.each(_.keys(resData), (_nodeKey) => {
+          const curNodeResult = resData[_nodeKey];
+          if (curNodeResult) {
+            if (curNodeResult.outputFields) {
+              const _node = FlowGraph.graph.getCellById(_nodeKey);
+              if (_node) {
+                _node.updateData({
+                  outputFields: curNodeResult.outputFields,
+                });
+              }
             }
+            _.extend(statusMap, {
+              [_nodeKey]: curNodeResult.status || 'FAILED',
+            });
+            resultDataCache[_nodeKey] = curNodeResult;
           }
-          _.extend(statusMap, {
-            [_nodeKey]: curNodeResult.status || 'FAILED',
-          });
-          resultDataCache[_nodeKey] = curNodeResult;
-        }
-      });
+        });
 
-      setStatusMap({
-        ...statusMap,
-      });
+        setStatusMap({
+          ...statusMap,
+        });
 
-      setAllExecuteData(resData);
+        setAllExecuteData(resData);
+      }
+    } finally {
+      setExecuteLoading(false);
     }
   };
 
@@ -852,10 +1073,17 @@ const Canvas:React.FC<{
         break;
 
       case 'play':
-        executeTriggerNode();
+        // executeTriggerNode();
+        executeWorkflowEvent();
         break;
+      case 'test':
+        getStartNode();
+      break;
 
       case 'stop':
+        doStopWorkflow();
+        break;
+
       case 'fullscreen':
         break;
 
@@ -865,18 +1093,15 @@ const Canvas:React.FC<{
     }
   };
 
-  const getZoomDropdown = () => {
-    const MenuItem = Menu.Item;
-
-    return (
-      <Menu>
-        {_.map(ZOOM_VALUE_LIST, (num) => (
-          <MenuItem active={num === curZoom} name={num + ''} key={num}>
-            {num}%
-          </MenuItem>
-        ))}
-      </Menu>
-    );
+  const doStopWorkflow = async () => {
+    setExecuteState({
+      execType: 'flow',
+      execTimer: -1,
+    });
+    // setExecuteLoading(false);
+    // setExecuteStopping(true);
+    // await stopWorkflow(workflowType, workflowInstanceId as string);
+    // setExecuteStopping(false);
   };
 
   const breadcrumb = () => {
@@ -923,26 +1148,112 @@ const Canvas:React.FC<{
     return null;
   };
 
+  const handleCellCallback = (name, event) => {
+    const cell = event.cell;
+    switch (name) {
+      case 'node:cur-select':
+        updateSelectedCell(cell);
+        showExecuteMessage(cell);
+        break;
+
+      case 'node:dblclick':
+        if (!isPreview) {
+          updateSelectedCell(cell, 'dblclick');
+        }
+        break;
+
+      case 'blank:click':
+        updateSelectedCell(null);
+        break;
+
+      case 'node:removed':
+        resetChildrenData(cell);
+        saveFlowCache();
+        updateSelectedCell(null);
+        break;
+
+      case 'edge:removed':
+        const nodeId = event.cell.target.cell;
+
+        if (!nodeId) return;
+
+        const targetNode = FlowGraph.graph.getCell(nodeId);
+        // FlowGraph.resetNodeData(targetNode)
+        resultDataCache[nodeId] = null;
+
+        setStatusMap({
+          ...statusMap,
+          [nodeId]: 'WARNING',
+        });
+
+        resetChildrenData(targetNode);
+        saveFlowCache();
+        break;
+
+      case 'node:added':
+      case 'edge:connected':
+        saveFlowCache();
+        break;
+
+      case 'node:menu-click':
+        handleNodeMenuClick(event);
+        break;
+
+      /**
+       * 分支节点处理事件
+       */
+      // case 'switch:change':
+      //   handleSwitchNodeChange(event);
+      //   break;
+
+      // case 'change:data':
+      //   setNodeChange(!(event.options || {}).curSilent)
+      //   break
+
+      default:
+        // console.info(name, event)
+        break;
+    }
+  };
+
   const getToolbar = () => {
     return (
       <div className={styles.toolbar}>
         <Toolbar hoverEffect onClick={handleToolbarClick}>
-          {
-            !isPreview && (
-              <Group>
-                <Item
-                  name="play"
-                  text={t('workflow.builder.button.run')}
-                  icon={<PlayCircleOutlined />}
-                />
-                <Item
-                  name="stop"
-                  text={t('workflow.builder.button.stop')}
-                  icon={<PauseCircleOutlined />}
-                />
-              </Group>
-            )
-          }
+          {!isPreview && !isApprovalOrSchedule && (
+            <Group>
+              {/* <Item
+                name="play"
+                disabled={executeFlowLoading || executeStopping}
+                text={t('workflow.builder.button.run')}
+                icon={executeFlowLoading ? <LoadingOutlined spin /> : <PlayCircleOutlined />}
+              /> */}
+              <Item
+                name="test"
+                disabled={executeFlowLoading || executeStopping}
+                text={t('common.button.test')}
+                icon={
+                  executeFlowLoading ? (
+                    <LoadingOutlined spin />
+                  ) : (
+                    <PlayCircleOutlined />
+                  )
+                }
+              />
+              <Item
+                name="stop"
+                disabled={!executeFlowLoading}
+                text={t('workflow.builder.button.stop')}
+                icon={
+                  executeStopping ? (
+                    <LoadingOutlined spin />
+                  ) : (
+                    <PauseCircleOutlined />
+                  )
+                }
+              />
+            </Group>
+          )}
           <Group>
             <Item
               name="zoomIn"
@@ -954,7 +1265,11 @@ const Canvas:React.FC<{
               tooltip={t('workflow.builder.button.zoom_out')}
               icon={<MinusCircleOutlined />}
             />
-            <Item name="zoomFit" tooltip={t('100%')} icon={<BorderOuterOutlined />} />
+            <Item
+              name="zoomFit"
+              tooltip={t('100%')}
+              icon={<BorderOuterOutlined />}
+            />
             {/*<Item*/}
             {/*    name="zoom"*/}
             {/*    tooltip={t('workflow.builder.button.zoom')}*/}
@@ -993,119 +1308,18 @@ const Canvas:React.FC<{
     );
   };
 
-  /**
-   * 获取格式化后的策略流数据
-   * 用于展示策略流
-   */
-  const getFlowJsonData = (flowData) => {
-    return {
-      edges: _.map(flowData.edges, (edge) => ({
-        shape: edge.type,
-        labels: edge.data?.labels,
-        source: {
-          cell: edge.source,
-          port: edge.sourceAnchor,
-        },
-        target: {
-          cell: edge.target,
-          port: edge.targetAnchor,
-        },
-      })),
-      nodes: _.map(flowData.nodes, (node) => {
-        if (!node.displayName) {
-          node.displayName = node.name;
+  const getNodeInitialValues = (configData) => {
+    const values = {};
+    try {
+      _.each(configData.resources.pages[0].components, (item) => {
+        if (!item.settings?.disabled) {
+          _.merge(values, {
+            [item.name]: item.settings?.initialValue,
+          });
         }
-
-        node.ports = _.uniqBy(node.ports, 'name');
-
-        const nodeData: any = {
-          id: node.nodeKey,
-          shape: 'flow-node',
-          position: {
-            x: node.x,
-            y: node.y,
-          },
-          data: {
-            pageMode: mode,
-            ...node,
-          },
-        };
-
-        if ((node.data || {}).ports) {
-          nodeData.ports = node.data.ports;
-        }
-
-        return nodeData;
-      }),
-    };
-  };
-
-  /**
-   * 格式化策略流数据
-   * 用于保存策略流数据
-   * @returns {{edges: Array, nodes: Array}}
-   */
-  const getFlowData = (instance = curFlowInstance) => {
-    const flowData = {
-      name: 'name',
-      revision: 0,
-      workflowInstanceId: 0,
-      workflowTemplateId: 1,
-      ...instance,
-    };
-
-    if (!flowData.flowKey) {
-      flowData.flowKey = randomString(6);
-    }
-
-    const originalData = FlowGraph.getJSONData() as {
-      nodes: any[]
-      edges: any[]
-    };
-
-    const edges: any[] = [];
-    _.map(originalData.edges, (edge) => {
-      const s = edge._source || {};
-      const t = edge._target || {};
-
-      const d: any = {
-        type: edge.shape,
-        source: edge.source,
-        target: edge.target,
-        sourceAnchor: s.port,
-        targetAnchor: t.port,
-        data: {
-          labels: ''
-        }
-      };
-
-      if (edge.labels) {
-        d.data.labels = edge.labels;
-      }
-
-      let edgeId;
-
-      if ((edgeId = curFlowIdData.edgeIds[[d.source, d.target].join('-')])) {
-        d.edgeId = edgeId;
-      }
-
-      if (d.source && d.target) {
-        edges.push(d);
-      }
-    });
-
-    const nodes = [];
-    _.map(originalData.nodes, (node) => {
-      const d = getNodeInstance(node);
-      // @ts-ignore
-      nodes.push(d);
-    });
-
-    return {
-      ...flowData,
-      edges,
-      nodes,
-    };
+      });
+    } catch (error) {}
+    return values;
   };
 
   /**
@@ -1115,7 +1329,8 @@ const Canvas:React.FC<{
    */
   const getNodeInstance = (node) => {
     const nodeData = node.data || {};
-    const formData = nodeData.data || {};
+    const initValues = getNodeInitialValues(nodeData.configData);
+    const formData = _.extend({}, initValues, nodeData.data || {});
     const nodePorts = _.map(node.ports.items, (item) => {
       const data = item.data || item;
       return {
@@ -1168,6 +1383,121 @@ const Canvas:React.FC<{
     return d;
   };
 
+  /**
+   * 获取格式化后的策略流数据
+   * 用于展示策略流
+   */
+  const getFlowJsonData = (flowData) => {
+    return {
+      edges: _.map(flowData.edges, (edge) => ({
+        shape: edge.type,
+        labels: edge.data?.labels,
+        source: {
+          cell: edge.source,
+          port: edge.sourceAnchor,
+        },
+        target: {
+          cell: edge.target,
+          port: edge.targetAnchor,
+        },
+      })),
+      nodes: _.map(flowData.nodes, (node) => {
+        if (!node.displayName) {
+          node.displayName = node.name;
+        }
+
+        node.ports = _.uniqBy(node.ports, 'name');
+
+        const nodeData: any = {
+          id: node.nodeKey,
+          shape: 'flow-node',
+          position: {
+            x: node.x,
+            y: node.y,
+          },
+          data: {
+            pageMode: mode,
+            ...node,
+          },
+        };
+
+        if ((node.data || {}).ports) {
+          nodeData.ports = node.ports;
+        }
+
+        return nodeData;
+      }),
+    };
+  };
+
+  /**
+   * 格式化策略流数据
+   * 用于保存策略流数据
+   * @returns {{edges: Array, nodes: Array}}
+   */
+  const getFlowData = (instance = curFlowInstance) => {
+    const flowData = {
+      name: 'name',
+      revision: 0,
+      workflowInstanceId: 0,
+      workflowTemplateId: 1,
+      ...instance,
+    };
+
+    if (!flowData.flowKey) {
+      flowData.flowKey = randomString(6);
+    }
+
+    const originalData = FlowGraph.getJSONData() as {
+      nodes: any[];
+      edges: any[];
+    };
+
+    const edges: any[] = [];
+    _.map(originalData.edges, (edge) => {
+      const s = edge._source || {};
+      const t = edge._target || {};
+
+      const d: any = {
+        type: edge.shape,
+        source: edge.source,
+        target: edge.target,
+        sourceAnchor: s.port,
+        targetAnchor: t.port,
+        data: {
+          labels: '',
+        },
+      };
+
+      if (edge.labels) {
+        d.data.labels = edge.labels;
+      }
+
+      let edgeId;
+
+      if ((edgeId = curFlowIdData.edgeIds[[d.source, d.target].join('-')])) {
+        d.edgeId = edgeId;
+      }
+
+      if (d.source && d.target) {
+        edges.push(d);
+      }
+    });
+
+    const nodes = [];
+    _.map(originalData.nodes, (node) => {
+      const d = getNodeInstance(node);
+      // @ts-ignore
+      nodes.push(d);
+    });
+
+    return {
+      ...flowData,
+      edges,
+      nodes,
+    };
+  };
+
   const updateNodeData = (data, options, node = selectCellRef.current) => {
     if (node) {
       let nodeStatus;
@@ -1216,7 +1546,7 @@ const Canvas:React.FC<{
   };
 
   const handleConfigShown = (node) => {
-    getOutputFieldsByNodeKey(node.id);
+    // getOutputFieldsByNodeKey(node.id);
   };
 
   const handleConfigHidden = (node) => {
@@ -1227,6 +1557,20 @@ const Canvas:React.FC<{
     setCurConfigCell(nodeId);
   };
 
+  const handleNodeExecute = (node: any, executing: boolean) => {
+    const nodeInfo = node.getData();
+    updateNodeData(
+      {
+        ...nodeInfo,
+        executing,
+      },
+      {
+        overwrite: true,
+      },
+      node,
+    );
+  };
+
   /**
    * 获取输出字段
    * @param nodeKey
@@ -1235,34 +1579,34 @@ const Canvas:React.FC<{
   const getOutputFieldsByNodeKey = async (nodeKey) => {
     const result = await BuilderService.fetchInputFields({
       nodeKey,
+      workflowType,
       workflowInstanceId,
     });
 
-    let fields: any[] = [], files: any[] = [];
-    if (result) {
-      _.each(result, item => {
-        _.each(item.fields, field => {
-          if (field.type === 'FILE') {
-            files.push({
-              value: field.value,
-              label: field.label,
-              children: field.subFields
-            })
+    const node = selectCellRef.current;
+    if (node && result) {
+      const edges = FlowGraph.graph.getIncomingEdges(node);
+      try {
+        _.each(edges, (edge) => {
+          if (edge.target) {
+            const nodeData = _.find(
+              result,
+              (item) => item.nodeKey === edge.source.cell,
+            );
+            if (nodeData) {
+              nodeData.portId = edge.target.port;
+            }
           }
-        })
-
-        const fds = _.filter(item.fields, field => field.type !== 'FILE');
-        if (fds.length) {
-          fields.push({
-            ...item,
-            fields: fds
-          })
-        }
-      })
+        });
+      } catch (e) {}
     }
+
+    const { files, fields } = getInputFields(result);
 
     setOutputFiles(files);
     setOutputFields(fields);
+
+    setInputData(result);
   };
 
   const saveWorkflowBuilderCache = () =>
@@ -1271,7 +1615,7 @@ const Canvas:React.FC<{
 
       const flowData = getFlowData();
 
-      await BuilderService.saveWorkflowBuilderCache({
+      await BuilderService.saveWorkflowBuilderCache(workflowType, {
         data: flowData,
       });
 
@@ -1287,18 +1631,23 @@ const Canvas:React.FC<{
    * @returns {Promise<void>}
    */
   const publishFlow = () => {
+    if (!hasPublishAuth) {
+      showNoPermission();
+      return;
+    }
     return new Promise(async (resolve, reject) => {
       const result = await publishBuilderRequest.runAsync({
+        workflowType,
         workflowInstanceId: flowInstance.workflowInstanceId,
       });
 
       if (result) {
         message.success(t('common.notification.success.title'));
-        resolve(result)
+        resolve(result);
       } else {
-        reject(result)
+        reject(result);
       }
-    })
+    });
   };
 
   /**
@@ -1309,7 +1658,7 @@ const Canvas:React.FC<{
     if (curLoopNode) {
       const flowData = getFlowData();
       const type = flowData.workflowInstanceId ? 'put' : 'post';
-      const resData = await saveBuilderDraftRequest.runAsync({
+      const resData = await saveBuilderDraftRequest.runAsync(workflowType, {
         data: flowData,
         method: type,
       });
@@ -1330,7 +1679,7 @@ const Canvas:React.FC<{
           }
         });
         const type = flowData.workflowInstanceId ? 'put' : 'post';
-        const result = await saveBuilderDraftRequest.runAsync({
+        const result = await saveBuilderDraftRequest.runAsync(workflowType, {
           data: flowData,
           method: type,
         });
@@ -1348,6 +1697,11 @@ const Canvas:React.FC<{
    * @returns {Promise.<void>}
    */
   const saveFlowDraft = (silence?: boolean) => {
+    if (!hasOptAuth) {
+      showNoPermission();
+      return;
+    }
+
     return new Promise(async (resolve, reject) => {
       const flowData = getFlowData();
       const type = flowData.workflowInstanceId ? 'put' : 'post';
@@ -1358,7 +1712,7 @@ const Canvas:React.FC<{
         };
       }
 
-      const result = await saveBuilderDraftRequest.runAsync({
+      const result = await saveBuilderDraftRequest.runAsync(workflowType, {
         data: flowData,
         method: type,
       });
@@ -1396,6 +1750,7 @@ const Canvas:React.FC<{
   const postExecuteOutput = async (nodes, curNodeId?: string) => {
     const nodeKeys = _.map(nodes, (item) => item.nodeKey);
     const executeResult = await executeBuilderRequest.runAsync({
+      workflowType,
       workflowInstanceId,
       params: {
         nodeKeys: nodeKeys.join(','),
@@ -1420,8 +1775,12 @@ const Canvas:React.FC<{
     }
   };
 
-  const getConfigPanel = () => {
-    if (!isSelected || !selectedId) return null;
+  const handleExecuteMessageResize = (height: number) => {
+    setExecuteMessageHeight(height);
+  };
+
+  const renderConfigPanel = () => {
+    if (!isSelected || !selectedId || !!testNode) return null;
 
     const node = selectCellRef.current;
 
@@ -1439,6 +1798,7 @@ const Canvas:React.FC<{
           flowKey: flowInstance.flowKey,
           nodeData: curNodeData || node?.data,
           executeLoading: executeBuilderNodeRequest.loading,
+          executeMessageHeight: executeMessageHeight,
           onExecute: doNodeExecute,
           onChange: handleDataChange,
           onConfigShown: handleConfigShown,
@@ -1451,21 +1811,52 @@ const Canvas:React.FC<{
     );
   };
 
-  const getExecutePreview = () => {
-    const curNode = selectCellRef.current;
-
-    if (!isShowExecutePreview) return null;
+  const renderTestPanel = () => {
+    if (!testNode || !!(isSelected && selectedId)) return null;
 
     return (
-      <ExecutePreview
-        nodeId={curNode?.id}
-        allExecuteData={allExecuteData}
+      <CurContext.Provider
+        value={{
+          testNode,
+          flowInstance,
+          workflowType,
+          executeMessageHeight: executeMessageHeight,
+        }}
+      >
+        <TestPanel onClose={() => setTestNode(null)} />
+      </CurContext.Provider>
+    );
+  };
+
+  const renderExecuteMessage = () => {
+    if (!previewNodeVisible || !workflow.templateCode || !workflowInstanceId)
+      return null;
+
+    const nodeId = executeState.nodeId;
+    const nodeExecutionId = nodeId && allExecuteData?.[nodeId]?.nodeExecutionId;
+
+    return (
+      <ExecuteMessage
+        node={executeState.node}
+        nodeKey={executeState.nodeKey}
+        nodeCode={executeState.nodeCode}
+        execTimer={executeState.execTimer}
+        execType={executeState.execType}
+        nodeExecutionId={nodeExecutionId}
+        templateCode={executeState.templateCode}
+        workflowInstanceId={executeState.workflowInstanceId}
         defaultCollapsed={previewStatus === 'close'}
+        onResize={handleExecuteMessageResize}
         onClose={closePreviewNode}
         onCollapsed={handlePreviewCollapsed}
+        onNodeExecute={handleNodeExecute}
       />
     );
   };
+
+  if (i18nLoading) {
+    return <PageLoading />;
+  }
 
   return (
     <div className={cls(styles.canvas, styles[curLayout], styles[mode])}>
@@ -1483,9 +1874,9 @@ const Canvas:React.FC<{
           ) : (
             <Row justify="space-between" align="middle">
               <Col>
-                  <span className={styles.title}>
-                      {t('workflow.builder.panel.nodes.title')}
-                  </span>
+                <span className={styles.title}>
+                  {t('workflow.builder.panel.nodes.title')}
+                </span>
               </Col>
               <Col>
                 <div className={styles.extendBtn} onClick={toggleCollapsed}>
@@ -1499,15 +1890,16 @@ const Canvas:React.FC<{
       </div>
       <div
         className={cls(styles.panel, {
-          [styles['exp' + previewStatus]]: isShowExecutePreview,
+          [styles['expclose']]: !isShowExecuteNote,
           [styles.showConfig]: !!(isSelected && selectedId),
         })}
       >
         {getToolbar()}
         {breadcrumb()}
         {getGraphContainer()}
-        {getConfigPanel()}
-        {getExecutePreview()}
+        {renderTestPanel()}
+        {renderConfigPanel()}
+        {renderExecuteMessage()}
       </div>
     </div>
   );

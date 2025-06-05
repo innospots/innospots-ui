@@ -30,6 +30,30 @@ export default [
     component: './403'
   },
   {
+    path: '/oauth/callback',
+    layout: false,
+    name: 'oauth-callback',
+    component: './AuthResult/Callback'
+  },
+  {
+    path: '/add/locale',
+    layout: false,
+    name: 'add-locale',
+    component: './AddLocale'
+  },
+  {
+    path: '/oauth-result',
+    name: 'oauth-result',
+    component: '@/layouts/FullScreenLayout',
+    routes: [
+      {
+        path: '/oauth-result',
+        name: 'oauth-result',
+        component: './AuthResult'
+      }
+    ]
+  },
+  {
     path: '/metadata/credential/schema',
     name: 'schema',
     icon: 'smile',
@@ -44,23 +68,97 @@ export default [
     ]
   },
   {
-    path: '/app/builder',
-    name: 'appBuilder',
+    path: '/app/editor',
+    name: 'appEditor',
     icon: 'smile',
     component: '@/layouts/FullScreenLayout',
     routes: [
       {
-        path: '/app/builder/:nodeId',
-        name: 'appBuilder',
+        path: '/app/editor/:appKey/key',
+        name: 'appEditor1',
         icon: 'smile',
-        component: './App/Builder'
+        component: './App/Editor'
       }
     ]
   },
   {
-    path: '/',
-    component: '@/layouts/BasicLayout',
+    path: '/app/page',
+    name: 'appPage',
+    icon: 'smile',
+    component: '@/layouts/FullScreenLayout',
     routes: [
+      {
+        path: '/app/page/:pageType/*',
+        name: 'appPageInfo',
+        icon: 'smile',
+        component: './App/Page'
+      },
+    ]
+  },
+  {
+    path: '/workflow/node-editor',
+    name: 'nodeEditor',
+    icon: 'smile',
+    component: '@/layouts/FullScreenLayout',
+    routes: [
+      {
+        path: '/workflow/node-editor/:nodeId',
+        name: 'nodeEditor',
+        icon: 'smile',
+        component: './Workflow/NodeEditor'
+      }
+    ]
+  },
+  {
+    path: '/approve/page',
+    name: 'approvePage',
+    icon: 'smile',
+    component: '@/layouts/FullScreenLayout',
+    routes: [
+      {
+        path: '/approve/page/:pageType/:appKey',
+        name: 'approveFormPage',
+        icon: 'smile',
+        component: './Approve/Page'
+      }
+    ]
+  },
+  {
+    path: '/approve-audit/page',
+    name: 'approveAuditPage',
+    icon: 'smile',
+    component: '@/layouts/FullScreenLayout',
+    routes: [
+      {
+        path: '/approve-audit/page/:pageType/:appKey',
+        name: 'approveAuditFormPage',
+        icon: 'smile',
+        component: './ApproveAudit/Page'
+      }
+    ]
+  },
+  {
+    path: '/workflow/:workflowType/builder',
+    name: 'workflowBuilder',
+    component: '@/layouts/FullScreenLayout',
+    routes: [
+      {
+        path: '/workflow/:workflowType/builder',
+        icon: 'smile',
+        component: './Workflow/Builder',
+      },
+    ]
+  },
+  {
+    path: '/',
+    component: '@/layouts/SeniorLayout',
+    routes: [
+      {
+        path: '/apps-embed/show/:appType/:appKey',
+        name: 'appEmbedPageInfo',
+        icon: 'smile',
+        component: './AppEmbed/Show'
+      },
       {
         path: '/system',
         routes: [
@@ -107,6 +205,16 @@ export default [
             path: '/system/roles',
             name: 'roles',
             component: './System/Roles'
+          },
+          {
+            path: '/system/user-group',
+            name: 'user-group',
+            component: './System/UserGroup'
+          },
+          {
+            path: '/system/dictionary',
+            name: 'system-dictionary',
+            component: './System/SysDictionary'
           }
         ]
       },
@@ -124,6 +232,12 @@ export default [
             name: 'credential',
             icon: 'smile',
             component: './Metadata/Credential'
+          },
+          {
+            path: '/metadata/credential-type',
+            name: 'credential-type',
+            icon: 'smile',
+            component: './Metadata/CredentialType'
           },
           {
             path: '/metadata/http-api',
@@ -151,8 +265,9 @@ export default [
         ]
       },
       {
-        path: '/appstore',
-        name: 'appstore',
+        path: '/extension-store',
+        // path: '/appstore',
+        name: 'extension-store',
         icon: 'smile',
         component: './Extension/Store'
       },
@@ -161,6 +276,30 @@ export default [
         name: 'app',
         icon: 'smile',
         component: './App'
+      },
+      {
+        path: '/approve',
+        name: 'approve',
+        icon: 'smile',
+        component: './Approve'
+      },
+      {
+        path: '/approve-list',
+        name: 'approve-list',
+        icon: 'smile',
+        component: './Approve/List/index'
+      },
+      {
+        path: '/approve-audit',
+        name: 'approve-audit',
+        icon: 'smile',
+        component: './ApproveAudit'
+      },
+      {
+        path: '/audit-records',
+        name: 'audit-records',
+        icon: 'smile',
+        component: './AuditRecords'
       },
       {
         path: '/config',
@@ -216,37 +355,87 @@ export default [
         component: './Tasks'
       },
       {
+        path: '/instances',
+        routes: [
+          {
+            path: '/instances',
+            name: 'instances',
+            icon: 'smile',
+            component: './Instances'
+          },
+          {
+            path: '/instances/index/detail',
+            icon: 'smile',
+            component: './Instances/Preview',
+          },
+        ]
+      },
+      {
+        path: '/node-definition',
+        name: 'workflow-nodes',
+        icon: 'smile',
+        component: './Workflow/Nodes'
+      },
+      {
         path: '/workflow',
         routes: [
           {
-            path: '/workflow/index',
+            path: '/workflow/:workflowType',
             name: 'workflow',
             icon: 'smile',
             component: './Workflow/Index'
           },
           {
-            path: '/workflow/index/detail',
+            path: '/workflow/:workflowType/detail',
             icon: 'smile',
             component: './Workflow/Preview',
           },
           {
-            path: '/workflow/index/record',
+            path: '/workflow/:workflowType/record',
             icon: 'smile',
             component: './Workflow/Preview/Record',
-          },
-          {
-            path: '/workflow/builder',
-            icon: 'smile',
-            component: './Workflow/Builder',
           },
         ]
       },
       {
-        component: './404'
+        path: '/schedule',
+        routes: [
+          {
+            path: '/schedule/schedule-config',
+            name: 'schedule-config',
+            icon: 'schedule',
+            component: './Schedule/ScheduleJob'
+          },
+          {
+            path: '/schedule/schedule-queue',
+            name: 'schedule-queue',
+            icon: 'schedule',
+            component: './Schedule/JobQueue'
+          },
+          {
+            path: '/schedule/execution',
+            name: 'execution',
+            icon: 'schedule',
+            component: './Schedule/JobExecution'
+          },
+          {
+            path: '/schedule/execution/detail/:executionId',
+            name: 'execution-detail',
+            icon: 'schedule',
+            component: './Schedule/JobExecution/Detail'
+          }
+        ]
       }
     ]
   },
   {
-    component: './404'
+    path: '/',
+    component: '@/layouts/SeniorLayout',
+    routes: [
+      {
+        path: '/*',
+        component: './404'
+      }
+    ]
   }
 ];

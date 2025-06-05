@@ -23,8 +23,10 @@
   z-index: 1000;
   width: 100%;
   height: @header-height;
+  display: flex;
+  align-items: center;
   box-shadow: 0 1px 4px 0 #0015291e;
-
+  background-color: #fff;
   :global {
     .@{ant-prefix}-page-header {
       padding: 0;
@@ -67,8 +69,7 @@
 
   .backIcon {
     width: @header-height;
-    height: @header-height;
-    font-size: 24px;
+    font-size: 18px;
     text-align: center;
     cursor: pointer;
   }

@@ -30,11 +30,14 @@ import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 import InnoIcon from '@/components/Icons/InnoIcon';
 import PageLoading from '@/components/PageLoading';
-
+import PageHelmet from '@/components/PageHelmet';
 import PermissionSection, { usePermission } from '@/components/PermissionSection';
 import PageTitle from '@/components/PageTitle';
 import NiceSwitch from '@/components/Nice/NiceSwitch';
 import CredentialModal, { MODAL_NAME } from '@/components/CredentialModal';
+import { renderNodeIcon } from '@/pages/Workflow/Builder/components/NodeIcon';
+
+import {BASE_URL} from "@/common/constants";
 
 import styles from './style.less';
 
@@ -46,14 +49,14 @@ const DataSource: React.FC = () => {
   const { t, loading: i18nLoading } = useI18n(['datasource', 'credential', 'common']);
 
   const [queryData, setQueryData] = useSetState({
-    queryCode: '',
     page: 1,
-    size: 10,
+    size: 12,
     sort: '',
-    dbType: ''
+    dbType: '',
+    queryInput: ''
   });
 
-  const [deleteAuth] = usePermission('Credential-deleteCredentialInfo');
+  const [deleteAuth] = usePermission('CredentialInfo-deleteCredentialInfo');
 
   const {
     metaSources
@@ -70,11 +73,6 @@ const DataSource: React.FC = () => {
   useDeepCompareEffect(() => {
     credentialPageRequest.run(queryData);
   }, [queryData]);
-
-  useEffect(() => {
-    // dataSourceRequest.run();
-    // metaSourcesRequest.run();
-  }, []);
 
   const sourceCate = (sourceType: string) => {
     if (['JDBC', 'KV', 'FILE'].includes(sourceType)) {
@@ -119,12 +117,12 @@ const DataSource: React.FC = () => {
             onSearch: (value: string) => {
               setQueryData({
                 ...queryData,
-                queryCode: value
+                queryInput: value
               })
             },
           },
           button: {
-            itemKey: 'Credential-createCredentialInfo',
+            itemKey: 'CredentialInfo-createCredentialInfo',
             label: t('credential.main.button.add'),
             onClick: () => {
               credentialModal.show();
@@ -165,7 +163,7 @@ const DataSource: React.FC = () => {
             const meta = _.find(metaSources, (m) => m.dbType === item.dbType);
 
             actions.push(
-              <PermissionSection itemKey="Credential-updateCredentialInfo">
+              <PermissionSection itemKey="CredentialInfo-updateCredentialInfo">
                 <div onClick={() => credentialModal.show(item)}>
                   <InnoIcon type="edit-alt" /> {t('common.button.edit')}
                 </div>
@@ -174,7 +172,7 @@ const DataSource: React.FC = () => {
 
             if (item.configCode === 'kafka') {
               actions.push(
-                <Link to={`/metadata/credential/schema?credentialId=${item.credentialId}`}>
+                <Link to={`/metadata/credential/schema?credentialId=${item.credentialKey}`}>
                   <InnoIcon type="bar-chart" /> {t('datasource.main.link.schemas')}
                 </Link>,
               );
@@ -187,7 +185,7 @@ const DataSource: React.FC = () => {
                     title={t('common.text.delete_confirmation')}
                     okText={t('common.button.confirm')}
                     cancelText={t('common.button.cancel')}
-                    onConfirm={deleteConfirm(item.credentialId)}
+                    onConfirm={deleteConfirm(item.credentialKey)}
                   >
                     <InnoIcon type="delete" /> {t('common.button.delete')}
                   </Popconfirm>
@@ -205,7 +203,7 @@ const DataSource: React.FC = () => {
 
             return (
               <Col span={8} key={['card', index].join('-')}>
-                <Card actions={actions} bordered={false}>
+                <Card actions={actions} variant="outlined">
                   <div className={styles.tag}>
                     {/*<Tag color="blue" visible={sourceCate(item.sourceType) === 'BATCH'}>*/}
                     {/*    {t('datasource.main.batch')}*/}
@@ -223,7 +221,8 @@ const DataSource: React.FC = () => {
                           [styles.sd]: sourceCate(item.sourceType) === 'REAL_TIME',
                         })}
                       >
-                        <div>{item.sourceType}</div>
+                        {/*<div>{item.appNodeCode}</div>*/}
+                        { renderNodeIcon(item, {baseUrl: BASE_URL}) }
                       </Avatar>
                     }
                     title={item.name}
@@ -306,6 +305,7 @@ const DataSource: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('credential.main.heading_title')} />
       {renderPageHeader()}
       {renderCardNode()}
       {renderCredentialModal()}

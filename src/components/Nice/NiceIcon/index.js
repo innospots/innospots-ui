@@ -317,5 +317,5 @@ export const OneToMoreIcon = (props) => <Icon component={oneToMoreSvg} {...props
 export const PostgreSQLIcon = (props) => <Icon component={postgreSQLSvg} {...props} />;
 
 export const IconFont = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_2689576_7526cp6pf1p.js',
+  scriptUrl: require('./font/iconfont.js')
 });

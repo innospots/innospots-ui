@@ -16,11 +16,6 @@
  *  limitations under the License.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import ProLayout, { ProBreadcrumb } from '@ant-design/pro-layout';
-import { Link, history, useModel } from 'umi';
-import { Row, Col, Modal, Spin } from 'antd';
-import _ from 'lodash';
 import { pageLayoutSettings } from '@/config/DefaultSettings';
 import {
   AppstoreOutlined,
@@ -33,10 +28,18 @@ import {
   SlidersOutlined,
 } from '@ant-design/icons';
 import type { MenuDataItem } from '@ant-design/pro-layout';
+import ProLayout, { ProBreadcrumb } from '@ant-design/pro-layout';
+import { useEventEmitter } from 'ahooks';
+import { Col, Modal, Row, Spin } from 'antd';
+import Cookies from 'js-cookie';
+import _ from 'lodash';
+import moment from 'moment-timezone';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, Outlet, history, useLocation, useModel } from 'umi';
 
-import { checkUserStatus } from '@/services/Account';
 import RightContent from '@/components/RightContent';
 import RootConfigProvider from '@/components/RootConfigProvider';
+import { checkUserStatus } from '@/services/Account';
 
 import useI18n from '@/common/hooks/useI18n';
 import PageLoading from '@/components/PageLoading';
@@ -44,8 +47,12 @@ import PageLoading from '@/components/PageLoading';
 import InnoIcon from '@/components/Icons/InnoIcon';
 import { MenuIcon } from '@/components/Icons/MenuIcon';
 
-import {getFormattedLocale} from '@/common/utils';
 import { INDEX_PATHNAME } from '@/common/constants';
+import {
+  getFormattedLocale,
+  isRequestSuccess,
+  isTokenExpired,
+} from '@/common/utils';
 
 import styles from './style.less';
 
@@ -69,6 +76,8 @@ export const renderMenuIcon = (icon: string) => {
 
   return CusIcon;
 };
+
+const currentTimezone = moment.tz.guess();
 
 const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
   menus.map(({ icon, routes, ...item }) => ({
@@ -103,22 +112,34 @@ const formatMenuData = (menus: any[]): MenuDataItem[] =>
     };
   });
 
-const loginPath = '/login';
+const loginPaths = ['/login', '/admin-l10'];
 
 let _openKeys: string[] = [];
 
-const LayoutPage: React.FC<{
-  location: {
-    pathname: string
-  }
-}> = ({ children, ...rest }) => {
-  const {
-    location = {
-      pathname: '',
-    },
-  } = rest;
+const LayoutPage: React.FC = ({ children, ...rest }) => {
+  const location = useLocation();
 
-  const { logout, sessionData, setSessionData } = useModel('Account');
+  const $event = useEventEmitter();
+
+  useEffect(() => {
+    if ($event) {
+      window.AppEvent = $event;
+    }
+  }, [$event]);
+
+  useEffect(() => {
+    Cookies.set('timezone', currentTimezone);
+  }, []);
+
+  const { logout, serverInfo, sessionData, setSessionData } = useModel(
+    'Account',
+    (model) => ({
+      logout: model.logout,
+      serverInfo: model.serverInfo,
+      sessionData: model.sessionData,
+      setSessionData: model.setSessionData,
+    }),
+  );
   const { applicationMenuItemsRequest } = useModel('Application', (model) => ({
     applicationMenuItemsRequest: model.applicationMenuItemsRequest,
   }));
@@ -126,16 +147,20 @@ const LayoutPage: React.FC<{
   const { t, loading: i18nLoading } = useI18n(['common', 'workflow', 'page']);
   const [collapsed, setCollapsed] = useState(false);
   const [openMenuKeys, setOpenMenuKeys] = useState<string[]>([]);
+  const [matchMenuKeys, setMatchMenuKeys] = useState<string[] | undefined>();
 
-  const { navigations, updateAllMenuOpts, updateNavigations, navigationsRequest } = useModel(
-    'Menu',
-    (model) =>
-      _.pick(model, [
-        'navigations',
-        'updateAllMenuOpts',
-        'updateNavigations',
-        'navigationsRequest',
-      ]),
+  const {
+    navigations,
+    updateAllMenuOpts,
+    updateNavigations,
+    navigationsRequest,
+  } = useModel('Menu', (model) =>
+    _.pick(model, [
+      'navigations',
+      'updateAllMenuOpts',
+      'updateNavigations',
+      'navigationsRequest',
+    ]),
   );
 
   const menuRoutes = useMemo(() => {
@@ -148,12 +173,22 @@ const LayoutPage: React.FC<{
   }, [navigations]);
 
   useEffect(() => {
-    checkUserInfo(location?.pathname);
-    navigationsRequest.run();
+    if (serverInfo?.code) {
+      checkUserInfo(location?.pathname);
+      navigationsRequest.run();
+    }
+  }, [serverInfo?.code]);
 
+  useEffect(() => {
     const unlisten = history.listen((location, action) => {
-      if (location.pathname !== loginPath) {
+      if (!loginPaths.includes(location.pathname)) {
         checkUserInfo(location.pathname);
+      }
+
+      if (location.query?.router === 'page') {
+        setMatchMenuKeys(['/libra-page']);
+      } else {
+        setMatchMenuKeys(undefined);
       }
       Modal.destroyAll();
     });
@@ -163,9 +198,9 @@ const LayoutPage: React.FC<{
   const checkUserInfo = async (url: string) => {
     try {
       const result = await checkUserStatus(url);
-      if (['60003', '60004'].includes(result?.code)) {
+      if (isTokenExpired(result?.code)) {
         logout(true);
-      } else if (result?.code === '10000') {
+      } else if (isRequestSuccess(result?.code)) {
         setSessionData(result.body);
       }
     } catch (e) {
@@ -215,7 +250,9 @@ const LayoutPage: React.FC<{
       const { items, loadMode } = menuItem || {};
 
       if (loadMode === 'DYNAMIC' && (!items || !items.length)) {
-        const menuItems = await applicationMenuItemsRequest.runAsync(menuItem.itemKey);
+        const menuItems = await applicationMenuItemsRequest.runAsync(
+          menuItem.itemKey,
+        );
         menuItem.items = menuItems;
 
         updateNavigations(navigations);
@@ -226,104 +263,163 @@ const LayoutPage: React.FC<{
   const menuHeaderRender = () => {
     return (
       <div className={styles.logoIcon}>
-        <img className="logo" src={require('@/assets/images/common/logo.png')} />
-        <img className="small-logo" src={require('@/assets/images/common/s_logo.png')} />
+        <img
+          className="logo"
+          src={serverInfo.logo || require('@/assets/images/common/logo.png')}
+        />
+        <img
+          className="small-logo"
+          src={
+            serverInfo.favicon || require('@/assets/images/common/s_logo.png')
+          }
+        />
       </div>
     );
   };
 
-  const getTargetRouter = (path: string, dataSource: any, parent: any, target: any) => {
-
+  const getTargetRouter = (
+    path: string,
+    dataSource: any,
+    parent: any,
+    target: any,
+  ) => {
     dataSource.map((data: any) => {
-      let pathOrKey = data.path || data.key
+      let pathOrKey = data.path || data.key;
 
-      if(pathOrKey === path){
-        if(parent) {
+      if (pathOrKey === path) {
+        if (parent) {
           // 目录的path值可能为undefined，用key去确定目标目录
-          getTargetRouter(parent.path || parent.key, menuRoutes, null, target)
+          getTargetRouter(parent.path || parent.key, menuRoutes, null, target);
         }
 
         target.push({
           path: data.path,
           breadcrumbName: data.name,
-          component: data.component
-        })
-      }else {
-        data.routes && getTargetRouter(path, data.routes, data, target)
+          component: data.component,
+        });
+      } else {
+        data.routes && getTargetRouter(path, data.routes, data, target);
       }
-
-    })
-  }
+    });
+  };
 
   const breadcrumbListRender = (routers: any = []) => {
-    let targetRouter: any = []
-    const {
-      query,
-      search,
-      pathname
-    } = history.location;
+    let targetRouter: any = [];
+    const { query, search, pathname } = location;
 
     // 根据菜单获取页面路由
     getTargetRouter(pathname, menuRoutes, null, targetRouter);
 
-    if (targetRouter && targetRouter.length > 0){
+    if (targetRouter && targetRouter.length > 0) {
       if (pathname.search(INDEX_PATHNAME) < 0) {
         targetRouter.unshift({
           path: INDEX_PATHNAME,
           isClickable: true,
-          breadcrumbName: (<span> <HomeOutlined/> {t('workflow.board.breadcrumb.home.title')} </span>)
-        })
+          breadcrumbName: (
+            <span>
+              {' '}
+              <HomeOutlined /> {t('workflow.board.breadcrumb.home.title')}{' '}
+            </span>
+          ),
+        });
       }
 
-      return targetRouter
+      return targetRouter;
     }
 
     // 工作流管理
     if (pathname.search('/workflow') > -1) {
       let routeList: any = [
-        { path: INDEX_PATHNAME, isClickable: true, breadcrumbName: (<span> <HomeOutlined /> {t('workflow.board.breadcrumb.home.title')} </span>) },
-      ]
+        {
+          path: INDEX_PATHNAME,
+          isClickable: true,
+          breadcrumbName: (
+            <span>
+              {' '}
+              <HomeOutlined /> {t('workflow.board.breadcrumb.home.title')}{' '}
+            </span>
+          ),
+        },
+      ];
 
       if (pathname.search(/(detail|preview|record|index)/) > -1) {
-        const params = { ...query }
-        delete params.instanceId
+        const params = { ...query };
+        delete params.instanceId;
 
-        let url = '/workflow/index'
+        let url = '/workflow/index';
 
-        Object.keys(params).map((key: any, index: Number) => {
-          url += `${index === 0 ? '?' : '&'}${key}=${params[key]}`
-        })
+        Object.keys(params).map((key: any, index: number) => {
+          url += `${index === 0 ? '?' : '&'}${key}=${params[key]}`;
+        });
 
-        routeList.push({ path: url, isClickable: true, breadcrumbName: t('workflow.main.heading_title'), ...history.location })
+        routeList.push({
+          path: url,
+          isClickable: true,
+          breadcrumbName: t('workflow.main.heading_title'),
+          ...history.location,
+        });
       }
 
       if (pathname.search('detail') > -1) {
-        routeList.push({breadcrumbName: t('workflow.board.breadcrumb.workflow.detail.title')})
+        routeList.push({
+          breadcrumbName: t('workflow.board.breadcrumb.workflow.detail.title'),
+        });
       } else if (pathname.search('record') > -1) {
-        routeList.push({path: `/workflow/index/detail${search}`, isClickable: true, breadcrumbName: t('workflow.board.breadcrumb.workflow.detail.title')})
-        routeList.push({path: '/workflow/index/record', breadcrumbName: t('workflow.board.execution.record.title')})
+        routeList.push({
+          path: `/workflow/index/detail${search}`,
+          isClickable: true,
+          breadcrumbName: t('workflow.board.breadcrumb.workflow.detail.title'),
+        });
+        routeList.push({
+          path: '/workflow/index/record',
+          breadcrumbName: t('workflow.board.execution.record.title'),
+        });
       } else if (pathname.search('template') > -1) {
-        routeList.push({ path: '/workflow/template', isClickable: true, breadcrumbName: t('workflow.template.heading_title') })
+        routeList.push({
+          path: '/workflow/template',
+          isClickable: true,
+          breadcrumbName: t('workflow.template.heading_title'),
+        });
 
         if (pathname.search('template/') > -1) {
-          routeList.push({ path: '', breadcrumbName: t('workflow.template.node.heading_title') })
+          routeList.push({
+            path: '',
+            breadcrumbName: t('workflow.template.node.heading_title'),
+          });
         }
       } else if (pathname.search('nodes') > -1) {
-        routeList.push({ path: '/workflow/nodes', isClickable: true, breadcrumbName: t('节点管理') })
+        routeList.push({
+          path: '/workflow/nodes',
+          isClickable: true,
+          breadcrumbName: t('节点管理'),
+        });
       }
 
-      return routeList
+      return routeList;
     } else if (pathname.search('visualization/page') > -1) {
       // 页面管理-页面预览
       let routeList: any = [
-        { path: INDEX_PATHNAME, isClickable: true, breadcrumbName: (<span> <HomeOutlined /> {t('workflow.board.breadcrumb.home.title')} </span>) },
-        { path: '/pages', isClickable: true, breadcrumbName: t('page.main.heading_title') },
-        { path: '/page/show', breadcrumbName: t('page.main.title.preview') }
-      ]
+        {
+          path: INDEX_PATHNAME,
+          isClickable: true,
+          breadcrumbName: (
+            <span>
+              {' '}
+              <HomeOutlined /> {t('workflow.board.breadcrumb.home.title')}{' '}
+            </span>
+          ),
+        },
+        {
+          path: '/pages',
+          isClickable: true,
+          breadcrumbName: t('page.main.heading_title'),
+        },
+        { path: '/page/show', breadcrumbName: t('page.main.title.preview') },
+      ];
 
-      return routeList
+      return routeList;
     }
-  }
+  };
 
   const breadcrumbItemRender = (route, params, routes, paths) => {
     const last = routes.indexOf(route) === routes.length - 1;
@@ -340,24 +436,45 @@ const LayoutPage: React.FC<{
   };
 
   const renderPageLayout = () => {
+    const layoutProps: any = {};
+
+    if (matchMenuKeys) {
+      layoutProps.matchMenuKeys = matchMenuKeys;
+    }
 
     return (
       <ProLayout
         headerHeight={64}
         collapsed={collapsed}
         openKeys={openMenuKeys}
+        {...layoutProps}
         menuHeaderRender={menuHeaderRender}
         breadcrumbRender={breadcrumbListRender}
-        rightContentRender={() => <RightContent/>}
         headerContentRender={() => (
-          <Row gutter={20}>
+          <Row justify="space-between" align="middle">
             <Col>
-              <span className={styles.collapseBtn} onClick={() => setCollapsed(!collapsed)}>
-                <InnoIcon size={16} type={`menu-${collapsed ? 'left' : 'right'}`} />
-              </span>
+              <Row gutter={20}>
+                <Col>
+                  <span
+                    className={styles.collapseBtn}
+                    onClick={() => setCollapsed(!collapsed)}
+                  >
+                    <InnoIcon
+                      size={16}
+                      type={`menu-${collapsed ? 'left' : 'right'}`}
+                    />
+                  </span>
+                </Col>
+                <Col>
+                  <ProBreadcrumb
+                    separator={<span> &gt; </span>}
+                    itemRender={breadcrumbItemRender}
+                  />
+                </Col>
+              </Row>
             </Col>
             <Col>
-              <ProBreadcrumb separator={<span> &gt; </span>} itemRender={breadcrumbItemRender} />
+              <RightContent />
             </Col>
           </Row>
         )}
@@ -379,29 +496,35 @@ const LayoutPage: React.FC<{
             );
           }
 
-          if ((isUrl || /^(http|https):\/\//.test(path)) && openMode === 'NEW_PAGE') {
+          if (
+            (isUrl || /^(http|https):\/\//.test(path)) &&
+            openMode === 'NEW_PAGE'
+          ) {
             return (
-              <a href={path} target="_blank">{ defaultDom }</a>
-            )
+              <a href={path} target="_blank" rel="noreferrer">
+                {defaultDom}
+              </a>
+            );
           }
 
-          return (
-            <Link to={path}>{defaultDom}</Link>
-          );
+          return <Link to={path}>{defaultDom}</Link>;
         }}
         // @ts-ignore
         onOpenChange={onMenuOpenChange}
+        menuFooterRender={() => null}
         {...pageLayoutSettings}
         {...rest}
       >
-        {children}
+        <Outlet />
       </ProLayout>
     );
   };
 
   return (
     <RootConfigProvider>
-      {(sessionData && sessionData.userId) ? renderPageLayout() : renderPageLoading()}
+      {sessionData && sessionData.userId
+        ? renderPageLayout()
+        : renderPageLoading()}
     </RootConfigProvider>
   );
 };

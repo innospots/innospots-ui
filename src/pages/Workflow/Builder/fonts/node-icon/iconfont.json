@@ -1,30 +1,261 @@
 {
-    "id": "2511846",
-    "name": "flow-node-icon",
-    "font_family": "flownodeiconfont",
-    "css_prefix_text": "flow-node-icon",
-    "description": "",
-    "glyphs": [
-        {
-            "icon_id": "6263352",
-            "name": "播放",
-            "font_class": "play",
-            "unicode": "e66e",
-            "unicode_decimal": 58990
-        },
-        {
-            "icon_id": "19148152",
-            "name": "删 除",
-            "font_class": "delete",
-            "unicode": "e6cd",
-            "unicode_decimal": 59085
-        },
-        {
-            "icon_id": "1040565",
-            "name": "暂停",
-            "font_class": "suspend",
-            "unicode": "e76a",
-            "unicode_decimal": 59242
-        }
-    ]
+  "id": "2511846",
+  "name": "flow-node-icon",
+  "font_family": "flownodeicon",
+  "css_prefix_text": "flow-node-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "35561448",
+      "name": "folder",
+      "font_class": "u1408",
+      "unicode": "e65b",
+      "unicode_decimal": 58971
+    },
+    {
+      "icon_id": "28101961",
+      "name": "文件",
+      "font_class": "wenjian",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "7778321",
+      "name": "baidu",
+      "font_class": "baidu",
+      "unicode": "e680",
+      "unicode_decimal": 59008
+    },
+    {
+      "icon_id": "586880",
+      "name": "file-shell",
+      "font_class": "shell",
+      "unicode": "e721",
+      "unicode_decimal": 59169
+    },
+    {
+      "icon_id": "12600749",
+      "name": "java",
+      "font_class": "java",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "13303476",
+      "name": "groovy",
+      "font_class": "groovy",
+      "unicode": "e65a",
+      "unicode_decimal": 58970
+    },
+    {
+      "icon_id": "20834553",
+      "name": "Python",
+      "font_class": "python",
+      "unicode": "e891",
+      "unicode_decimal": 59537
+    },
+    {
+      "icon_id": "7057916",
+      "name": "workflow",
+      "font_class": "sub-flow",
+      "unicode": "e68b",
+      "unicode_decimal": 59019
+    },
+    {
+      "icon_id": "15271709",
+      "name": "7、流程调度模板",
+      "font_class": "flow",
+      "unicode": "e670",
+      "unicode_decimal": 58992
+    },
+    {
+      "icon_id": "8714779",
+      "name": "提取查询",
+      "font_class": "extract",
+      "unicode": "e6ba",
+      "unicode_decimal": 59066
+    },
+    {
+      "icon_id": "9835608",
+      "name": "离线计算函数",
+      "font_class": "aggregation",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    },
+    {
+      "icon_id": "4579373",
+      "name": "结束模板",
+      "font_class": "end",
+      "unicode": "e661",
+      "unicode_decimal": 58977
+    },
+    {
+      "icon_id": "1725609",
+      "name": "返回（右）",
+      "font_class": "next-loop",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "1526312",
+      "name": "加号",
+      "font_class": "plus",
+      "unicode": "e660",
+      "unicode_decimal": 58976
+    },
+    {
+      "icon_id": "6832514",
+      "name": "并行节点",
+      "font_class": "parallel",
+      "unicode": "e66f",
+      "unicode_decimal": 58991
+    },
+    {
+      "icon_id": "10199611",
+      "name": "field",
+      "font_class": "join",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "17040421",
+      "name": "合并",
+      "font_class": "merge",
+      "unicode": "e73d",
+      "unicode_decimal": 59197
+    },
+    {
+      "icon_id": "18575593",
+      "name": "合并",
+      "font_class": "combine",
+      "unicode": "e708",
+      "unicode_decimal": 59144
+    },
+    {
+      "icon_id": "23097194",
+      "name": "非上报设备数据过滤",
+      "font_class": "filter",
+      "unicode": "e6f1",
+      "unicode_decimal": 59121
+    },
+    {
+      "icon_id": "584789",
+      "name": "刷新",
+      "font_class": "loop",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "23225247",
+      "name": "kafka-trigger",
+      "font_class": "kafka-trigger",
+      "unicode": "e659",
+      "unicode_decimal": 58969
+    },
+    {
+      "icon_id": "23225034",
+      "name": "condition",
+      "font_class": "condition",
+      "unicode": "e651",
+      "unicode_decimal": 58961
+    },
+    {
+      "icon_id": "23225035",
+      "name": "rule",
+      "font_class": "rule",
+      "unicode": "e652",
+      "unicode_decimal": 58962
+    },
+    {
+      "icon_id": "23225036",
+      "name": "branch",
+      "font_class": "branch",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "23225037",
+      "name": "script",
+      "font_class": "script",
+      "unicode": "e654",
+      "unicode_decimal": 58964
+    },
+    {
+      "icon_id": "23225038",
+      "name": "calculation",
+      "font_class": "calculation",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
+      "icon_id": "23225039",
+      "name": "webhook",
+      "font_class": "webhook",
+      "unicode": "e656",
+      "unicode_decimal": 58966
+    },
+    {
+      "icon_id": "23225040",
+      "name": "http-api",
+      "font_class": "http-api",
+      "unicode": "e657",
+      "unicode_decimal": 58967
+    },
+    {
+      "icon_id": "23225041",
+      "name": "mysql",
+      "font_class": "mysql",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
+      "icon_id": "23224986",
+      "name": "kafka",
+      "font_class": "kafka",
+      "unicode": "e650",
+      "unicode_decimal": 58960
+    },
+    {
+      "icon_id": "14775752",
+      "name": "等待",
+      "font_class": "interval",
+      "unicode": "e62d",
+      "unicode_decimal": 58925
+    },
+    {
+      "icon_id": "13010197",
+      "name": "定时",
+      "font_class": "dingshi",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "6263352",
+      "name": "播放",
+      "font_class": "play",
+      "unicode": "e66e",
+      "unicode_decimal": 58990
+    },
+    {
+      "icon_id": "19148152",
+      "name": "删 除",
+      "font_class": "delete",
+      "unicode": "e6cd",
+      "unicode_decimal": 59085
+    },
+    {
+      "icon_id": "1160853",
+      "name": "play",
+      "font_class": "start",
+      "unicode": "e865",
+      "unicode_decimal": 59493
+    },
+    {
+      "icon_id": "1040565",
+      "name": "暂停",
+      "font_class": "suspend",
+      "unicode": "e76a",
+      "unicode_decimal": 59242
+    }
+  ]
 }

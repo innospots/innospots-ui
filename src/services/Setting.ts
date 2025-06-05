@@ -43,3 +43,23 @@ export const saveEmailConfig = (data?: any) => {
     method: 'post',
   });
 };
+
+export const fetchEnvConfigs = () => {
+  return fetch('configuration/env');
+};
+
+export const saveEnvConfig = (method: string, data?: any) => {
+  return fetch('configuration/env', {
+    data,
+    method,
+  });
+};
+
+export const deleteEnvConfig = (code: string) => {
+  return fetch('configuration/env', {
+    params: {
+      code,
+    },
+    method: 'delete',
+  });
+};

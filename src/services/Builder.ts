@@ -22,8 +22,10 @@ export async function getHttpApiList({projectId}) {
   return dataRequest(`project/${projectId}/http/api/list`);
 }
 
-export async function fetchTemplate() {
-  return fetch<any>(`apps/category/def-list`);
+export async function fetchTemplate(templateCode: string, params) {
+  return fetch<any>(`flow-node/group/list/${templateCode}`, {
+    params
+  });
 }
 
 export async function updateTemplateStatus(payload) {
@@ -68,34 +70,34 @@ export async function getWebhookDetail(flowApiId) {
   return dataRequest(`flow/api/${flowApiId}`);
 }
 
-export async function fetchInputFields<T>({nodeKey, workflowInstanceId}): Promise<any> {
-  return fetch(`workflow/builder/${workflowInstanceId}/node-key/${nodeKey}/input-fields`);
+export async function fetchInputFields<T>({workflowType, nodeKey, workflowInstanceId}): Promise<any> {
+  return fetch(`${workflowType}/workflow/builder/${workflowInstanceId}/node-key/${nodeKey}/input-fields`);
   // return fetch(`workflow/builder/${workflowInstanceId}/node-key/${nodeKey}/output-field`);
 }
 
-export async function saveWorkflowBuilderCache(payload) {
-  return fetch(`workflow/builder/cache`, {
+export async function saveWorkflowBuilderCache(workflowType, payload) {
+  return fetch(`${workflowType}/workflow/builder/cache`, {
     method: 'POST',
     data: payload.data
   });
 }
 
-export async function publishWorkFlowBuilder({workflowInstanceId}) {
-  return fetch(`workflow/builder/publish/${workflowInstanceId}`, {
+export async function publishWorkFlowBuilder({workflowType, workflowInstanceId}) {
+  return fetch(`${workflowType}/workflow/builder/publish/${workflowInstanceId}`, {
     method: 'POST'
   });
 }
 
-export async function saveWorkflowBuilderDraft<T>(payload): Promise<any> {
-  return fetch(`workflow/builder/draft`, {
+export async function saveWorkflowBuilderDraft<T>(workflowType, payload): Promise<any> {
+  return fetch(`${workflowType}/workflow/builder/draft`, {
     method: 'PUT',
     data: payload.data
   });
 }
 
-export async function executeBuilderNode({workflowInstanceId, nodeKey, data}) {
+export async function executeBuilderNode({workflowType, workflowInstanceId, nodeKey, data}) {
   return fetch(
-    `workflow/execute/workflow-instance/${workflowInstanceId}/node-instance/${nodeKey}/data`,
+    `${workflowType}/workflow/execute/workflow-instance/${workflowInstanceId}/node-instance/${nodeKey}/data`,
     {
       method: 'POST',
       data
@@ -103,21 +105,26 @@ export async function executeBuilderNode({workflowInstanceId, nodeKey, data}) {
   );
 }
 
-export async function executeWorkflowInstance({workflowInstanceId, data}) {
-  return fetch(`workflow/execute/workflow-instance/${workflowInstanceId}`, {
+export async function executeWorkflowInstance({workflowType, workflowInstanceId, data}) {
+  return fetch(`${workflowType}/workflow/execute/workflow-instance/${workflowInstanceId}`, {
     method: 'POST',
     data: data || {}
   });
 }
 
-export async function executeWorkflowBuilder<T>({workflowInstanceId, params}): Promise<any> {
-  return fetch(`workflow/flow-execution/latest/workflow-instance/${workflowInstanceId}`, {
+export async function executeWorkflowBuilder<T>({workflowType, workflowInstanceId, params}): Promise<any> {
+  return fetch(`${workflowType}/workflow/flow-execution/latest/workflow-instance/${workflowInstanceId}`, {
     data: params?.nodeKeys?.split(',')
   });
 }
 
-export async function nodeExecution(nodeExecutionId: string) {
-  return fetch(`workflow/node-execution/find/node-execution/${nodeExecutionId}`);
+export async function nodeExecution(workflowType, nodeExecutionId: string, params: {
+  page: number
+  size: number
+} = { page: 1, size: 20 }) {
+  return fetch(`${workflowType}/workflow/node-execution/find/node-execution/${nodeExecutionId}`, {
+    params
+  });
 }
 
 export async function saveFlowDraft(payload) {
@@ -127,8 +134,8 @@ export async function saveFlowDraft(payload) {
   });
 }
 
-export async function fetchWorkflowBuilder<T>(payload: any): Promise<any> {
+export async function fetchWorkflowBuilder<T>(workflowType, payload: any): Promise<any> {
   return fetch(
-    `workflow/builder/${payload.workflowInstanceId}/revision/${payload.revision || 0}`
+    `${workflowType}/workflow/builder/${payload.workflowInstanceId}/revision/${payload.revision || 0}`
   );
 }

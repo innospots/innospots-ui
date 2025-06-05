@@ -38,7 +38,10 @@ const EmailConfig: React.FC = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [isPswChange, setIsPswChange] = useState(false);
 
-  const { saveEmailConfig, emailConfigsRequest } = useModel('Setting');
+  const { saveEmailConfig, emailConfigsRequest } = useModel('Setting', (model) => ({
+    saveEmailConfig: model.saveEmailConfig,
+    emailConfigsRequest: model.emailConfigsRequest,
+  }));
 
   useEffect(() => {
     getFormValues();
@@ -165,8 +168,9 @@ const EmailConfig: React.FC = () => {
                 <InputNumber
                   min={1}
                   max={9999}
-                  placeholder={t('configuration.form.input.port.placeholder')}
                   precision={0}
+                  placeholder={t('configuration.form.input.port.placeholder')}
+                  style={{ width: '100%' }}
                 />
               </Form.Item>
             </Col>

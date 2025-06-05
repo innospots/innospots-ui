@@ -101,6 +101,8 @@ const Attachment:React.FC<any> = ({executeData}) => {
                                               size="small"
                                               shape="round"
                                               type="primary"
+                                              href={item.resourceUri}
+                                              target="_blank"
                                               className={styles.downloadBtn}
                                             >
                                               {t('common.button.download_file')}

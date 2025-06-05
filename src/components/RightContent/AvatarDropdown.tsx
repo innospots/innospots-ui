@@ -85,7 +85,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     return loading;
   }
 
-  const userName = sessionData.userName || 'I';
+  const userName = sessionData.realName || 'I';
 
   return (
     <HeaderDropdown menu={{

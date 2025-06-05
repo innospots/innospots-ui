@@ -1,0 +1,276 @@
+/* @import '~antd/es/style/themes/index.less'; */
+@import '../../var';
+
+.container {
+
+  .content {
+    padding: 12px 12px 0;
+  }
+
+  .empty {
+    color: #666;
+  }
+
+  .addedList {
+    padding: 6px 0;
+
+    .addedListItem {
+      height: 38px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      border: 1px solid @border-color;
+      border-radius: 10px;
+      margin-bottom: 8px;
+
+      .label {
+        padding: 0 6px;
+      }
+    }
+  }
+}
+
+.settings {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1002;
+  height: 370px;
+  position: absolute;
+  background-color: #fff;
+
+  .header {
+    width: 100%;
+    height: 48px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid @border-color;
+    border-bottom: 1px solid @border-color;
+
+    .title {
+      font-size: 16px;
+      font-weight: 650;
+    }
+  }
+
+  .content {
+    display: flex;
+    height: calc(100% - 48px);
+
+    .leftBar {
+      width: 32px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid @border-color;
+
+      .menuItem {
+        flex: 1;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        .text {
+          display: inline-block;
+          writing-mode: vertical-rl;
+          font-size: 12px;
+          letter-spacing: 1em;
+          text-align: center;
+        }
+
+        &.active {
+          cursor: default;
+          background-color: @primary-1;
+
+          .text {
+            color: @primary-color;
+            font-weight: 500;
+          }
+        }
+
+        &:not(.active) {
+          .hover();
+        }
+      }
+    }
+
+    .settingPanel {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .tips {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    position: absolute;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,.8);
+
+    > h3, p {
+      color: #fff;
+    }
+
+    .tipTitle {
+      font-size: 18px;
+      font-weight: 650;
+    }
+  }
+}
+
+.panels {
+  height: 100%;
+  display: flex;
+
+  .panelTop {
+    padding: 12px 18px;
+  }
+
+  .variableTree {
+    height: 250px;
+    padding: 6px 18px;
+
+    .nodeTitle {
+      cursor: pointer;
+
+      &:hover {
+        color: @primary-color;
+      }
+    }
+  }
+
+  .listBox,
+  .variableList {
+    width: 280px;
+    padding: 12px 0;
+    border-right: 1px solid @border-color;
+  }
+
+  .listBox {
+
+    .empty {
+      color: #c8c8c8;
+      padding: 40px 24px 0;
+      text-align: center;
+    }
+
+    .addedList {
+      height: 250px;
+      padding: 6px 18px;
+
+      .addedListItem {
+        height: 38px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        border: 1px solid @border-color;
+        border-radius: 10px;
+        position: relative;
+        cursor: pointer;
+        margin-bottom: 8px;
+
+        :global(.drag-btn) {
+          cursor: move;
+        }
+
+        .label {
+          padding: 0 6px;
+          font-size: 14px;
+        }
+
+        .removeBtn {
+          top: 50%;
+          right: 12px;
+          font-size: 12px;
+          cursor: pointer;
+          margin-top: -7px;
+          position: absolute;
+          display: none;
+        }
+
+        &:hover,
+        &.active {
+          color: @primary-color;
+          border: 1px solid @primary-color;
+
+          .removeBtn {
+            display: inline-block;
+          }
+        }
+      }
+    }
+  }
+
+  .codeEditor,
+  .actionBox {
+    flex: 1;
+    min-width: 0;
+    padding: 18px;
+  }
+
+  .actionList {
+    display: flex;
+    flex-wrap: wrap;
+
+    .actionListItem {
+      width: 140px;
+      height: 34px;
+      margin: 6px;
+      line-height: 34px;
+      cursor: pointer;
+      text-align: center;
+      border-radius: 6px;
+      background-color: #f6fafd;
+
+      > span {
+        font-size: 13px;
+        font-weight: 400;
+      }
+
+      &:hover {
+        > span {
+          color: @primary-color;
+        }
+      }
+    }
+  }
+}
+
+.configButton {
+  line-height: 1;
+  color: @primary-color;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-block;
+  background-color: rgba(18,69,250,.1);
+
+  &:hover {
+    background-color: rgba(18,69,250,.2);
+  }
+
+  :global(.anticon) {
+    margin-right: 4px;
+  }
+}
+
+.background {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  position: fixed;
+  background-color: rgba(255,255,255,.1);
+}

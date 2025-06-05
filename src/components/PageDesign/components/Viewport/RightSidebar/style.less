@@ -1,0 +1,36 @@
+
+@import '../../../var';
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  :global {
+    .widget-setting-drawer {
+      // top: 50px;
+      position: absolute;
+
+      .@{ant-prefix}-drawer-header {
+        padding: 14px 16px;
+      }
+
+      .@{ant-prefix}-drawer-title,
+      .@{ant-prefix}-drawer-close {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.settingContainer {
+  height: calc(100% - @top-bar-height);
+  padding: 24px 0;
+  position: relative;
+
+  :global(.editor-top-bar) {
+    position: static !important;
+    height: 36px !important;
+    margin-bottom: 18px;
+  }
+}

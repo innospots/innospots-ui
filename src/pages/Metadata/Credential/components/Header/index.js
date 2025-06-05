@@ -16,17 +16,15 @@
  *  limitations under the License.
  */
 
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Col, Form, Row, Tabs } from 'antd';
 import React, { useEffect } from 'react';
 import { history } from 'umi';
 
-import { Row, Col, Tabs, Form, PageHeader } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-
 import useI18n from '@/common/hooks/useI18n';
+import PageHelmet from '@/components/PageHelmet';
 
 import styles from './index.less';
-
-const { TabPane } = Tabs;
 
 const Header = ({ dataSource, pageType, onTabChange }) => {
   const { t } = useI18n('datasource');
@@ -39,44 +37,46 @@ const Header = ({ dataSource, pageType, onTabChange }) => {
   }, [dataSource]);
 
   const getTabsNode = () => {
+    const items = [
+      {
+        key: 'metadata',
+        label: t('datasource.metadata.tab.metadata'),
+      },
+    ];
+
     return (
       <div className={styles.tabs}>
-        <Tabs activeKey={pageType} onChange={onTabChange}>
-          <TabPane tab={t('datasource.metadata.tab.metadata')} key="metadata" />
-          {/*<TabPane tab="SQL查询" key="sqlQuery" />*/}
-        </Tabs>
+        <Tabs activeKey={pageType} onChange={onTabChange} items={items} />
       </div>
     );
   };
 
   return (
     <div className={styles.pageHeader}>
-      <PageHeader className="polaris-pro-fixed-header">
-        <div className="polaris-pro-global-header">
-          <Row justify="space-between">
+      <PageHelmet title={t('datasource.metadata.tab.metadata')} />
+      <Row justify="space-between" style={{ padding: '0 24px' }}>
+        <Col>
+          <Row align="middle" gutter={16}>
             <Col>
-              <Row>
-                <Col>
-                  <div className={styles.backIcon} onClick={() => history.goBack()}>
-                    <ArrowLeftOutlined />
-                  </div>
-                </Col>
-                <Col>
-                  <span>
-                    {t('datasource.main.heading_title')}：{dataSource.name}
-                  </span>
-                </Col>
-                <Col style={{ paddingLeft: 20 }}>
-                  <span>
-                    {t('datasource.metadata.datasource_type')}：{dataSource.configCode}
-                  </span>
-                </Col>
-              </Row>
+              <div className={styles.backIcon} onClick={() => history.back()}>
+                <ArrowLeftOutlined />
+              </div>
             </Col>
-            <Col>{getTabsNode()}</Col>
+            <Col>
+              <span>
+                {t('datasource.main.heading_title')}：{dataSource.name}
+              </span>
+            </Col>
+            <Col style={{ paddingLeft: 20 }}>
+              <span>
+                {t('datasource.metadata.datasource_type')}：
+                {dataSource.configCode}
+              </span>
+            </Col>
           </Row>
-        </div>
-      </PageHeader>
+        </Col>
+        <Col>{getTabsNode()}</Col>
+      </Row>
     </div>
   );
 };

@@ -19,7 +19,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import _ from 'lodash';
 import Cookies from 'js-cookie';
-import { Dropdown, Menu, Space, Row, Col } from 'antd';
+import { Dropdown, Space, Row, Col } from 'antd';
 import { useRequest } from 'ahooks';
 import { setLocale } from 'umi';
 
@@ -106,9 +106,7 @@ const LanguageSelector: React.FC = () => {
 
   return (
     <div className={styles.languageSelector}>
-      <Dropdown overlay={(
-        <Menu { ...languageMenu } />
-      )} menu={languageMenu}>{selectedLanguage}</Dropdown>
+      <Dropdown menu={languageMenu}>{selectedLanguage}</Dropdown>
     </div>
   );
 };

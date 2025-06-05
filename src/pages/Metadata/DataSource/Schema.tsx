@@ -52,7 +52,6 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 
 import PageHeader from './components/Header';
-import SQLQuery from './components/SQLQuery';
 import DataPreview from './components/DataPreview';
 import KafkaTableModal, { MODAL_NAME } from '@/components/KafkaTableModal';
 
@@ -634,10 +633,6 @@ const Page = ({ location }) => {
         </div>
       </div>
     );
-  };
-
-  const getSQLQueryNode = () => {
-    return <SQLQuery />;
   };
 
   const getDatasetModal = () => {

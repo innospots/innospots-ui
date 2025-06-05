@@ -17,15 +17,19 @@
  */
 
 import { Button, Result } from 'antd';
-import React from 'react';
-import { history, Redirect, Location } from 'umi';
+import React, { useEffect } from 'react';
+import { history, useLocation } from 'umi';
 
 import { INDEX_PATHNAME } from '@/common/constants';
 
-const NoFoundPage: React.FC<{ location: Location }> = ({ location }) => {
-  if (location.pathname === '/') {
-    return <Redirect to={INDEX_PATHNAME} />;
-  }
+const NoFoundPage: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      history.replace(INDEX_PATHNAME);
+    }
+  }, [location.pathname]);
 
   return (
     <Result

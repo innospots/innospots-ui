@@ -581,7 +581,8 @@ const DataSourceModal = ({
       <Row justify="end" gutter={[10, 0]} style={{ marginTop: 24 }}>
         <Col>
           <Button
-            className="ant-btn-green"
+            color="cyan"
+            variant="solid"
             onClick={handleUrlTest}
             loading={testLoading}
             disabled={testLoading}

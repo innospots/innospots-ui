@@ -89,6 +89,20 @@ export function fetchTranslation<T> (data?: any): Promise<T> {
 export function saveTrans<T> (data?: any): Promise<T> {
   return fetch('i18n/translation/message', {
     data,
+    method: 'post',
+  });
+};
+
+export function updateTrans<T> (data?: any): Promise<T> {
+  return fetch('i18n/translation/message', {
+    data,
     method: 'put',
   });
 };
+
+export const deleteTrans = (dictionaryId: number) => {
+  return fetch(`i18n/dictionary/${dictionaryId}`, {
+    method: 'delete',
+  });
+};
+

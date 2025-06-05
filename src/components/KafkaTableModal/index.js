@@ -508,7 +508,8 @@ const KafkaTableModal = (props) => {
         <Col>
           <Button
             size="small"
-            className="ant-btn-green"
+            color="cyan"
+            variant="solid"
             onClick={readTopicMessage}
             loading={fetchSchemaRegistryTopicRequest.loading}
           >
@@ -562,7 +563,8 @@ const KafkaTableModal = (props) => {
             <Button
               size="small"
               style={{ marginLeft: 8 }}
-              className="ant-btn-green"
+              color="cyan"
+              variant="solid"
               loading={schemaFieldsParseRequest.loading}
               onClick={parseJsonString}
             >

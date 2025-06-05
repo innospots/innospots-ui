@@ -15,27 +15,40 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import React, { useState, useEffect } from 'react';
+import { useModel } from 'umi';
+import { App, ConfigProvider } from 'antd';
 
-import React, { useEffect } from 'react';
-
-import { ConfigProvider } from 'antd';
+import PageLoading from '@/components/PageLoading';
 
 import defaultConfig from './config';
 
-const RootConfigProvider: React.FC = ({ children }) => {
+const RootConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { serverInfo, getServerInfo } = useModel('Account', (model) => ({
+    serverInfo: model.serverInfo,
+    getServerInfo: model.getServerInfo,
+  }));
+
+  const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
-    // setTimeout(() => {
-    //     ConfigProvider.config({
-    //         ...defaultConfig,
-    //         theme: {
-    //             primaryColor: 'red'
-    //         }
-    //     });
-    // }, 3e3);
+    getServerInfo();
     ConfigProvider.config(defaultConfig);
   }, []);
+  
+  useEffect(() => {
+    if (serverInfo?.code) {
+      setLoading(false);
+    }
+  }, [serverInfo?.code]);
 
-  return <ConfigProvider {...defaultConfig}>{children}</ConfigProvider>;
+  return (
+    <ConfigProvider {...defaultConfig}>
+      <App component={false}>
+        {loading ? <PageLoading /> : children}
+      </App>
+    </ConfigProvider>
+  );
 };
 
 export default RootConfigProvider;

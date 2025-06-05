@@ -20,91 +20,117 @@ import React from 'react';
 
 import cls from 'classnames';
 
-import {Button, Col, Input, Row} from 'antd';
-import {PlusOutlined, SearchOutlined} from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Col, ConfigProvider, Input, Row, Typography } from 'antd';
 
 import useI18n from '@/common/hooks/useI18n';
 import PermissionSection from '@/components/PermissionSection';
 
 import styles from './style.less';
 
+const { Search } = Input;
+const { Title } = Typography;
+
 type ElementType = React.ReactNode;
 
 interface PropTypes {
-    title?: string | ElementType;
-    className?: string;
-    style?: React.StyleHTMLAttributes<any>;
-    leftContent?: string | ElementType;
-    rightContent?: {
+  title?: string | ElementType;
+  className?: string;
+  style?: React.StyleHTMLAttributes<any>;
+  leftContent?: string | ElementType;
+  rightContent?:
+    | {
         search?: {
-            value?: string,
-            placeholder?: string;
-            onChange?: (value: string) => void;
-            onSearch?: (value: string) => void;
+          value?: string;
+          placeholder?: string;
+          onChange?: (value: string) => void;
+          onSearch?: (value: string) => void;
         };
-        button?: {
-            icon?: ElementType;
-            label?: string;
-            onClick?: () => void;
-        } | ElementType;
-    } | ElementType;
+        button?:
+          | {
+              icon?: ElementType;
+              label?: string;
+              onClick?: () => void;
+            }
+          | ElementType;
+      }
+    | ElementType;
 }
 
-const PageTitle: React.FC<PropTypes> = ({title, style, className, leftContent, rightContent}) => {
+const PageTitle: React.FC<PropTypes> = ({
+  title,
+  style,
+  className,
+  leftContent,
+  rightContent,
+}) => {
+  const { t } = useI18n(['common']);
 
-    const {t} = useI18n(['common']);
+  const renderRightContent = () => {
+    let content = rightContent as any;
+    if (content && (content?.search || content?.button)) {
+      const { search, button } = content;
+      content = (
+        <Row gutter={[16, 0]}>
+          <Col>
+            {search && (
+              <Search
+                allowClear
+                value={search?.value}
+                placeholder={
+                  search?.placeholder || t('common.input.placeholder')
+                }
+                style={{
+                  width: 280,
+                  backgroundColor: '#fff',
+                  borderColor: '#fff',
+                }}
+                onChange={(event) => search?.onChange?.(event.target.value)}
+                // @ts-ignore
+                onSearch={(value) => search?.onSearch?.(value)}
+              />
+            )}
+          </Col>
+          <Col>
+            <PermissionSection itemKey={button?.itemKey}>
+              {button?.label || button?.icon ? (
+                <Button
+                  type="primary"
+                  icon={
+                    button.icon === undefined ? <PlusOutlined /> : button.icon
+                  }
+                  onClick={button.onClick}
+                >
+                  {button.label}
+                </Button>
+              ) : (
+                button
+              )}
+            </PermissionSection>
+          </Col>
+        </Row>
+      );
+    }
 
-    const renderRightContent = () => {
-        let content = rightContent as any;
-        if (content && (content?.search || content?.button)) {
-            const {search, button} = content;
-            content = (
-                <Row gutter={[16, 0]}>
-                    <Col>
-                        {
-                            search && (
-                                <Input
-                                    prefix={<SearchOutlined/>}
-                                    value={search?.value}
-                                    placeholder={search?.placeholder || t('common.input.placeholder')}
-                                    style={{width: 280, backgroundColor: '#fff', borderColor: '#fff'}}
-                                    onChange={(event) => search?.onChange?.(event.target.value)}
-                                    // @ts-ignore
-                                    onPressEnter={(event) => search?.onSearch?.(event.target?.value)}
-                                />
-                            )
-                        }
-                    </Col>
-                    <Col>
-                      <PermissionSection itemKey={button?.itemKey}>
-                        {
-                          button?.label || button?.icon ? (
-                            <Button
-                              type="primary"
-                              icon={button.icon === undefined ? <PlusOutlined/> : button.icon}
-                              onClick={button.onClick}
-                            >
-                              {button.label}
-                            </Button>
-                          ) : (
-                            button
-                          )
-                        }
-                      </PermissionSection>
-                    </Col>
-                </Row>
-            );
-        }
+    return <div className={styles.rightContent}>{content}</div>;
+  };
 
-        return <div className={styles.rightContent}>{content}</div>;
-    };
-
-    return (
-        <div className={cls(styles.pageTitle, className)} style={style}>
-            {title ? <div className={styles.title}>{title}</div> : <div> {leftContent} </div>}
-            {renderRightContent()}
-        </div>
-    );
+  return (
+    <ConfigProvider
+      theme={{
+        components: {
+          Typography: {
+            titleMarginBottom: 0,
+          },
+        },
+      }}
+    >
+      <div className={cls(styles.pageTitle, className)} style={style}>
+        {title ? <Title level={3}>{title}</Title> : <div> {leftContent} </div>}
+        {renderRightContent()}
+      </div>
+    </ConfigProvider>
+  );
 };
 
 export default PageTitle;

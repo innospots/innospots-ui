@@ -16,8 +16,9 @@
  *  limitations under the License.
  */
 
-import React, {useRef, useState} from 'react';
-import {useModel} from 'umi';
+import { useRef, useState } from 'react';
+import { useUpdateEffect } from 'ahooks';
+import { history, useModel, useParams, useSearchParams } from 'umi';
 import '@antv/x6-react-components/es/menu/style/index.css';
 import '@antv/x6-react-components/es/toolbar/style/index.css';
 
@@ -26,27 +27,56 @@ import PageHeader from './components/Header';
 
 import useI18n from '@/common/hooks/useI18n';
 import PageHelmet from '@/components/PageHelmet';
+import PageLoading from '@/components/PageLoading';
 
 import styles from './index.less';
 
-const Page = ({location}) => {
+const Page = () => {
   const canvasRef = useRef<any>();
-  const {t} = useI18n(['workflow', 'common']);
+  const { t, loading: i18nLoading } = useI18n(['workflow', 'common']);
 
+  const [dataLoading, setDataLoading] = useState(true);
+
+  const { workflowType } = useParams<{ workflowType: string }>();
+
+  const [searchParams, setSearchParams] = useSearchParams();
   const [nodeChange, setNodeChange] = useState(false);
   const [flowInstance, setFlowInstance] = useState<any>({});
 
-  const {instanceId: workflowInstanceId} = location.query;
-  const {
-    publishBuilderRequest,
-    saveBuilderDraftRequest
-  } = useModel('Builder');
-  const {workflow, saveWorkflowRequest} = useModel('Workflow');
+  const workflowInstanceId = searchParams.get('instanceId');
+  const page = searchParams.get('page');
+  const size = searchParams.get('size');
+  const mode = searchParams.get('mode');
+
+  const pageMode = mode || 'preview';
+  const { publishBuilderRequest, saveBuilderDraftRequest, fetchWorkflowBuilderRequest } = useModel('Builder', (model) => ({
+    publishBuilderRequest: model.publishBuilderRequest,
+    saveBuilderDraftRequest: model.saveBuilderDraftRequest,
+    fetchWorkflowBuilderRequest: model.fetchWorkflowBuilderRequest,
+  }));
+  const { workflow, saveWorkflowRequest } = useModel('Workflow', (model) => ({
+    workflow: model.workflow,
+    saveWorkflowRequest: model.saveWorkflowRequest,
+  }));
+
+  useUpdateEffect(() => {
+    setDataLoading(fetchWorkflowBuilderRequest.loading);
+  }, [fetchWorkflowBuilderRequest.loading]);
 
   const saveWorkflowInfo = (values: any) => {
-    saveWorkflowRequest.run('edit', {
+    saveWorkflowRequest.run(workflowType, 'edit', {
       ...workflow,
-      ...values
+      ...values,
+    });
+  };
+
+  const changePageMode = (mode: 'preview' | 'edit') => {
+    setDataLoading(true);
+    setSearchParams({
+      mode,
+      page: page || '',
+      size: size || '',
+      instanceId: workflowInstanceId || '',
     });
   };
 
@@ -57,8 +87,25 @@ const Page = ({location}) => {
         saveWorkflowInfo(values);
         break;
 
+      case 'edit':
+        changePageMode('edit');
+        break;
+
+      case 'cancel':
+        changePageMode('preview');
+        break;
+
       case 'publish':
         canvasRef.current?.publishFlowInstance();
+        break;
+
+      case 'pageBack':
+        const query = {
+          page,
+          size,
+          category: workflow.categoryId,
+        };
+        history.replace({ pathname: `/workflow/${workflowType}`, query });
         break;
     }
   };
@@ -66,28 +113,37 @@ const Page = ({location}) => {
   const saveLoading = saveBuilderDraftRequest.loading;
   const publishLoading = publishBuilderRequest.loading;
 
+  if (i18nLoading) {
+    return <PageLoading />;
+  }
+
   return (
     <div className={styles.wrapper}>
-      <span id="workflow-form-modal" style={{position: 'relative', zIndex: 1001}}/>
-      <PageHelmet title={t('workflow.builder.page.title')}/>
+      <span id="workflow-form-modal" style={{ position: 'relative', zIndex: 1001 }} />
+      <PageHelmet title={t('workflow.builder.page.title')} />
       <PageHeader
+        mode={pageMode}
         detail={workflow}
+        dataLoading={dataLoading}
         saveButton={{
           loading: saveLoading,
-          disabled: saveLoading
+          disabled: saveLoading,
         }}
         publishButton={{
           loading: publishLoading,
-          disabled: !!(publishLoading || nodeChange || !flowInstance?.workflowInstanceId)
+          disabled: !!(publishLoading || nodeChange || !flowInstance?.workflowInstanceId),
         }}
         onClick={handleHeaderClick}
       />
       <div className={styles.content}>
         <Canvas
           ref={canvasRef}
+          key={pageMode}
+          mode={pageMode}
           workflowInstanceId={workflowInstanceId}
-          onNodeChange={isChange => setNodeChange(isChange)}
-          onGetFlowInstance={instance => setFlowInstance(instance || {})}
+          onNodeChange={(isChange) => setNodeChange(isChange)}
+          onGetFlowInstance={(instance) => setFlowInstance(instance || {})}
+          onMounted={() => setDataLoading(false)}
         />
       </div>
     </div>

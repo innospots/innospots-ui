@@ -88,7 +88,7 @@ export const schemaFieldsParse = (sourceType: string, data: any) => {
 };
 
 export const fetchSchemaRegistries = (
-  datasourceId: number,
+  credentialKey: string,
   params?: {
     [key: string]: string | number;
   },
@@ -96,25 +96,25 @@ export const fetchSchemaRegistries = (
   return fetch(`schema/registry/list`, {
     params: {
       ...params,
-      datasourceId,
+      credentialKey,
     },
   });
 };
 
-export const fetchSchemaRegistryTopics = (credentialId: number, params?: any) => {
-  return fetch(`apps/schema/registry/catalog/list`, {
+export const fetchSchemaRegistryTopics = (credentialKey: string, params?: any) => {
+  return fetch(`schema/registry/catalog/list`, {
     params: {
-      credentialId,
+      credentialKey,
       ...params
     },
   });
 };
 
-export const fetchSchemaRegistryTopic = (datasourceId: number, tableName: string) => {
+export const fetchSchemaRegistryTopic = (credentialKey: string, tableName: string) => {
   return fetch(`schema/registry/fetch-sample`, {
     params: {
       tableName,
-      datasourceId,
+      credentialKey,
     },
   });
 };

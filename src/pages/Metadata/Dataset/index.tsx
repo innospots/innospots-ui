@@ -28,6 +28,7 @@ import {formatResourcePath} from '@/common/utils';
 import PageTitle from '@/components/PageTitle';
 import ListTable from '@/components/ListTable';
 import IconButton from '@/components/IconButton';
+import PageHelmet from '@/components/PageHelmet';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
@@ -75,11 +76,10 @@ const Index: React.FC = () => {
     deleteCategoryRequest,
   } = useModel('Dataset');
 
-  const { credentials, credentialConfigs, credentialsRequest, credentialConfigsRequest } = useModel(
+  const { credentials, credentialsRequest, credentialConfigsRequest } = useModel(
     'Credential',
     (model) => ({
       credentials: model.credentials,
-      credentialConfigs: model.credentialConfigs,
       credentialsRequest: model.credentialsRequest,
       credentialConfigsRequest: model.credentialConfigsRequest
     }),
@@ -90,7 +90,7 @@ const Index: React.FC = () => {
 
   useEffect(() => {
     categoryRequest.run();
-    credentialsRequest.run();
+    credentialsRequest.run({'connectType':'JDBC'});
     credentialConfigsRequest.run();
   }, []);
 
@@ -102,9 +102,15 @@ const Index: React.FC = () => {
     const postData: any = {
       ...queryData,
       categoryId: curCategoryId,
+      scope: 'general'
     };
 
     await datasetRequest.runAsync(postData);
+  };
+
+  const handleSuccess = () => {
+    fetchDatasets();
+    categoryRequest.run();
   };
 
   const onCategoryClicked = (categoryId) => {
@@ -197,11 +203,11 @@ const Index: React.FC = () => {
       },
       {
         title: t('dataset.main.column.source'),
-        dataIndex: 'credentialId',
-        render: (credentialId: number) => {
-          const ds = _.find(credentials, (item) => item.credentialId === credentialId);
-          const meta = _.find(credentialConfigs, (item) => item.configCode === ds?.configCode);
-          const iconPath = meta?.icon ? formatResourcePath(meta.icon) : null;
+        dataIndex: 'credentialKey',
+        render: (credentialKey: string, record: any) => {
+          const ds = _.find(credentials, (item) => item.credentialKey === credentialKey);
+          // const meta = _.find(credentialConfigs, (item) => item.name === ds?.configCode);
+          const iconPath = record.icon ? formatResourcePath(record.icon) : null;
           return (
             <div className={styles.nameWrapper}>
               { iconPath && <img src={iconPath} className={styles.dataSourceIcon} /> }
@@ -247,7 +253,7 @@ const Index: React.FC = () => {
                 popConfirm={{
                   placement: 'topRight',
                   title: t('common.text.delete_confirmation'),
-                  onConfirm: removeCurItem(record.id),
+                  onConfirm: removeCurItem(record.registryId),
                   okText: t('common.button.confirm'),
                   cancelText: t('common.button.cancel'),
                   okButtonProps: {
@@ -296,7 +302,7 @@ const Index: React.FC = () => {
   };
 
   const renderDatasetModal = () => {
-    return <DatasetModal />;
+    return <DatasetModal onSuccess={handleSuccess} />;
   };
 
   const renderCategoryModal = () => {
@@ -309,6 +315,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('dataset.main.heading_title')} />
       {renderPageTitle()}
       {renderPageContainer()}
       {renderDatasetModal()}

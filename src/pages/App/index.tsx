@@ -17,14 +17,17 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-
-import { useModel } from 'umi';
-
+import { useModel, history, useLocation, useSearchParams } from 'umi';
 import { useSetState, useUpdateEffect } from 'ahooks';
-
-import { useHistory } from 'react-router';
 import {Row, Col, message, TableColumnsType, Input, Button} from 'antd';
-import {PlayCircleOutlined, PauseCircleOutlined, SearchOutlined, PlusOutlined, FilterOutlined, VerticalAlignBottomOutlined} from '@ant-design/icons';
+import {
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  SearchOutlined,
+  PlusOutlined,
+  FilterOutlined,
+  AppstoreOutlined,
+} from '@ant-design/icons';
 
 import { renderNodeIcon } from '@/pages/Workflow/Builder/components/NodeIcon';
 
@@ -36,10 +39,12 @@ import ListTable from '@/components/ListTable';
 import IconButton from '@/components/IconButton';
 import PageHelmet from '@/components/PageHelmet';
 import PageLoading from '@/components/PageLoading';
+import NiceSwitch from '@/components/Nice/NiceSwitch';
 import StatusTag, { Status } from '@/components/StatusTag';
 import CategoriesPane, { CategorySelector } from '@/components/CategoriesPane';
 
-import AppModal, { MODAL_NAME as APP_MODAL_NAME } from './components/AppModal';
+import AppModal, { MODAL_NAME as APP_MODAL_NAME, typeOptions } from './components/AppModal';
+import AppCategoryModal, { MODAL_NAME  as APP_CATEGORY_MODAL_NAME } from './components/AppCategoryModal';
 
 import styles from './style.less';
 
@@ -48,36 +53,53 @@ const DEFAULT_PAGE_DATA = {
   size: 20,
 };
 
-const Page: React.FC<any> = ({ location }) => {
-  const history = useHistory();
+const typeMap = typeOptions.reduce((result, item) => {
+  result[item.value] = item.label;
+  return result;
+}, {});
 
-  const { t, loading } = useI18n(['page', 'common']);
+const Page: React.FC<any> = () => {
+  const [searchParams] = useSearchParams();
+  const { t, loading } = useI18n(['page', 'common', 'app']);
+  const [pageType, setPageType] = useState('list')
 
   const categoryPermissions = useMemo(
     () => ({
-      create: 'PageCategory-createCategory',
-      update: 'PageCategory-updateCategory',
-      delete: 'PageCategory-deleteCategory',
+      create: 'AppDefinitionCategory-createCategory',
+      update: 'AppDefinitionCategory-updateCategory',
+      delete: 'AppDefinitionCategory-deleteCategory',
     }),
     [],
   );
 
   const {
-    pageData,
+    appData,
     categories,
     appsRequest,
     categoryRequest,
+    deleteCategoryRequest,
     deleteAppRequest,
     updateStatusRequest,
-  } = useModel('App');
+  } = useModel('App', model => ({
+    appData: model.appData,
+    categories: model.categories,
+    appsRequest: model.appsRequest,
+    categoryRequest: model.categoryRequest,
+    deleteCategoryRequest: model.deleteCategoryRequest,
+    deleteAppRequest: model.deleteAppRequest,
+    updateStatusRequest: model.updateStatusRequest,
+  }));
 
   const {
     pageRecycleRequest
-  } = useModel('Page');
+  } = useModel('Page', model => ({
+    pageRecycleRequest: model.pageRecycleRequest,
+  }));
 
   const [categoryCollapsed, setCategoryCollapsed] = useState(false);
 
   const [appModal] = useModal(APP_MODAL_NAME);
+  const [categoryModal] = useModal(APP_CATEGORY_MODAL_NAME);
 
   const [queryData, setQueryData] = useSetState({
     queryInput: '',
@@ -88,10 +110,10 @@ const Page: React.FC<any> = ({ location }) => {
     page: curPage = 1,
     size: curSize = 20,
     queryInput = '',
-    category: curCategoryId = 1
+    category: curCategoryId = 0
   } = {
     ...DEFAULT_PAGE_DATA,
-    ...location.query
+    ...Object.fromEntries(searchParams.entries()),
   };
 
   useEffect(() => {
@@ -109,10 +131,10 @@ const Page: React.FC<any> = ({ location }) => {
 
 
   useUpdateEffect(() => {
-    getPageList();
+    getAppList();
   }, [curCategoryId, queryData]);
 
-  const getPageList = () => {
+  const getAppList = () => {
     appsRequest.run({
       ...queryData,
       categoryId: curCategoryId,
@@ -120,13 +142,24 @@ const Page: React.FC<any> = ({ location }) => {
   };
 
   const handleAppSaved = () => {
-    getPageList();
+    getAppList();
+    categoryRequest.run();
   }
+  const deleteCategoryById = async (categoryId: number) => {
+    const result = await deleteCategoryRequest.runAsync(categoryId);
 
-  const deletePage = async (id: number) => {
+    if (result) {
+      message.success(t('common.error_message.delete.success'));
+    } else {
+      message.error(t('common.error_message.delete.fail'));
+    }
+  };
+  const deleteApp = async (id: number) => {
     const result = await deleteAppRequest.runAsync(id);
 
     if (result) {
+      getAppList();
+      categoryRequest.run();
       message.success(t('common.error_message.delete.success'));
     }
   };
@@ -142,6 +175,7 @@ const Page: React.FC<any> = ({ location }) => {
   const changeStatus = async (id: number, status: string) => {
     const result = await updateStatusRequest.runAsync(id, status);
     if (result) {
+      getAppList();
       message.success(t('common.error_message.save.success'));
     }
   };
@@ -151,7 +185,7 @@ const Page: React.FC<any> = ({ location }) => {
     if (result) {
       message.success(t('common.error_message.save.success'));
       categoryRequest.run();
-      getPageList()
+      getAppList()
     }
   };
 
@@ -175,22 +209,23 @@ const Page: React.FC<any> = ({ location }) => {
   const renderCategoriesPanel = () => {
     return (
       <CategoriesPane
-        title={'应用分类'}
-        showCount={false}
-        createDisabled
-        dropdownDisabled
+        title={t('app.category.title')}
+        showCount={true}
+        folderIcon={""}
         categories={categories}
         categoryId={curCategoryId}
         loading={categoryRequest.loading}
         permissions={categoryPermissions}
         onToggle={setCategoryCollapsed}
         onSelected={onCategoryClicked}
+        onCreate={() => categoryModal.show()}
+        onUpdate={(category) => categoryModal.show(category)}
+        onDelete={(category) => deleteCategoryById(category.categoryId)}
       />
     );
   };
 
   const renderTitleRightContent = () => {
-
     return (
       <Row gutter={[16, 0]}>
         <Col>
@@ -229,7 +264,16 @@ const Page: React.FC<any> = ({ location }) => {
         leftContent={
           <Row gutter={40} align="middle">
             <Col>
-              <span className="page-header-title">应用管理</span>
+              <span className="page-header-title">{t('app.main.title')}</span>
+            </Col>
+            <Col>
+              <NiceSwitch value={pageType} dataSource={[{
+                value: 'list',
+                label: t('app.list.title')
+              }, {
+                value: 'template',
+                label: t('app.template.title')
+              }]} onChange={setPageType} />
             </Col>
             {categoryCollapsed && (
               <Col>
@@ -252,28 +296,36 @@ const Page: React.FC<any> = ({ location }) => {
   const renderPageList = () => {
     const columns:TableColumnsType<any> = [
       {
-        width: 80,
+        width: 60,
         dataIndex: 'icon',
         render(icon, record) {
           return (
-            <div className={styles.nodeIcon}>
+            <div className={styles.appIcon}>
               { renderNodeIcon(record) }
             </div>
           )
         },
       },
       {
-        title: '应用名称',
+        title: t('app.column.name'),
         dataIndex: 'name',
-        ellipsis: true,
-        render(name, record) {
-          return (
-            <>
-            <p className={styles.nodeTitle}>{ name }</p>
-            <p className={styles.nodeDesc}>{ record.description }</p>
-            </>
-          )
-        },
+        width: 188,
+      },
+      {
+        title: t('app.column.type'),
+        dataIndex: 'appType',
+        width: 148,
+        render: (appType: string) => t(typeMap[appType]),
+      },
+      {
+        title: t('app.column.creator'),
+        width: 148,
+        dataIndex: 'createdBy',
+      },
+      {
+        title: t('app.column.updateTime'),
+        width: 148,
+        dataIndex: 'updatedTime',
       },
       {
         title: t('common.text.status'),
@@ -283,16 +335,11 @@ const Page: React.FC<any> = ({ location }) => {
         render: (status: Status) => (<StatusTag status={status || 'OFFLINE'}/>),
       },
       {
-        title: '应用类型',
-        width: 148,
-        dataIndex: 'primitive',
-      },
-      {
         title: t('common.table.column.action'),
-        width: 152,
+        width: 182,
         align: 'center',
-        dataIndex: 'nodeId',
-        render: (nodeId: number, record: any) => {
+        dataIndex: 'appKey',
+        render: (appKey: string, record: any) => {
           const isUsed = record.used;
           const isSystem = record.appSource === 'system';
           const statusBtn = (
@@ -300,20 +347,20 @@ const Page: React.FC<any> = ({ location }) => {
               <IconButton
                 disabled={isSystem}
                 icon={<PlayCircleOutlined />}
-                tooltip="上线"
-                permissions="Page-updateStatus"
-                onClick={() => changeStatus(nodeId, 'ONLINE')}
+                tooltip={t('app.button.online')}
+                permissions="AppDefinition-updateStatus"
+                onClick={() => changeStatus(appKey, 'ONLINE')}
               />
             ) : (
               <IconButton
                 icon={<PauseCircleOutlined />}
-                tooltip="下线"
-                permissions="Page-updateStatus"
+                tooltip={t('app.button.offline')}
+                permissions="AppDefinition-updateStatus"
                 onClick={() => {
                   if (isUsed) {
-                    message.warn('此应用已经被工作流引用，不能下线！')
+                    message.warning(t('app.message.cannotOffline'))
                   } else {
-                    changeStatus(nodeId, 'OFFLINE')
+                    changeStatus(appKey, 'OFFLINE')
                   }
                 }}
               />
@@ -326,45 +373,27 @@ const Page: React.FC<any> = ({ location }) => {
                 icon="edit"
                 disabled={isSystem}
                 tooltip={t('common.button.edit')}
-                permissions="Page-createOrUpdate"
+                permissions="AppDefinition-updateAppDefinition"
                 onClick={() => {
-                  // if (isUsed) {
-                  //   message.warn('此应用已经被工作流引用，不能编辑！')
-                  // } else {
-                    history.push(`/app/builder/${nodeId}`)
-                  // }
+                  appModal.show(record)
                 }}
               />
-              {/*{curCategoryId == -1 && (*/}
-              {/*  <IconButton*/}
-              {/*    icon={<RedoOutlined />}*/}
-              {/*    tooltip={t('common.text.undo')}*/}
-              {/*    popConfirm={{*/}
-              {/*      placement: 'topRight',*/}
-              {/*      title: t('common.text.recover_confirmation'),*/}
-              {/*      onConfirm: () => pageRecycle(record.id),*/}
-              {/*      okText: t('common.button.confirm'),*/}
-              {/*      cancelText: t('common.button.cancel'),*/}
-              {/*      okButtonProps: {*/}
-              {/*        loading: updateStatusRequest.loading,*/}
-              {/*      },*/}
-              {/*    }}*/}
-              {/*  />*/}
-              {/*)}*/}
-              {/*<IconButton*/}
-              {/*  disabled={isSystem}*/}
-              {/*  icon={<VerticalAlignBottomOutlined />}*/}
-              {/*  tooltip="下载"*/}
-              {/*  href={`/apps/visualization/page/${record.id}?router=page`}*/}
-              {/*/>*/}
-
+              <IconButton
+                icon={<AppstoreOutlined />}
+                disabled={isSystem}
+                tooltip="应用编辑"
+                permissions="AppDefinition-updateAppDefinition"
+                onClick={() => {
+                  history.push(`/app/editor/${appKey}/key`)
+                }}
+              />
               {
                 isUsed ? (
                   <IconButton
                     icon="delete"
                     disabled={isSystem}
                     onClick={() => {
-                      message.warn('此应用已经被工作流引用，不能删除！')
+                      message.warning('此应用已经被引用，不能删除！')
                     }}
                   />
                 ) : (
@@ -375,14 +404,14 @@ const Page: React.FC<any> = ({ location }) => {
                     popConfirm={{
                       placement: 'topRight',
                       title: '是否删除此项？',
-                      onConfirm: () => deletePage(nodeId),
+                      onConfirm: () => deleteApp(appKey),
                       okText: t('common.button.confirm'),
                       cancelText: t('common.button.cancel'),
                       okButtonProps: {
                         loading: deleteAppRequest.loading,
                       },
                     }}
-                    permissions="Page-deletePage"
+                    permissions="AppDefinition-deleteAppDefinition"
                   />
                 )
               }
@@ -393,11 +422,11 @@ const Page: React.FC<any> = ({ location }) => {
     ];
     return (
       <ListTable
-        rowKey="nodeId"
+        rowKey="appKey"
         columns={columns}
         loading={appsRequest.loading}
-        dataSource={pageData.list}
-        pagination={pageData.pagination}
+        dataSource={appData.list}
+        pagination={appData.pagination}
         onPageChange={onListPageChange}
       />
     );
@@ -423,6 +452,7 @@ const Page: React.FC<any> = ({ location }) => {
   };
 
   const renderAppModal = () => <AppModal onSuccess={handleAppSaved} />;
+  const renderAppCategoryModal = () => <AppCategoryModal />;
 
   if (loading) {
     return <PageLoading />;
@@ -430,10 +460,11 @@ const Page: React.FC<any> = ({ location }) => {
 
   return (
     <>
-      <PageHelmet title={'应用管理'} />
+      <PageHelmet title={t('app.main.title')} />
       {renderPageTitle()}
       {renderPageContent()}
       {renderAppModal()}
+      {renderAppCategoryModal()}
     </>
   );
 };

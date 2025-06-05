@@ -1,0 +1,89 @@
+/* @import '~antd/es/style/themes/index.less'; */
+
+@base-form-height: 56px;
+@split-size: 24px;
+
+.workflow {
+  padding: 24px;
+
+  .header {
+    margin-bottom: 24px;
+  }
+}
+
+.testForm,
+.baseForm {
+  height: @base-form-height;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid @border-color-split;
+}
+
+.testForm {
+  border-bottom: 0;
+  align-items: end;
+  justify-content: center;
+
+  :global {
+    .@{ant-prefix}-form-item {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.requestBox,
+.responseBox {
+  :global {
+    .@{ant-prefix}-tabs > .@{ant-prefix}-tabs-nav {
+      padding-left: 24px;
+    }
+  }
+}
+
+.requestBox {
+  height: 324px;
+  display: flex;
+  padding: 0 24px;
+
+  .leftConfig,
+  .rightConfig {
+    height: 100%;
+    padding: 24px 0;
+  }
+
+  .leftConfig {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rightConfig {
+    width: 380px;
+    border-left: 1px solid @border-color-split;
+  }
+
+  .requestContent {
+    padding: 0 24px;
+  }
+}
+
+.responseBox {
+  padding: 0 24px 12px;
+  border-top: 2px solid @border-color-split;
+
+  .responseContent {
+    height: 200px;
+
+    :global {
+      .@{ant-prefix}-alert-description {
+        height: 162px;
+        overflow: auto;
+      }
+    }
+  }
+
+  .formatContent {
+    overflow: auto;
+    white-space: pre;
+  }
+}

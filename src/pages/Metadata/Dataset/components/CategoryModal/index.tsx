@@ -48,6 +48,7 @@ const CategoryModal: React.FC<Props> & NiceModalFC = ({ onSuccess, ...rest }) =>
   const { visible, modalType, initValues } = modalInfo;
 
   useEffect(() => {
+    console.log("visible----",visible)
     if (visible) {
       if (modalType === 'edit' && initValues) {
         formRes.setFieldsValue(initValues);
@@ -83,7 +84,7 @@ const CategoryModal: React.FC<Props> & NiceModalFC = ({ onSuccess, ...rest }) =>
 
   const renderForm = () => {
     return (
-      <Form form={formRes} preserve={false} {...formItemLayout} style={{ marginBottom: -24 }}>
+      <Form form={formRes} preserve={false} {...formItemLayout}>
         <Form.Item
           label={t('common.category.name.label')}
           name="categoryName"

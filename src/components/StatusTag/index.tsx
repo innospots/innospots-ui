@@ -33,6 +33,10 @@ export const STATUS_TAG_COLORS = {
     color: '#959EAD',
     bgColor: '#E9EDF1',
   },
+  STOPPED: {
+    color: '#959EAD',
+    bgColor: '#E9EDF1',
+  },
   SUCCESS: {
     color: '#31CB8A',
     bgColor: '#DBF4EC',
@@ -41,9 +45,33 @@ export const STATUS_TAG_COLORS = {
     color: '#FF4445',
     bgColor: '#FFF1F2',
   },
+  FAILED: {
+    color: '#FF4445',
+    bgColor: '#FFF1F2',
+  },
+  COMPLETE: {
+    color: '#31CB8A',
+    bgColor: '#DBF4EC',
+  },
+  PENDING: {
+    color: '#d1a87b',
+    bgColor: '#ffeab7',
+  },
+  RETRYING: {
+    color: '#d1a87b',
+    bgColor: '#ffeab7',
+  },
+  RUNNING: {
+    color: '#31CB8A',
+    bgColor: '#DBF4EC',
+  },
+  CONTINUING: {
+    color: '#31CB8A',
+    bgColor: '#DBF4EC',
+  },
 };
 
-export type Status = 'ONLINE' | 'OFFLINE' | 'SUCCESS' | 'FAILURE';
+export type Status = 'ONLINE' | 'OFFLINE' | 'SUCCESS' | 'FAILURE' | string;
 
 export type StatusTagProps = {
   status: Status;

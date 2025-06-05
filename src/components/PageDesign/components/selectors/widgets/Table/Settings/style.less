@@ -1,0 +1,127 @@
+/* @import '~antd/es/style/themes/index.less'; */
+
+.container {
+  padding: 0 12px;
+
+  :global {
+    .@{ant-prefix}-pagination {
+      &.@{ant-prefix}-pagination-mini {
+
+        .@{ant-prefix}-pagination-item {
+
+        }
+
+        .@{ant-prefix}-pagination-item,
+        .@{ant-prefix}-pagination-prev,
+        .@{ant-prefix}-pagination-next,
+        .@{ant-prefix}-pagination-total-text, .@{ant-prefix}-pagination-simple-pager {
+          height: 24px;
+          line-height: 24px;
+        }
+
+        .@{ant-prefix}-pagination-prev,
+        .@{ant-prefix}-pagination-next {
+          min-width: 24px;
+        }
+      }
+    }
+
+    .@{ant-prefix}-pagination-simple {
+      .@{ant-prefix}-pagination-simple-pager input {
+        padding: 0 2px;
+      }
+
+      .@{ant-prefix}-pagination-prev .@{ant-prefix}-pagination-item-link, .@{ant-prefix}-pagination-simple .@{ant-prefix}-pagination-next .@{ant-prefix}-pagination-item-link {
+        height: 24px;
+      }
+      .@{ant-prefix}-pagination-prev .@{ant-prefix}-pagination-item-link,
+      .@{ant-prefix}-pagination-next .@{ant-prefix}-pagination-item-link {
+        height: 24px;
+      }
+    }
+  }
+}
+
+.pageParams {
+  margin-top: -30px;
+
+  .table {
+    padding-top: 12px;
+  }
+}
+
+.select {
+  border: 1px solid @border-color-base;
+  border-radius: @border-radius-base;
+}
+
+.colContainer {
+  margin-top: 24px;
+
+  .emptyText {
+    color: #666;
+    padding-left: 12px;
+  }
+}
+
+.colList {
+  margin: 0;
+  padding: 0;
+  
+  .colListItem {
+    height: @height-base;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    border: 1px solid @border-color-base;
+    border-radius: @border-radius-base;
+  }
+  
+  .listDrag {
+    width: 30px;
+    cursor: move;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .text {
+    flex: auto;
+  }
+
+  .options {
+    width: 50px;
+    padding: 0 8px;
+    display: inline-flex;
+    justify-content: space-between;
+  }
+}
+
+.menuList {
+  margin: 12px 0;
+
+  .credentialMenu {
+    border: 0;
+
+    :global {
+      .@{ant-prefix}-menu-vertical {
+        & > .@{ant-prefix}-menu-item,
+        & > .@{ant-prefix}-menu-submenu > .@{ant-prefix}-menu-submenu-title {
+          height: 28px;
+          line-height: 28px;
+        }
+      }
+    }
+  }
+}
+
+:global {
+  .credential-submenu {
+    .@{ant-prefix}-menu-vertical {
+      & > .@{ant-prefix}-menu-item,
+      & > .@{ant-prefix}-menu-submenu > .@{ant-prefix}-menu-submenu-title {
+        height: 28px;
+        line-height: 28px;
+      }
+    }
+  }
+}

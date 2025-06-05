@@ -31,6 +31,7 @@ import HttpApiModal, { MODAL_NAME } from '@/components/HttpApiModal';
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 import PageLoading from '@/components/PageLoading';
+import PageHelmet from '@/components/PageHelmet';
 import PermissionSection, { usePermission } from '@/components/PermissionSection';
 
 import styles from './style.less';
@@ -192,6 +193,7 @@ const HttpApi: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('httpapi.main.heading_title')} />
       {renderPageHeader()}
       {renderCardNode()}
       {renderHttpApiModal()}

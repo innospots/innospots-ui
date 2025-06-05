@@ -18,7 +18,7 @@
 
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Row, Col, Space, Button, Radio } from 'antd';
-import { useHistory, useModel } from 'umi';
+import { history, useModel, useLocation, useSearchParams } from 'umi';
 import _ from 'lodash';
 
 import { useToggle, useDeepCompareEffect } from 'ahooks';
@@ -26,6 +26,7 @@ import { useToggle, useDeepCompareEffect } from 'ahooks';
 import PageTitle from '@/components/PageTitle';
 import useI18n from '@/common/hooks/useI18n';
 import PageLoading from '@/components/PageLoading';
+import PageHelmet from '@/components/PageHelmet';
 import PermissionSection from '@/components/PermissionSection';
 import CategoriesPane, { CategorySelector } from '@/components/CategoriesPane';
 
@@ -65,14 +66,12 @@ const Index: React.FC = () => {
     }
   }, [roles]);
 
-  const history = useHistory();
-  const {
-    location: {
-      // @ts-ignore
-      query,
-      pathname,
-    },
-  } = history;
+  const [searchParams] = useSearchParams();
+  const query = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
+  const location = useLocation();
+  const pathname = location.pathname;
 
   const appRef: any = useRef('menu');
   const menuRef: any = useRef('app');
@@ -151,7 +150,6 @@ const Index: React.FC = () => {
 
     return (
       <PageTitle
-        style={{ height: 64 }}
         leftContent={
           <Row gutter={40} align="middle">
             <Col>
@@ -249,6 +247,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('rbac.main.heading_title')} />
       {renderPageTitle()}
       {renderDataContent()}
     </>

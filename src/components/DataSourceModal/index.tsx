@@ -379,27 +379,27 @@ const DataSourceModal: React.FC = () => {
     let element;
 
     switch (formItem.type) {
-      case 'RADIO':
-        element = (
-          <Radio.Group style={{ marginTop: 8 }}>
-            {_.map(formItem.options, (option) => {
-              return <Radio value={option.value}>{option.name}</Radio>;
-            })}
-          </Radio.Group>
-        );
-        break;
+    case 'RADIO':
+      element = (
+        <Radio.Group style={{ marginTop: 8 }}>
+          {_.map(formItem.options, (option) => {
+            return <Radio value={option.value}>{option.name}</Radio>;
+          })}
+        </Radio.Group>
+      );
+      break;
 
-      case 'PASSWORD':
-        element = <Input.Password placeholder={formItem.placeholder} />;
-        break;
+    case 'PASSWORD':
+      element = <Input.Password placeholder={formItem.placeholder} />;
+      break;
 
-      case 'TEXTAREA':
-        element = <TextArea placeholder={formItem.placeholder} />;
-        break;
+    case 'TEXTAREA':
+      element = <TextArea placeholder={formItem.placeholder} />;
+      break;
 
-      default:
-        element = <Input placeholder={formItem.placeholder} />;
-        break;
+    default:
+      element = <Input placeholder={formItem.placeholder} />;
+      break;
     }
 
     return (
@@ -611,7 +611,8 @@ const DataSourceModal: React.FC = () => {
     return (
       <div className={styles.footer}>
         <Button
-          className={`ant-btn-green`}
+          color="cyan"
+          variant="solid"
           onClick={handleUrlTest}
           loading={testLoading}
           disabled={testLoading}

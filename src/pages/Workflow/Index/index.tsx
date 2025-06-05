@@ -17,18 +17,14 @@
  */
 
 import React, {useMemo, useEffect, useState} from 'react';
-import {Col, message, Row, Space, Tag, TableColumnsType} from 'antd';
+import {Col, message, Row, Space, Tag, Typography, TableColumnsType} from 'antd';
 import {
   ContainerOutlined,
-  DeleteOutlined,
-  EditOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
   RedoOutlined
 } from '@ant-design/icons';
-
-import {history, Link, useModel} from 'umi';
-
+import {history, Link, useModel, useParams, useSearchParams} from 'umi';
 import {useMemoizedFn, useSetState} from 'ahooks';
 
 import useI18n from '@/common/hooks/useI18n';
@@ -38,24 +34,37 @@ import PageTitle from '@/components/PageTitle/PageTitle';
 import PageHelmet from '@/components/PageHelmet';
 import PageLoading from '@/components/PageLoading';
 import ListTable from '@/components/ListTable';
-import NiceAvatar from '@/components/Nice/NiceAvatar';
 import IconButton from '@/components/IconButton';
 import CategoriesPane, {CategorySelector} from '@/components/CategoriesPane';
 
 import CategoryModal, {MODAL_NAME} from './components/CategoryModal';
 import WorkflowModal, {
-  TYPE_ICONS,
   MODAL_NAME as WORKFLOW_MODAL_NAME
 } from './components/WorkflowModal';
 
+import {renderNodeIcon} from '@/pages/Workflow/Builder/components/NodeIcon';
+
+import { BUTTON_PERMISSION_MAP } from './config';
+
 import styles from './style.less';
+
+const { Title } = Typography;
 
 const DEFAULT_PAGE_DATA = {
   page: 1,
   size: 20
 };
 
-const Index: React.FC<any> = ({location}) => {
+const getWorkflowType = (workflowType: string) => {
+  return !workflowType || workflowType === 'index' ? '' : workflowType;
+};
+
+const Index: React.FC<any> = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
+
   const {
     workflows,
     categories,
@@ -64,13 +73,21 @@ const Index: React.FC<any> = ({location}) => {
     fetchWorkflowsRequest,
     deleteCategoryRequest,
     fetchCategoriesRequest
-  } = useModel('Workflow');
+  } = useModel('Workflow', model => ({
+    workflows: model.workflows,
+    categories: model.categories,
+    updateStatusRequest: model.updateStatusRequest,
+    deleteWorkflowRequest: model.deleteWorkflowRequest,
+    fetchWorkflowsRequest: model.fetchWorkflowsRequest,
+    deleteCategoryRequest: model.deleteCategoryRequest,
+    fetchCategoriesRequest: model.fetchCategoriesRequest,
+  }));
 
   const {t, loading: i18nLoading} = useI18n(['workflow', 'common']);
 
   const [categoryCollapsed, setCategoryCollapsed] = useState(false);
 
-  const [queryData, setQueryData] = useSetState({
+  const [queryData, setQueryData] = useSetState<any>({
     queryInput: '',
     ...DEFAULT_PAGE_DATA
   });
@@ -84,16 +101,18 @@ const Index: React.FC<any> = ({location}) => {
     category: curCategoryId = 0
   } = {
     ...DEFAULT_PAGE_DATA,
-    ...location.query
+    ...query
   };
+  const { workflowType } = useParams<{ workflowType: string }>();
+  const buttonPermissions = BUTTON_PERMISSION_MAP[workflowType] || {};
 
   const categoryPermissions = useMemo(
     () => ({
-      create: 'WorkflowCategory-createCategory',
-      update: 'WorkflowCategory-updateCategory',
-      delete: 'WorkflowCategory-deleteCategory'
+      create: buttonPermissions.createCategory,
+      update: buttonPermissions.updateCategory,
+      delete: buttonPermissions.deleteCategory
     }),
-    []
+    [buttonPermissions]
   );
 
   useEffect(() => {
@@ -101,48 +120,55 @@ const Index: React.FC<any> = ({location}) => {
       ...queryData,
       queryInput,
       page: curPage,
-      size: curSize
+      size: curSize,
     })
-  }, [curPage, curSize, queryInput]);
+  }, [curPage, curSize, queryInput, workflowType]);
+
+  const fetchCategories = () => {
+    fetchCategoriesRequest.run({
+      workflowType: getWorkflowType(workflowType)
+    });
+  };
 
   useEffect(() => {
-    fetchCategoriesRequest.run();
-  }, []);
+    fetchCategories();
+  }, [workflowType]);
 
   useEffect(() => {
     getWorkflowList();
   }, [curCategoryId, queryData]);
 
   const getWorkflowList = () => {
-    fetchWorkflowsRequest.run({
+    fetchWorkflowsRequest.run(getWorkflowType(workflowType), {
       ...queryData,
-      categoryId: curCategoryId
+      categoryId: curCategoryId,
     });
   };
 
   const handleCategoryChange = useMemoizedFn((categoryId: number) => {
-    setQueryData({
-      queryInput: '',
-      ...DEFAULT_PAGE_DATA
+    setSearchParams({
+      category: categoryId + '',
     });
-    history.push(`index?category=${categoryId}`);
   });
 
   const handlePageChange = (page: number, size: number) => {
-    // setQueryData({
-    //     page,
-    //     size,
-    // });
-    history.push(`index?category=${curCategoryId}&page=${page}&size=${size}`);
+    setSearchParams({
+      category: curCategoryId + '',
+      page: page + '',
+      size: size + '',
+    });
   };
 
   const deleteCategoryById = async (categoryId: number) => {
-    const result = await deleteCategoryRequest.runAsync(categoryId);
+    const result = await deleteCategoryRequest.runAsync(workflowType, categoryId);
 
     if (result) {
+      fetchCategories();
       message.success(t('common.error_message.delete.success'));
       if (curCategoryId == categoryId) {
-        history.push(`index?category=0`);
+        setSearchParams({
+          category: '0',
+        });
       }
     } else {
       message.error(t('common.error_message.delete.fail'));
@@ -152,9 +178,9 @@ const Index: React.FC<any> = ({location}) => {
   const removeCurWorkflow = (id: number, isReally?: boolean) => () => {
     return new Promise<void>(async (resolve) => {
       if (id) {
-        const result = await deleteWorkflowRequest.runAsync(id, isReally);
+        const result = await deleteWorkflowRequest.runAsync(getWorkflowType(workflowType), id, isReally);
 
-        fetchCategoriesRequest.run();
+        fetchCategories();
         getWorkflowList();
       }
 
@@ -165,10 +191,10 @@ const Index: React.FC<any> = ({location}) => {
   const updateWorkflowStatus = (id: number, status: string) => () => {
     return new Promise<void>(async (resolve) => {
       if (id) {
-        await updateStatusRequest.runAsync(id, status);
+        await updateStatusRequest.runAsync(getWorkflowType(workflowType), id, status);
       }
 
-      fetchCategoriesRequest.run();
+      fetchCategories();
       getWorkflowList();
 
       resolve();
@@ -180,7 +206,7 @@ const Index: React.FC<any> = ({location}) => {
       <PageTitle
         title={
           <Row gutter={40} align="middle">
-            <Col>{t('workflow.main.heading_title')}</Col>
+            <Col><Title level={3}>{t('workflow.main.heading_title')}</Title></Col>
             <Col>
               {categoryCollapsed && (
                 <Col>
@@ -200,18 +226,22 @@ const Index: React.FC<any> = ({location}) => {
           search: {
             placeholder: t('workflow.main.input.search.placeholder'),
             onSearch: (value: string) => {
-              history.push(`index?category=${curCategoryId}&queryInput=${value}`);
+              setSearchParams({
+                category: curCategoryId + '',
+                queryInput: value,
+              });
             }
           },
           button: {
             label: t('workflow.main.button.add'),
-            itemKey: 'WorkflowInstance-createWorkflow',
+            itemKey: buttonPermissions.createWorkflow,
             onClick: () => {
               workflowModal.show({
                 modalType: 'add',
                 initValues: {
                   name: '',
-                  categoryId: curCategoryId * 1
+                  categoryId: curCategoryId * 1,
+                  workflowType: getWorkflowType(workflowType)
                 }
               });
             }
@@ -231,8 +261,19 @@ const Index: React.FC<any> = ({location}) => {
         permissions={categoryPermissions}
         onToggle={setCategoryCollapsed}
         onSelected={handleCategoryChange}
-        onCreate={() => modal.show()}
-        onUpdate={(category) => modal.show(category)}
+        onCreate={() => modal.show({
+          modalType: 'add',
+          initValues: {
+            workflowType: getWorkflowType(workflowType)
+          }
+        })}
+        onUpdate={(category) => modal.show({
+          modalType: 'edit',
+          initValues: {
+            category,
+            workflowType: getWorkflowType(workflowType)
+          }
+        })}
         onDelete={(category) => deleteCategoryById(category.categoryId)}
       />
     );
@@ -244,17 +285,16 @@ const Index: React.FC<any> = ({location}) => {
         title: t('workflow.main.column.name'),
         dataIndex: 'name',
         render: (name: string, record: any) => {
-          const {search} = location
           return (
             <Row className={styles.nameWrapper} align="middle" gutter={8}>
               <Col flex="28px">
-                <NiceAvatar size={28} src={TYPE_ICONS[record.triggerCode]}/>
+                <div className={styles.iconNode}>{renderNodeIcon(record)}</div>
               </Col>
               <Col>
                 <div>
                   <Link
                     className="g-button"
-                    to={`index/detail${search?.length > 0 ? search + '&' : '?'}instanceId=${record.workflowInstanceId}`}
+                    to={`/workflow/${workflowType}/detail?instanceId=${record.workflowInstanceId}`}
                   >
                     {name || '-'}
                   </Link>
@@ -304,10 +344,9 @@ const Index: React.FC<any> = ({location}) => {
                 <IconButton
                   icon={<RedoOutlined/>}
                   tooltip={t('common.text.undo')}
-                  permissions="WorkflowInstance-updateDataStatus"
+                  permissions={buttonPermissions.updateDataStatus}
                   popConfirm={{
                     title: t('common.text.recover_confirmation'),
-                    placement: 'left',
                     onConfirm: updateWorkflowStatus(id, 'OFFLINE'),
                     okButtonProps: {
                       loading: updateStatusRequest.loading
@@ -315,9 +354,9 @@ const Index: React.FC<any> = ({location}) => {
                   }}
                 />
                 <IconButton
-                  icon={<DeleteOutlined/>}
+                  icon="delete"
                   tooltip={t('common.button.delete')}
-                  permissions="WorkflowInstance-deleteWorkflowInstance"
+                  permissions={buttonPermissions.deleteWorkflowInstance}
                   popConfirm={{
                     title: t('common.text.delete_confirmation'),
                     placement: 'left',
@@ -330,63 +369,63 @@ const Index: React.FC<any> = ({location}) => {
               </Space>
             );
           } else {
+            const statusBtn = record.status === 'OFFLINE' ? (
+              <IconButton
+                icon={<PlayCircleOutlined/>}
+                tooltip={t('common.text.activate')}
+                permissions={buttonPermissions.updateDataStatus}
+                popConfirm={{
+                  title: t(
+                    'workflow.main.workflow_activate_confirmation'
+                  ),
+                  placement: 'left',
+                  onConfirm: updateWorkflowStatus(id, 'ONLINE'),
+                  okButtonProps: {
+                    loading: updateStatusRequest.loading
+                  }
+                }}
+              />
+            ) : (
+              <IconButton
+                icon={<PauseCircleOutlined/>}
+                tooltip={t('common.text.activate')}
+                permissions={buttonPermissions.updateDataStatus}
+                popConfirm={{
+                  title: t(
+                    'workflow.main.workflow_deactivate_confirmation'
+                  ),
+                  placement: 'left',
+                  onConfirm: updateWorkflowStatus(id, 'OFFLINE'),
+                  okButtonProps: {
+                    loading: updateStatusRequest.loading
+                  }
+                }}
+              />
+            )
             return (
               <Space>
-                {record.status === 'OFFLINE' ? (
-                  <IconButton
-                    icon={<PlayCircleOutlined/>}
-                    tooltip={t('common.text.activate')}
-                    permissions="WorkflowInstance-updateDataStatus"
-                    popConfirm={{
-                      title: t(
-                        'workflow.main.workflow_activate_confirmation'
-                      ),
-                      placement: 'left',
-                      onConfirm: updateWorkflowStatus(id, 'ONLINE'),
-                      okButtonProps: {
-                        loading: updateStatusRequest.loading
-                      }
-                    }}
-                  />
-                ) : (
-                  <IconButton
-                    icon={<PauseCircleOutlined/>}
-                    tooltip={t('common.text.activate')}
-                    permissions="WorkflowInstance-updateDataStatus"
-                    popConfirm={{
-                      title: t(
-                        'workflow.main.workflow_deactivate_confirmation'
-                      ),
-                      placement: 'left',
-                      onConfirm: updateWorkflowStatus(id, 'OFFLINE'),
-                      okButtonProps: {
-                        loading: updateStatusRequest.loading
-                      }
-                    }}
-                  />
-                )}
+                { record.revision !== 0 && statusBtn }
 
                 {record.triggerCode !== 'DUMMY' && (
                   <IconButton
                     icon={<ContainerOutlined/>}
                     tooltip={t('common.button.detail')}
                     onClick={() => {
-                      const {search} = location
-                      history.push(`index/detail${search?.length > 0 ? search + '&' : '?'}instanceId=${id}`)
+                      history.push(`/workflow/${workflowType}/detail?instanceId=${id}`)
                     }}
                   />
                 )}
 
                 <IconButton
-                  icon={<EditOutlined/>}
+                  icon="edit"
                   tooltip={t('common.button.edit')}
-                  onClick={() => history.push(`builder?instanceId=${id}`)}
+                  onClick={() => history.push(`/workflow/${workflowType}/builder?instanceId=${id}&page=${curPage}&size=${curSize}`)}
                 />
 
                 <IconButton
-                  icon={<DeleteOutlined/>}
+                  icon="delete"
                   tooltip={t('common.tooltip.recycle_bin')}
-                  permissions="WorkflowInstance-removeWorkflowToRecycle"
+                  permissions={buttonPermissions.removeWorkflowToRecycle}
                   popConfirm={{
                     title: t('common.text.delete_confirmation'),
                     placement: 'left',
@@ -443,8 +482,9 @@ const Index: React.FC<any> = ({location}) => {
   const renderWorkflowModal = () => {
     return (
       <WorkflowModal
+        workflowType={getWorkflowType(workflowType)}
         onSuccess={() => {
-          fetchCategoriesRequest.run();
+          fetchCategories();
           getWorkflowList();
         }}
       />

@@ -1,0 +1,47 @@
+@font-face {
+  font-family: "innospot-isp-iconfont"; /* Project id 2689576 */
+  src: url('iconfont.woff2?t=1694691997418') format('woff2'),
+       url('iconfont.woff?t=1694691997418') format('woff'),
+       url('iconfont.ttf?t=1694691997418') format('truetype');
+}
+
+.innospot-isp-iconfont {
+  font-family: "innospot-isp-iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.innospot-icon-backspace:before {
+  content: "\e655";
+}
+
+.innospot-icon-diaoyong:before {
+  content: "\e621";
+}
+
+.innospot-icon-http-get:before {
+  content: "\e84f";
+}
+
+.innospot-icon-http-post:before {
+  content: "\e85c";
+}
+
+.innospot-icon-link:before {
+  content: "\e624";
+}
+
+.innospot-icon-edit:before {
+  content: "\e618";
+}
+
+.innospot-icon-liandong:before {
+  content: "\e610";
+}
+
+.innospot-icon-geshihua:before {
+  content: "\e61c";
+}
+

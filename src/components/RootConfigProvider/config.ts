@@ -23,6 +23,8 @@ import { getFormattedLocale } from '@/common/utils';
 import zhCN from 'antd/lib/locale/zh_CN';
 import enUS from 'antd/lib/locale/en_US';
 
+import tokens from '@/config/tokens';
+
 const [, , c] = getFormattedLocale();
 const locale = {
   zh: zhCN,
@@ -32,11 +34,19 @@ const locale = {
 moment.locale(c);
 
 export default {
-  prefixCls: 'polaris',
+  prefixCls: 'ant',
   locale: locale[c],
   theme: {
-    primaryColor: '#1245fa',
-    primaryColorHover: '#0432D7',
+    // cssVar: true,
+    token: {
+      ...tokens,
+    },
+    components: {
+      Menu: {
+        activeBarBorderWidth: 0,
+        subMenuItemBg: 'transparent',
+      },
+    },
   },
-  dropdownMatchSelectWidth: true,
+  popupMatchSelectWidth: true,
 };

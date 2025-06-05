@@ -22,15 +22,22 @@ import {
   Col,
   Row,
   Card,
-  Typography,
-  Descriptions,
-  UploadProps,
-  message,
   Modal,
   Upload,
   Button,
+  message,
+  Typography,
+  Descriptions,
+  UploadProps,
 } from 'antd';
-import { AimOutlined, CheckCircleTwoTone, VerticalAlignTopOutlined } from '@ant-design/icons';
+import {
+  AimOutlined,
+  CheckCircleTwoTone,
+  VerticalAlignTopOutlined,
+  SubnodeOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+} from '@ant-design/icons';
 
 import { useModel } from 'umi';
 
@@ -42,17 +49,24 @@ import PageTitle from '@/components/PageTitle';
 
 import styles from './style.less';
 import useI18n from '@/common/hooks/useI18n';
+import { isRequestSuccess } from '@/common/utils';
 import PageLoading from '@/components/PageLoading';
 import PermissionSection from '@/components/PermissionSection';
 import NiceAvatar from '@/components/Nice/NiceAvatar';
 import { AJAX_PREFIX } from '@/common/constants';
 import { getAuthHeader } from '@/common/request/header';
-import { STATUS_TAG } from '@/pages/Applications/Installed';
+import PageHelmet from '@/components/PageHelmet';
+import IconButton from '@/components/IconButton';
 
 const { Paragraph } = Typography;
 
 const Index: React.FC = () => {
-  const { appList, fetchAppListRequest } = useModel('Application');
+  const { appList, fetchAppListRequest, installExtensionRequest, changeExtensionStatusRequest } = useModel('Application', (model) => ({
+    appList: model.appList,
+    fetchAppListRequest: model.fetchAppListRequest,
+    installExtensionRequest: model.installExtensionRequest,
+    changeExtensionStatusRequest: model.changeExtensionStatusRequest,
+  }));
 
   const { t, loading: i18nLoading } = useI18n(['app', 'common']);
 
@@ -95,13 +109,13 @@ const Index: React.FC = () => {
             }}
           />
         </Col>
-        <PermissionSection itemKey="AppDefinition-downloadApplication4Local">
-          <Col flex="82px" style={{ display: 'flex', alignItems: 'center' }}>
-            <Button icon={<VerticalAlignTopOutlined />} type="primary" onClick={uploadDocument}>
-              {t('common.button.upload')}
-            </Button>
-          </Col>
-        </PermissionSection>
+        {/*<PermissionSection itemKey="AppDefinition-downloadApplication4Local">*/}
+        {/*  <Col flex="82px" style={{ display: 'flex', alignItems: 'center' }}>*/}
+        {/*    <Button icon={<VerticalAlignTopOutlined />} type="primary" onClick={uploadDocument}>*/}
+        {/*      {t('common.button.upload')}*/}
+        {/*    </Button>*/}
+        {/*  </Col>*/}
+        {/*</PermissionSection>*/}
       </Row>
     );
   };
@@ -128,7 +142,7 @@ const Index: React.FC = () => {
           uploadFile: uploadFile,
         });
 
-        if (info.file.status === 'done' && info.file.response?.code === '10000') {
+        if (info.file.status === 'done' && isRequestSuccess(info.file.response?.code)) {
           message.success(`${info.file.name} 文件上传成功`);
 
           setQueryData({});
@@ -147,7 +161,7 @@ const Index: React.FC = () => {
         open={uploadModalData.visible}
         onCancel={() => {
           if (uploadModalData.uploadFile?.status === 'uploading') {
-            message.warn('文件正在上传中');
+            message.warning('文件正在上传中');
           } else {
             setUploadModalData({
               visible: false,
@@ -178,7 +192,7 @@ const Index: React.FC = () => {
               uploadModalData.uploadFile?.status !== 'uploading'
                 ? '处理结果：'
                 : ''}
-              {uploadModalData.uploadFile?.response?.code === '10000' ? (
+              {isRequestSuccess(uploadModalData.uploadFile?.response?.code as string) ? (
                 <pre>{JSON.stringify(uploadModalData.uploadFile?.response?.body, null, 2)}</pre>
               ) : (
                 <div style={{ color: 'red' }}>{uploadModalData.uploadFile?.response?.message}</div>
@@ -188,6 +202,29 @@ const Index: React.FC = () => {
         </div>
       </Modal>
     );
+  };
+
+  const checkExtensionStatus = (extKey: string, status: string) => {
+    return new Promise(async (resolve, reject) => {
+      const res = await changeExtensionStatusRequest.runAsync(extKey, status);
+
+      if (res) {
+        getListData();
+        message.success(t('app.main.tooltip.status_changed_success'));
+      }
+      resolve(res);
+    });
+  };
+
+  const installExtension = (extKey: string) => {
+    return new Promise(async (resolve, reject) => {
+      const res = await installExtensionRequest.runAsync(extKey);
+      if (res) {
+        getListData();
+        message.success(t('app.main.tooltip.install_success'));
+      }
+      resolve(res);
+    });
   };
 
   if (i18nLoading) {
@@ -221,9 +258,63 @@ const Index: React.FC = () => {
                       </Row>
                     </Col>
                     <Col>
-                      {/*<PermissionSection itemKey="AppInstallment-install">*/}
-                        {/*<Button type="primary" size="small">安装应用</Button>*/}
-                      {/*</PermissionSection>*/}
+                      {li.status === 'AVAILABLE' && (
+                        <PermissionSection>
+                          {/* itemKey="AppInstallment-install" */}
+                          <IconButton
+                            icon={<SubnodeOutlined />}
+                            tooltip={t('app.main.tooltip.install')}
+                            permissions=""
+                            popConfirm={{
+                              title: t('app.main.tooltip.install_confirm'),
+                              onConfirm: () => installExtension(li.extKey),
+                              okText: t('common.button.confirm'),
+                              cancelText: t('common.button.cancel'),
+                              okButtonProps: {
+                                loading: installExtensionRequest.loading,
+                              },
+                            }}
+                          />
+                        </PermissionSection>
+                      )}
+                      {li.status === 'DISABLED' && (
+                        <PermissionSection>
+                          {/* itemKey="AppInstallment-install" */}
+                          <IconButton
+                            icon={<PlayCircleOutlined />}
+                            tooltip={t('app.main.tooltip.enable')}
+                            permissions=""
+                            popConfirm={{
+                              title: t('app.main.tooltip.enable_confirm'),
+                              onConfirm: () => checkExtensionStatus(li.extKey, 'enabled'),
+                              okText: t('common.button.confirm'),
+                              cancelText: t('common.button.cancel'),
+                              okButtonProps: {
+                                loading: changeExtensionStatusRequest.loading,
+                              },
+                            }}
+                          />
+                        </PermissionSection>
+                      )}
+                      {['INSTALLED', 'ENABLED'].includes(li.status) && (
+                        <PermissionSection>
+                          {/* itemKey="AppInstallment-install" */}
+                          <IconButton
+                            icon={<PauseCircleOutlined />}
+                            tooltip={t('app.main.tooltip.disable')}
+                            permissions=""
+                            popConfirm={{
+                              title: t('app.main.tooltip.disable_confirm'),
+                              onConfirm: () => checkExtensionStatus(li.extKey, 'disabled'),
+                              okText: t('common.button.confirm'),
+                              cancelText: t('common.button.cancel'),
+                              okButtonProps: {
+                                loading: changeExtensionStatusRequest.loading,
+                              },
+                            }}
+                          />
+                        </PermissionSection>
+                      )}
                     </Col>
                   </Row>
 
@@ -268,6 +359,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('app.main.app_store.title')} />
       {renderPageHeader()}
       {renderContent()}
       {renderUploadModal()}

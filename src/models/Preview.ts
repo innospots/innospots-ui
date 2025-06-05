@@ -18,7 +18,7 @@
 
 import { useState } from 'react';
 import { useRequest } from 'ahooks';
-
+import { isRequestSuccess } from '@/common/utils';
 import _ from 'lodash';
 
 import * as Service from '@/services/Preview';
@@ -37,7 +37,7 @@ export default () => {
         manual: true,
         cacheKey: 'ResultCodeList',
         onSuccess: (result) => {
-            if (result && result.code === '10000') {
+            if (result && isRequestSuccess(result.code)) {
                 setResultCodeList(result.body);
             } else {
                 setResultCodeList([]);
@@ -52,7 +52,7 @@ export default () => {
         manual: true,
         cacheKey: 'StrategyDetailData',
         onSuccess: (result) => {
-            if (result && result.code === '10000') {
+            if (result && isRequestSuccess(result.code)) {
                 setStrategyDetail(result.body);
             } else {
                 setStrategyDetail({});
@@ -67,7 +67,7 @@ export default () => {
         manual: true,
         cacheKey: 'StrategyStatisticData',
         onSuccess: (result) => {
-            if (result && result.code === '10000') {
+            if (result && isRequestSuccess(result.code)) {
                 setStrategyStatisticData(result.body);
             } else {
                 setStrategyStatisticData({});
@@ -82,7 +82,7 @@ export default () => {
         manual: true,
         cacheKey: 'ChangeRecordList',
         onSuccess: (result) => {
-            if (result && result.code === '10000') {
+            if (result && isRequestSuccess(result.code)) {
                 setChangeRecordList(result.body?.list);
             } else {
                 setChangeRecordList([]);
@@ -97,7 +97,7 @@ export default () => {
         manual: true,
         cacheKey: 'ExecutionRecordData',
         onSuccess: (result) => {
-            if (result && result.code === '10000') {
+            if (result && isRequestSuccess(result.code)) {
                 setExecutionRecordData(result.body);
             } else {
                 setExecutionRecordData({});

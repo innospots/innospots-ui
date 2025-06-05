@@ -22,8 +22,7 @@ export const pageLayoutSettings: LayoutSettings & {
   pwa?: boolean;
   logo?: string;
 } = {
-  navTheme: 'light',
-  layout: 'sidemenu',
+  layout: 'side',
   contentWidth: 'Fluid',
   fixedHeader: true,
   fixSiderbar: true,
@@ -34,4 +33,9 @@ export const pageLayoutSettings: LayoutSettings & {
   siderWidth: 256,
   iconfontUrl: '',
   collapsedButtonRender: false,
+
+  token: {
+    bgLayout: '#F3F5F7',
+    colorMenuBackground: '#fff',
+  },
 };

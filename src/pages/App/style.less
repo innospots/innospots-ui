@@ -19,6 +19,14 @@
 @import '../../assets/less/variables.less';
 @import './var';
 
+@border-radius: 20px;
+
+.appIcon {
+  font-size: 26px;
+  line-height: 1;
+  text-align: center;
+}
+
 .pageContainer {
   min-height: @container-height;
   border-radius: 10px;
@@ -29,212 +37,116 @@
   }
 }
 
-.nodeIcon {
-  width: 56px;
-  height: 56px;
-  margin: 8px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background-color: #f4f7fb;
-
-  :global {
-    .node-icon {
-      font-size: 28px;
-      line-height: 0;
-    }
-
-    .node-image-icon {
-      width: 50%;
-      height: 50%;
-      text-align: center;
-    }
-  }
-}
-
-.nodeTitle {
-  margin: 8px 0 4px;
-}
-
-.nodeDesc {
-  margin-bottom: 8px;
-}
-
-.builderContainer {
+.editorContainer {
   height: 100%;
   overflow: hidden;
+  position: relative;
   background-color: #eef1f6;
 
-  .builderContent {
-    margin: 84px 20px 20px;
-    border-radius: @builder-border-radius;
-    background-color: #fff;
-    height: calc(100% - 84px - 20px);
-
-    > div {
-      height: 100%;
-    }
-  }
-
-  .configForm,
-  .configPreview {
+  .wrapper {
     height: 100%;
-  }
+    padding: 84px 12px 12px;
 
-  .configForm {
-    > div {
+    .container {
+      width: 100%;
       height: 100%;
       display: flex;
-      padding-top: 32px;
-    }
-  }
 
-  .navTabs {
-    width: 215px;
-    height: 100%;
-    border-right: 1px solid @border-color;
-  }
-
-  .configContent {
-    flex: 1;
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-
-    .intro {
-      height: 82px;
-      margin: 0 24px;
-      border-bottom: 1px solid @light-border-color;
-
-      .desc {
-        color: #595959;
-      }
-    }
-  }
-
-  .configWrapper {
-    flex: 1;
-    margin: 24px 0 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    &.hidden {
-      display: none;
-    }
-  }
-
-  .connectorConfig {
-    padding: 0 24px;
-
-    .link {
-      margin-top: 24px;
-
-      ul, li {
-        list-style: none;
-      }
-
-      .linkContainer {
-        width: 584px;
-        height: 195px;
-        padding: 8px 0;
-        overflow-y: auto;
-        border-radius: 10px;
-        border: 1px solid @border-color;
-
-        .linkItem {
-          width: 80px;
-          height: 72px;
-          cursor: pointer;
-          display: inline-flex;
-          flex-direction: column;
-          border: 1px solid transparent;
-          border-radius: 10px;
-          margin: 8px 16px;
-          align-items: center;
-          justify-content: center;
-
-          .icon {
-            width: 30px;
-            height: 30px;
-            font-size: 30px;
-          }
-
-          .text {
-            font-size: 12px;
-            margin: 2px 0 0;
-          }
-
-          &.active,
-          &:hover {
-            border-color: @primary-color;
-          }
-
-          &.active {
-            background-color: rgba(237,242,255,98%);
-          }
-        }
-      }
-
-      .linkInfoIcon {
-        text-align: right;
+      .leftSidebar, .content, .rightSidebar {
+        height: 100%;
 
         :global {
-          .anticon {
-            color: @primary-3;
+          .editor-top-bar {
+            height: @top-bar-height;
+            display: flex;
+            padding: 0 20px;
+            z-index: 100;
+            position: relative;
+            background-color: #fff;
+            border-bottom: 1px solid @border-color;
+            align-items: center;
+            justify-content: space-between;
+
+            .top-bar-title {
+              font-weight: 500;
+              margin-bottom: 0;
+            }
           }
         }
       }
 
-      .linkTitle {
-        text-align: right;
-        margin-top: 8px;
-      }
-    }
-
-    .linkForm {
-      flex: 1;
-      overflow-y: auto;
-      margin-top: 12px;
-    }
-  }
-
-  .dataInteraction {
-    padding: 0 24px;
-
-    .configContainer {
-      &:first-child {
-        margin-bottom: 24px;
-        border-bottom: 1px solid @border-color;
+      .leftSidebar, .rightSidebar {
+        background-color: #fff;
       }
 
-      .formList {
-        margin: 24px 0;
+      .mainContent {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        position: relative;
 
-        .formItem {
-          margin-bottom: 24px;
-        }
+        &.rightSidebarCollapsed {
+          .rightSidebar {
+            width: @right-sidebar-collapsed-width;
 
-        .formLabel,
-        .indexLabel {
-          text-align: right;
-        }
+            :global {
+              .right-sidebar-inner {
+                display: none;
+              }
 
-        .indexLabel {
-          font-weight: bold;
-        }
+              .right-sidebar-collapsed {
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
 
-        .formLabel {
-          color: @text-color-secondary;
+                .hover();
+              }
+            }
+          }
         }
       }
-    }
 
-    .titleWrap {
-      padding-left: 36px;
+      .content {
+        flex: 1;
+        min-width: 0;
+      }
 
-      .title {
-        margin-bottom: 0;
+      .leftSidebar {
+        width: @left-sidebar-width;
+        border-right: 1px solid @border-color;
+        border-top-left-radius: @border-radius;
+        border-bottom-left-radius: @border-radius;
+
+        :global {
+          .editor-top-bar {
+            border-top-left-radius: @border-radius;
+          }
+        }
+      }
+
+      .rightSidebar {
+        width: @right-sidebar-width;
+        border-left: 1px solid @border-color;
+        border-top-right-radius: @border-radius;
+        border-bottom-right-radius: @border-radius;
+
+        :global {
+          .editor-top-bar {
+            border-top-right-radius: @border-radius;
+          }
+
+          .right-sidebar-inner {
+            width: 100%;
+            height: 100%;
+          }
+
+          .right-sidebar-collapsed {
+            display: none;
+          }
+        }
       }
     }
   }

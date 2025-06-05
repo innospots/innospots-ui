@@ -15,89 +15,79 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-import React, { useEffect, useState, useMemo } from 'react';
-
-import { Row, Col, Form, Input, Radio, Select, Upload, Spin } from 'antd';
-import type { UploadFile } from 'antd/es/upload/interface';
-import { PlusOutlined } from '@ant-design/icons';
-
+import _ from 'lodash'
 import {useModel} from 'umi';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Row, Col, Form, Radio, Input, Select, Modal, Button } from 'antd';
 
+import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
-import NiceModal from '@/components/Nice/NiceModal';
+import { formatImagePath } from '@/common/utils';
 
-import { AJAX_PREFIX } from '@/common/constants';
-import { getAuthHeader } from '@/common/request/header';
-import { extractResult, formatImagePath } from '@/common/utils';
-
-import { renderNodeIcon } from '@/pages/Workflow/Builder/components/NodeIcon';
+import IconSelect from '@/components/IconSelect/IconSelect';
 
 import styles from './style.less';
 
 export const MODAL_NAME = 'AppModal';
 
-const formItemLayout = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 16 },
-};
-
 const FormItem = Form.Item;
 
+const MODAL_TITLE = {
+  'add': 'app.modal.title.add',
+  'edit': 'app.modal.title.edit',
+  'saveAs': 'app.modal.title.saveAs'
+}
+
+export const typeOptions = [
+  { label: 'app.type.form', value: 'FORM' },
+  { label: 'app.type.chat', value: 'CHAT' },
+  // { label: 'app.type.interactive', value: 'APP_PAGE' },
+  { label: 'app.type.approval', value: 'APPROVAL' },
+]
+
 const AppModal:React.FC<{ onSuccess: (result) => void }> = ({ onSuccess }) => {
+  const { t } = useI18n(['common', 'app']);
 
   const {
     categories,
-    saveAppRequest
+    saveAppRequest,
+    categoryRequest
   } = useModel('App', (model) => ({
     categories: model.categories,
-    saveAppRequest: model.saveAppRequest
+    saveAppRequest: model.saveAppRequest,
+    categoryRequest: model.categoryRequest
   }));
 
   const [formRes] = Form.useForm();
   const [appIcon, setAppIcon] = useState<string>('');
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const [modal, modalInfo] = useModal(MODAL_NAME);
   const { visible, modalType, initValues } = modalInfo;
 
   const isEdit = modalType === 'edit';
 
-  const appInfo = useMemo(() => {
-    if (!uploading) {
-      if (fileList?.length) {
-        const newFile = fileList[0] as any;
-        if (!newFile.icon && appIcon) {
-          newFile.icon = appIcon;
-        }
-        return newFile
-      } else if (initValues?.icon) {
-        return initValues
-      }
-    }
-
-    return null
-  }, [initValues, uploading, appIcon, fileList]);
-
   useEffect(() => {
     if (visible) {
+      if (!categories?.length) {
+        categoryRequest.run()
+      }
+
       const formValues = {
+        appType: 'FORM',
         ...initValues
       };
       if (formValues && formValues.icon) {
         const curIcon = formatImagePath(formValues.icon);
         setAppIcon(curIcon);
-        // setFileList([{
-        //   uid: '-1',
-        //   url: curIcon,
-        //   name: formValues.name,
-        //   status: 'done'
-        // }]);
       }
+
+      if (modalType === 'saveAs') {
+        formValues.name = [formValues.name, '1'].join('_')
+        formValues.code = [formValues.code, '1'].join('_')
+      }
+
       formRes.setFieldsValue(formValues)
     } else {
-      setFileList([]);
       formRes.resetFields();
     }
   }, [ visible, initValues ])
@@ -109,18 +99,19 @@ const AppModal:React.FC<{ onSuccess: (result) => void }> = ({ onSuccess }) => {
 
   const handleFormSubmit = () => {
     formRes.validateFields().then(values => {
-      const postData = {
+      let postData: any = {
         ...values
-      };
+      }
 
       if (appIcon) {
         postData.icon = appIcon;
       }
 
-      postAppInfo({
-        ...initValues,
-        ...postData
-      })
+      if (isEdit) {
+        postData = _.extend({}, initValues, postData)
+      }
+
+      postAppInfo(postData)
     })
   }
 
@@ -128,112 +119,69 @@ const AppModal:React.FC<{ onSuccess: (result) => void }> = ({ onSuccess }) => {
     if (isEdit && !data.nodeType) {
       data.nodeType = 'io.innospots.workflow.node.app.script.ScriptNode';
     }
-    
+
     const result = await saveAppRequest.runAsync(data, isEdit ? 'put' : 'post');
     if (result) {
       modal.hide();
-      onSuccess?.(result);
+      onSuccess?.({
+        ...result,
+        modalType
+      });
     }
-  }
-
-  const handleUploadChange = (info) => {
-    setUploading(info.file?.status === 'uploading');
-
-    const list = [ ...info.fileList ];
-    let icon;
-
-    if (list.length) {
-      const image = extractResult(list[0].response);
-      icon = 'data:image/png;base64,' + image;
-    }
-
-    setAppIcon(icon);
-    setFileList(list);
   }
 
   const renderForm = () => {
 
     return (
-      <Form form={formRes} preserve={false} {...formItemLayout}>
-        <Row>
-          <Col span={12}>
-            <FormItem name="name" label="应用名称" rules={[{ required: true }]}>
-              <Input placeholder="请输入应用名称" maxLength={20} />
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem name="code" label="应用编码" rules={[{ required: true }]}>
-              <Input placeholder="请输入应用编码" maxLength={20} />
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem initialValue="normal" name="primitive" label="应用类型" rules={[{ required: true }]}>
-              <Radio.Group>
-                <Radio value="trigger">触发器</Radio>
-                <Radio value="normal">常规</Radio>
-              </Radio.Group>
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem name="nodeGroupId" label="应用分类" rules={[{ required: true }]}>
-              <Select showSearch options={categoryOptions} placeholder={'请选择'} />
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="应用图标" required>
-              <Upload
-                name="image"
-                maxCount={1}
-                fileList={fileList}
-                showUploadList={false}
-                headers={getAuthHeader()}
-                accept=".jpg,.jpeg,.png,.gif"
-                action={AJAX_PREFIX + 'image/APP'}
-                listType="picture-card"
-                className={styles.upload}
-                onChange={handleUploadChange}
-              >
-                <Spin spinning={uploading} size="small">
-                  <div>
-                    {
-                      appInfo ? renderNodeIcon(appInfo) : (
-                        <>
-                          <PlusOutlined />
-                          <div className={styles.label}>Upload</div>
-                        </>
-                      )
-                    }
-                  </div>
-                </Spin>
-              </Upload>
-            </FormItem>
-          </Col>
-          <Col span={12} />
-          <Col span={24}>
-            <FormItem name="description" label="应用描述" labelCol={{flex: '105px'}} wrapperCol={{span: 20}} rules={[{ required: true }]}>
-              <Input.TextArea showCount maxLength={60} rows={4} placeholder="请输入应用描述" />
-            </FormItem>
-          </Col>
-        </Row>
+      <Form form={formRes} layout="vertical" preserve={false}>
+        <FormItem name="name" label={t('app.form.name')} rules={[{ required: true }]}>
+          <Input placeholder={t('app.form.name.placeholder')} maxLength={20} />
+        </FormItem>
+        <FormItem name="categoryId" label={t('app.form.category')} rules={[{ required: true }]}>
+          <Select showSearch options={categoryOptions} placeholder={t('app.form.select.placeholder')} />
+        </FormItem>
+        <FormItem name="appType" label={t('app.form.type')} rules={[{ required: true }]}>
+          <Radio.Group options={typeOptions.map(opt => ({ ...opt, label: t(opt.label) }))} />
+        </FormItem>
+        <FormItem name="icon" label={t('app.form.icon')} >
+          <IconSelect />
+        </FormItem>
+        <FormItem>
+          <Row gutter={8} justify="end">
+            <Col>
+              <Button onClick={modal.hide}>{t('common.button.cancel')}</Button>
+            </Col>
+            <Col>
+              <Button type="primary" loading={saveAppRequest.loading} onClick={handleFormSubmit}>{t('common.button.confirm')}</Button>
+            </Col>
+          </Row>
+        </FormItem>
       </Form>
     )
   }
 
   return (
-    <NiceModal
-      simple
-      width={890}
+    <Modal
+      width={680}
       destroyOnClose
-      visible={visible}
-      title={isEdit ? '编辑应用' : '添加应用'}
+      open={visible}
+      footer={null}
       onCancel={modal.hide}
-      onOk={handleFormSubmit}
-      okButtonProps={{
-        loading: saveAppRequest.loading
-      }}
     >
-      { renderForm() }
-    </NiceModal>
+      <div className={styles.modalBody}>
+        <Row>
+          <Col flex="240px">
+            <div className={styles.leftWrapper}></div>
+          </Col>
+          <Col flex="auto">
+            <div className={styles.formWrapper}>
+              <h3 className={styles.title}>{ t(MODAL_TITLE[modalType]) }</h3>
+              { renderForm() }
+            </div>
+          </Col>
+        </Row>
+      </div>
+    </Modal>
   )
 }
 

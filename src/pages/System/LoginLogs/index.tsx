@@ -21,6 +21,7 @@ import { Button, DatePicker, Form, Popover, Select, Space, TableColumnsType } fr
 import { FilterOutlined, RetweetOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { useModel } from 'umi';
+import PageHelmet from '@/components/PageHelmet';
 import PageTitle from '@/components/PageTitle';
 import ListTable from '@/components/ListTable';
 import useI18n from '@/common/hooks/useI18n';
@@ -312,6 +313,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('log.login.headig_title')} />
       {renderPageHeader()}
       {renderDataContent()}
     </>

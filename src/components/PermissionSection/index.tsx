@@ -45,6 +45,7 @@ export const usePermission = (itemKey?: string | string[]) => {
 
 type PermissionType = {
   itemKey?: string | string[];
+  children: React.ReactNode;
 }
 
 const PermissionSection: React.FC<PermissionType> = ({ itemKey, children }) => {

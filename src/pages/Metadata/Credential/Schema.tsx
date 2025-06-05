@@ -22,7 +22,7 @@ import React, { useRef, useMemo, useState, useEffect } from 'react';
 import _ from 'lodash';
 import cls from 'classnames';
 import { useSize, useReactive } from 'ahooks';
-import { useModel } from 'umi';
+import { useModel, useSearchParams } from 'umi';
 
 import {
   Row,
@@ -52,7 +52,6 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 
 import PageHeader from './components/Header';
-import SQLQuery from './components/SQLQuery';
 import DataPreview from './components/DataPreview';
 import KafkaTableModal, { MODAL_NAME } from '@/components/KafkaTableModal';
 
@@ -91,8 +90,10 @@ interface DataFieldType {
   editData: any;
 }
 
-const Page = ({ location }) => {
+const Page = () => {
   const [kafkaModal] = useModal(MODAL_NAME);
+  const [searchParams] = useSearchParams();
+  const credentialId = (searchParams.get('credentialId') || 0) * 1;
 
   const { t, loading: i18nLoading } = useI18n(['datasource', 'dataset', 'common']);
 
@@ -127,8 +128,6 @@ const Page = ({ location }) => {
     }
     return null;
   }, [dataField.list]);
-
-  const credentialId = location.query.credentialId * 1;
 
   const {
     detailRequest,
@@ -608,6 +607,7 @@ const Page = ({ location }) => {
 
         <div className={styles.listNode} ref={fieldsRef}>
           <Table
+            size="small"
             columns={columns}
             pagination={false}
             dataSource={dataSource}
@@ -634,10 +634,6 @@ const Page = ({ location }) => {
         </div>
       </div>
     );
-  };
-
-  const getSQLQueryNode = () => {
-    return <SQLQuery />;
   };
 
   const getKafkaTableModal = () => {

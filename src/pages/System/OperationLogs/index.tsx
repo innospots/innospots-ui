@@ -22,6 +22,7 @@ import { FilterOutlined, RetweetOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import _ from 'lodash';
 import PageTitle from '@/components/PageTitle';
+import PageHelmet from '@/components/PageHelmet';
 import ListTable from '@/components/ListTable';
 import useI18n from '@/common/hooks/useI18n';
 import PageLoading from '@/components/PageLoading';
@@ -308,6 +309,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('log.operation.heading_title')} />
       {renderPageHeader()}
       {renderDataContent()}
     </>

@@ -42,11 +42,11 @@ export default {
     'border-radius-base': '4px',
 
     // size
-    'height-base': '38px',
+    'height-base': '34px',
     'height-lg': '64px',
     'height-sm': '28px',
 
-    'pagination-item-size-sm': '32px',
+    'pagination-item-size-sm': '28px',
     // 'pagination-item-bg-active': primaryColor,
 
     // menu

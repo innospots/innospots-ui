@@ -25,141 +25,167 @@ import type { Categories, ITableData, KeyValues } from '@/common/types/Types';
 import { addPageListData, updatePageListData, deletePageListData } from '@/common/utils';
 
 export default () => {
-    const [workflow, setWorkflow] = useState<KeyValues>({});
-    const [categories, setCategories] = useState<Categories>([]);
-    const [webhookAddress, setWebhookAddress] = useState<KeyValues>({});
-    const [workflowTemplates, setWorkflowTemplates] = useState<KeyValues>([]);
+  const [workflow, setWorkflow] = useState<KeyValues>({});
+  const [categories, setCategories] = useState<Categories>([]);
+  const [webhookAddress, setWebhookAddress] = useState<KeyValues>({});
+  const [workflowTemplates, setWorkflowTemplates] = useState<KeyValues>([]);
+  const [workflowRevisions, setWorkflowRevisions] = useState<KeyValues>([]);
 
-    const [workflows, setWorkflows] = useState<ITableData>({
-        list: [],
-        pagination: {},
-    });
+  const [workflowVersion, setWorkflowVersion] = useState<number | string>(-1);
 
-    const categoryOptions = useMemo(
-        () =>
-            _.map(categories, (item) => ({
-                value: item.categoryId,
-                label: item.categoryName,
-            })),
-        [categories],
-    );
+  const [workflows, setWorkflows] = useState<ITableData>({
+    list: [],
+    pagination: {},
+  });
 
-    const fetchWorkflowTemplatesRequest = useRequest(Service.fetchWorkflowTemplates, {
-        manual: true,
-        onSuccess: (result) => {
-            setWorkflowTemplates(result);
-        },
-    });
+  const categoryOptions = useMemo(
+    () =>
+      _.map(categories, (item) => ({
+        value: item.categoryId,
+        label: item.categoryName,
+      })),
+    [categories],
+  );
 
-    /**
-     * 获取分类列表
-     */
-    const fetchCategoriesRequest = useRequest(Service.fetchCategories, {
-        manual: true,
-        cacheKey: 'StrategyCategoryList',
-        onSuccess: (result) => {
-            setCategories(result);
-        },
-    });
+  const fetchWorkflowTemplatesRequest = useRequest(Service.fetchWorkflowTemplates, {
+    manual: true,
+    onSuccess: (result) => {
+      setWorkflowTemplates(result);
+    },
+  });
 
-    /**
-     * 获取策略列表
-     */
-    const fetchWorkflowsRequest = useRequest(Service.fetchWorkflows, {
-        manual: true,
-        debounceWait: 300,
-        onSuccess: (result) => {
-            setWorkflows(result);
-        },
-    });
+  /**
+   * 获取分类列表
+   */
+  const fetchCategoriesRequest = useRequest(Service.fetchCategories, {
+    manual: true,
+    cacheKey: 'StrategyCategoryList',
+    onSuccess: (result) => {
+      setCategories(result);
+    },
+  });
 
-    /**
-     * 获取策略列表
-     */
-    const fetchWorkflowRequest = useRequest(Service.fetchWorkflow, {
-        manual: true,
-        onSuccess: (result) => {
-            setWorkflow(result || {});
-        },
-    });
+  /**
+   * 获取策略列表
+   */
+  const fetchWorkflowsRequest = useRequest(Service.fetchWorkflows, {
+    manual: true,
+    debounceWait: 300,
+    onSuccess: (result) => {
+      setWorkflows(result);
+    },
+  });
 
-    const saveCategoryRequest = useRequest(Service.saveCategory, {
-        manual: true,
-        onSuccess: (result, [type, data]) => {
-            if (result) {
-                let list;
-                if (type === 'add') {
-                    list = addPageListData(categories, result);
-                } else {
-                    list = updatePageListData(categories, data, 'categoryId');
-                }
+  /**
+   * 获取策略实例
+   */
+  const fetchWorkflowRequest = useRequest(Service.fetchWorkflow, {
+    manual: true,
+    onSuccess: (result) => {
+      setWorkflow(result || {});
+      setWorkflowVersion(result?.revision || 0);
+    },
+  });
 
-                if (list) {
-                    setCategories(list);
-                }
-            }
-        },
-    });
+  const saveCategoryRequest = useRequest(Service.saveCategory, {
+    manual: true,
+    onSuccess: (result, [type, data]) => {
+      if (result) {
+        let list;
+        if (type === 'add') {
+          list = addPageListData(categories, result);
+        } else {
+          list = updatePageListData(categories, data, 'categoryId');
+        }
 
-    const updateStatusRequest = useRequest(Service.updateStatus, {
-        manual: true,
-    });
+        if (list) {
+          setCategories(list);
+        }
+      }
+    },
+  });
 
-    const saveWorkflowRequest = useRequest(Service.saveWorkflow, {
-        manual: true,
-        onSuccess: (result, [type, data]) => {
-            if (result) {
-            }
-        },
-    });
+  const updateStatusRequest = useRequest(Service.updateStatus, {
+    manual: true,
+  });
 
-    const fetchWebhookAddressRequest = useRequest(Service.fetchWebhookAddress, {
-        manual: true,
-        onSuccess: (result) => {
-            if (result) {
-                setWebhookAddress(result);
-            }
-        },
-    });
+  const saveWorkflowRequest = useRequest(Service.saveWorkflow, {
+    manual: true,
+    onSuccess: (result, [type, data]) => {
+      if (result) {
+      }
+    },
+  });
 
-    const deleteWorkflowRequest = useRequest(Service.deleteWorkflow, {
-        manual: true,
-    });
+  const fetchWebhookAddressRequest = useRequest(Service.fetchWebhookAddress, {
+    manual: true,
+    onSuccess: (result) => {
+      if (result) {
+        setWebhookAddress(result);
+      }
+    },
+  });
 
-    const deleteCategoryRequest = useRequest(Service.deleteCategory, {
-        manual: true,
-        onSuccess: (result, [categoryId]) => {
-            if (result) {
-                const list = deletePageListData(categories, 'categoryId', categoryId);
-                if (list) {
-                    setCategories(list);
-                }
-            }
-        },
-    });
+  const deleteWorkflowRequest = useRequest(Service.deleteWorkflow, {
+    manual: true,
+  });
 
-    return {
-        workflow,
-        workflows,
-        categories,
-        categoryOptions,
-        workflowTemplates,
+  const deleteCategoryRequest = useRequest(Service.deleteCategory, {
+    manual: true,
+    onSuccess: (result, [categoryId]) => {
+      if (result) {
+        const list = deletePageListData(categories, 'categoryId', categoryId);
+        if (list) {
+          setCategories(list);
+        }
+      }
+    },
+  });
 
-        webhookAddress,
+  const fetchWorkflowRevisionsRequest = useRequest(Service.fetchWorkflowRevisions, {
+    manual: true,
+    onSuccess: (result, [templateCode, workflowInstanceId]) => {
+      if (result) {
+        setWorkflowRevisions(result);
+      }
+    },
+  });
 
-        setWorkflow,
-        updateStatusRequest,
+  const saveToDraftRequest = useRequest(Service.saveToDraft, {
+    manual: true,
+  });
 
-        fetchWorkflowRequest,
-        deleteWorkflowRequest,
-        fetchWorkflowsRequest,
+  return {
+    workflow,
+    workflows,
+    categories,
+    categoryOptions,
+    workflowTemplates,
+    setWorkflowTemplates,
 
-        saveCategoryRequest,
-        saveWorkflowRequest,
-        deleteCategoryRequest,
-        fetchCategoriesRequest,
+    webhookAddress,
 
-        fetchWebhookAddressRequest,
-        fetchWorkflowTemplatesRequest,
-    };
+    setWorkflow,
+    updateStatusRequest,
+
+    fetchWorkflowRequest,
+    deleteWorkflowRequest,
+    fetchWorkflowsRequest,
+
+    saveCategoryRequest,
+    saveWorkflowRequest,
+    deleteCategoryRequest,
+    fetchCategoriesRequest,
+
+    fetchWebhookAddressRequest,
+    fetchWorkflowTemplatesRequest,
+
+    workflowRevisions,
+    fetchWorkflowRevisionsRequest,
+
+    saveToDraftRequest,
+
+    workflowVersion,
+    setWorkflowVersion,
+  };
 };

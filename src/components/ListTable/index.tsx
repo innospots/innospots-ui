@@ -22,7 +22,6 @@ import { TableProps } from 'antd/es/table';
 import cls from 'classnames';
 
 import useI18n from '@/common/hooks/useI18n';
-import { KeyValues } from '@/common/types/Types';
 
 import styles from './style.less';
 

@@ -18,9 +18,8 @@
 
 import React from 'react';
 import _ from 'lodash';
-
 import { ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons';
-import { Row, Col, Menu, Spin, Empty, Typography, Dropdown, message, Modal, Select } from 'antd';
+import { Row, Col, Menu, Spin, Empty, Dropdown, message, Modal, Select } from 'antd';
 
 import InnoIcon from '@/components/Icons/InnoIcon';
 import useI18n from '@/common/hooks/useI18n';
@@ -29,8 +28,6 @@ import { usePermission, permissionWarning } from '@/components/PermissionSection
 import type { Categories, ICategoryItem } from '@/common/types/Types';
 
 import styles from './style.less';
-
-const { Paragraph } = Typography;
 
 export type CategoriesPaneProps = {
   title?: string;
@@ -79,7 +76,6 @@ export const CategorySelector: React.FC<CategoriesPaneProps> = (props) => {
                 <InnoIcon size={16} type="caret-down" />
               </span>
             }
-            dropdownMatchSelectWidth={false}
             onSelect={onSelected}
           />
         ) : (
@@ -166,15 +162,18 @@ const CategoriesPane: React.FC<CategoriesPaneProps> = (props) => {
   const renderPageCategoryDropdown = (category: ICategoryItem) => {
     const menu = (
       <Menu
-        items={[{
-          key: 'update',
-          icon: <InnoIcon type="edit-alt" />,
-          label: <span>{t('common.button.edit')}</span>
-        }, {
-          key: 'delete',
-          icon: <InnoIcon type="delete" />,
-          label: <span>{t('common.button.delete')}</span>
-        }]}
+        items={[
+          {
+            key: 'update',
+            icon: <InnoIcon type="edit-alt" />,
+            label: <span>{t('common.button.edit')}</span>,
+          },
+          {
+            key: 'delete',
+            icon: <InnoIcon type="delete" />,
+            label: <span>{t('common.button.delete')}</span>,
+          },
+        ]}
         onClick={onCategoryContextMenuClicked(category)}
       />
     );
@@ -231,49 +230,52 @@ const CategoriesPane: React.FC<CategoriesPaneProps> = (props) => {
             <Menu
               mode="inline"
               selectedKeys={[categoryId + '']}
-              items={categories?.map((category: ICategoryItem) => (
-                {
-                  key: category.categoryId,
-                  label: (
-                    <Row justify="space-between">
-                      <Col>
-                        <Row gutter={[6, 0]} align="middle">
-                          {category.categoryId == -1 ? (
-                            <Col>
-                              <InnoIcon type="delete" />
-                            </Col>
-                          ) : (
-                            <Col>
-                              <InnoIcon type={folderIcon} />
-                            </Col>
-                          )}
+              items={categories?.map((category: ICategoryItem) => ({
+                key: category.categoryId,
+                label: (
+                  <Row justify="space-between">
+                    <Col>
+                      <Row gutter={[6, 0]} align="middle">
+                        {category.categoryId == -1 ? (
                           <Col>
-                            <Paragraph ellipsis title={category.categoryName}>
-                              {category.categoryName}
-                            </Paragraph>
+                            <InnoIcon type="delete" />
                           </Col>
-                          {
-                            showCount && (
-                              <Col>({category.totalCount})</Col>
-                            )
-                          }
-                        </Row>
-                      </Col>
-                      {(_.isFunction(dropdownDisabled) ? !dropdownDisabled(category) : !dropdownDisabled) && (
+                        ) : (
+                          <Col>{folderIcon ? <InnoIcon type={folderIcon} /> : ''}</Col>
+                        )}
                         <Col>
-                          {category.categoryId !== 0 && category.categoryId !== -1
-                            ? renderPageCategoryDropdown(category)
-                            : null}
+                          <div
+                            title={category.categoryName}
+                            style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          >
+                            {category.categoryName}
+                          </div>
                         </Col>
-                      )}
-                    </Row>
-                  )
-                }
-              ))}
+                        {showCount && <Col>({category.totalCount})</Col>}
+                      </Row>
+                    </Col>
+                    {(_.isFunction(dropdownDisabled)
+                      ? !dropdownDisabled(category)
+                      : !dropdownDisabled) && (
+                      <Col>
+                        {category.categoryId !== 0 && category.categoryId !== -1
+                          ? renderPageCategoryDropdown(category)
+                          : null}
+                      </Col>
+                    )}
+                  </Row>
+                ),
+              }))}
               onClick={onCategoryClicked}
             />
           ) : (
-            <div>{loading ? <Spin style={{width: '100%'}} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}</div>
+            <div>
+              {loading ? (
+                <Spin style={{ width: '100%' }} />
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )}
+            </div>
           )}
         </div>
       </div>

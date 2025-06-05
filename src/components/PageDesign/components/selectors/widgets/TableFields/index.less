@@ -1,0 +1,20 @@
+/* @import '~antd/es/style/themes/index.less'; */
+
+.fieldMapping {
+  width: 100%;
+  margin-top: calc(0.5em + 8px);
+
+  :global {
+    table {
+      border-spacing: 0 0 !important;
+    }
+
+    .@{ant-prefix}-table-thead > tr > th,
+    .@{ant-prefix}-table-tbody > tr > td,
+    .@{ant-prefix}-table tfoot > tr > th,
+    .@{ant-prefix}-table tfoot > tr > td {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+  }
+}

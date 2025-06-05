@@ -16,70 +16,75 @@
  *  limitations under the License.
  */
 
-import React, {useRef, useMemo, useState, useEffect} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
+  DownOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+  RightOutlined,
+} from '@ant-design/icons';
+import { useReactive, useUpdateEffect } from 'ahooks';
+import {
+  Button,
   Col,
-  Row,
-  Tabs,
-  Menu,
+  Divider,
+  Dropdown,
+  Empty,
   Form,
   Input,
-  Empty,
-  Table,
-  Button,
-  Select,
-  Divider,
+  Menu,
   message,
-  Dropdown,
   Popconfirm,
-  TableColumnsType
+  Row,
+  Select,
+  Table,
+  TableColumnsType,
+  Tabs,
 } from 'antd';
-import {PlusOutlined, DownOutlined, RightOutlined, MinusCircleOutlined} from '@ant-design/icons';
-import {useReactive, useUpdateEffect} from 'ahooks';
-import _ from 'lodash';
 import cls from 'classnames';
-import {useModel} from 'umi';
+import _ from 'lodash';
+import { useModel } from 'umi';
 
-import ReactJson from 'react-json-view';
+import ReactJson from '@microlink/react-json-view';
 
-import {randomString} from '@/common/utils';
-import {KeyValues} from '@/common/types/Types';
+import { KeyValues } from '@/common/types/Types';
+import { randomString } from '@/common/utils';
 
+import NiceModal, { NiceModalProps } from '@/components/Nice/NiceModal';
 import NiceSwitch from '@/components/Nice/NiceSwitch';
-import NiceModal, {NiceModalProps} from '@/components/Nice/NiceModal';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 
 import styles from './style.less';
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 const AUTH_OPTIONS = [
   {
     value: 'NO_AUTH',
-    label: 'No Auth'
+    label: 'No Auth',
   },
   {
     value: 'BASIC_AUTH',
-    label: 'Basic Auth'
+    label: 'Basic Auth',
   },
   {
     value: 'BEARER_TOKEN',
-    label: 'Bearer Token'
-  }
+    label: 'Bearer Token',
+  },
 ];
 
 const METHOD_OPTIONS = [
   {
     value: 'GET',
-    label: 'GET'
+    label: 'GET',
   },
   {
     value: 'POST',
-    label: 'POST'
-  }
+    label: 'POST',
+  },
 ];
 
 type ConfigData = {
@@ -104,16 +109,22 @@ const getDefaultField = (o?: ConfigData): ConfigData => ({
   name: '',
   code: '',
   valueType: 'STRING',
-  ...o
+  ...o,
 });
 
-const configPicks = ['name', 'code', 'valueType', 'httpFieldType', 'httpFieldParamType'];
+const configPicks = [
+  'name',
+  'code',
+  'valueType',
+  'httpFieldType',
+  'httpFieldParamType',
+];
 
 const fieldTypes = {
   requestHeader: 'HTTP_HEADER',
   requestParam: 'HTTP_PARAM',
   requestBody: 'HTTP_BODY',
-  pathVariable: 'HTTP_PATH'
+  pathVariable: 'HTTP_PATH',
 };
 
 const jsonInputTheme = {
@@ -121,28 +132,28 @@ const jsonInputTheme = {
   colors: {
     keys: '#333',
     number: '#4659e7',
-    background: 'transparent'
-  }
+    background: 'transparent',
+  },
 };
 
 const DEFAULT_DATA = {
   formStatus: {
     name: undefined,
     description: undefined,
-    apiUrlAddress: undefined
+    apiUrlAddress: undefined,
   },
 
   responseData: {
     body: {},
     header: '',
-    testResult: false
+    testResult: false,
   },
 
   configData: {
     pathVariable: [],
     requestParam: [],
     requestHeader: [],
-    requestBody: []
+    requestBody: [],
   },
 
   formValues: {
@@ -151,28 +162,29 @@ const DEFAULT_DATA = {
     bearerToken: '',
     authType: 'NO_AUTH',
     apiMethod: 'POST',
-    apiUrlAddress: ''
-  }
+    apiUrlAddress: '',
+  },
 };
 
 export const MODAL_NAME = 'HttpApiModal';
 
 const HttpApiModal: React.FC<NiceModalProps> = () => {
-  const {testExecuteRequest, saveHttpApiRequest, httpApiDetailRequest} = useModel('HttpApi');
+  const { testExecuteRequest, saveHttpApiRequest, httpApiDetailRequest } =
+    useModel('HttpApi');
   const delRef = useRef([]);
 
   const [modal, modalInfo] = useModal(MODAL_NAME);
 
-  const {visible, modalType, initValues} = modalInfo;
+  const { visible, modalType, initValues } = modalInfo;
 
-  const {t, loading: i18nLoading} = useI18n(['httpapi', 'common']);
+  const { t, loading: i18nLoading } = useI18n(['httpapi', 'common']);
 
   const [baseForm] = Form.useForm();
   const [authForm] = Form.useForm();
 
   const [scriptData, setScriptData] = useState({
     prev: '',
-    post: ''
+    post: '',
   });
   const [bodyTemplate, setBodyTemplate] = useState('');
   const [requestTabKey, setRequestTabKey] = useState('1');
@@ -183,25 +195,25 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     responseVisible: boolean;
   }>({
     requestVisible: true,
-    responseVisible: true
+    responseVisible: true,
   });
   const formStatus = useReactive<{
     name: any;
     description: any;
     apiUrlAddress: any;
   }>({
-    ...DEFAULT_DATA.formStatus
+    ...DEFAULT_DATA.formStatus,
   });
   const responseData = useReactive<{
     body: {};
     header: string;
     testResult: boolean;
   }>({
-    ..._.cloneDeep(DEFAULT_DATA.responseData)
+    ..._.cloneDeep(DEFAULT_DATA.responseData),
   });
 
   const configData = useReactive<ConfigDataTypes>({
-    ...DEFAULT_DATA.configData
+    ...DEFAULT_DATA.configData,
   });
   const formValues = useReactive<{
     username?: string;
@@ -211,7 +223,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     bearerToken?: string;
     apiUrlAddress?: string;
   }>({
-    ...DEFAULT_DATA.formValues
+    ...DEFAULT_DATA.formValues,
   });
 
   useEffect(() => {
@@ -232,7 +244,10 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     matchTemplateParams(bodyTemplate);
   }, [bodyTemplate]);
 
-  const hasBodyTemplate = useMemo(() => _.trim(bodyTemplate) !== '', [bodyTemplate]);
+  const hasBodyTemplate = useMemo(
+    () => _.trim(bodyTemplate) !== '',
+    [bodyTemplate],
+  );
 
   const resetDefaultData = () => {
     _.extend(formValues, DEFAULT_DATA.formValues);
@@ -241,7 +256,8 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     _.extend(formStatus, DEFAULT_DATA.formStatus);
 
     setScriptData({
-      prev: '', post: ''
+      prev: '',
+      post: '',
     });
     setBodyTemplate('');
     setRequestTabKey('1');
@@ -259,7 +275,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
 
         if (!cur) {
           const data = getFieldByType('pathVariable', {
-            code: c
+            code: c,
           });
           list.push(data);
         } else {
@@ -283,13 +299,13 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         const cur = _.find(curList, (item) => item.code === c);
 
         const data = getFieldByType('requestBody', {
-          code: c
+          code: c,
         });
 
         if (cur) {
           list.push({
             ...data,
-            ...cur
+            ...cur,
           });
         } else {
           list.push(data);
@@ -303,11 +319,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
   }, 500);
 
   const getInitData = async () => {
-
     let _initValues = initValues || {};
 
     if (_initValues.registryId) {
-      const result = await httpApiDetailRequest.runAsync(_initValues.registryId);
+      const result = await httpApiDetailRequest.runAsync(
+        _initValues.registryId,
+      );
       _initValues = result || {};
     }
 
@@ -326,13 +343,13 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
       authForm.setFieldsValue({
         username: undefined,
         password: undefined,
-        authType: 'NO_AUTH'
+        authType: 'NO_AUTH',
       });
       formValues.authType = 'NO_AUTH';
     } else {
       setScriptData({
         prev: _initValues.prevScript,
-        post: _initValues.postScript
+        post: _initValues.postScript,
       });
       _initValues.bodyTemplate && setBodyTemplate(_initValues.bodyTemplate);
     }
@@ -348,10 +365,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
       try {
         _.map(_.keys(fieldTypes), (key: string) => {
           const fieldScope = fieldTypes[key];
-          configData[key] = _.filter(schemaFields, (item) => item.fieldScope === fieldScope);
+          configData[key] = _.filter(
+            schemaFields,
+            (item) => item.fieldScope === fieldScope,
+          );
         });
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   };
 
@@ -376,17 +395,17 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         callback(values);
       }
     });
-  }
+  };
 
   const handleFormSubmit = () => {
-    validateBaseForm(values => {
+    validateBaseForm((values) => {
       if (!formValues.apiUrlAddress) {
         formStatus.apiUrlAddress = 'error';
       } else {
         formStatus.apiUrlAddress = undefined;
         doSaveData(values);
       }
-    })
+    });
   };
 
   const handleTabChange = (activeKey: string) => {
@@ -413,7 +432,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
   };
 
   const handleTestExecute = () => {
-    validateBaseForm(values => {
+    validateBaseForm((values) => {
       if (!formValues.apiUrlAddress) {
         formStatus.apiUrlAddress = 'error';
       } else {
@@ -435,8 +454,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
 
       try {
         resultData.body = JSON.parse(resultData.body);
-      } catch (e) {
-      }
+      } catch (e) {}
 
       responseData.body = resultData;
       responseData.testResult = true;
@@ -456,9 +474,9 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     await saveHttpApiRequest.runAsync(
       {
         ...initValues,
-        ...postData
+        ...postData,
       },
-      modalType
+      modalType,
     );
 
     modal.hide();
@@ -479,7 +497,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         name: key,
         code: key,
         httpFieldType: 'RESPONSE',
-        httpFieldParamType: 'RESPONSE_PARAM'
+        httpFieldParamType: 'RESPONSE_PARAM',
       };
     });
   };
@@ -503,27 +521,27 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
 
         schemaFields.push({
           fieldScope: fieldTypes[key],
-          ..._.pick(item, keys)
+          ..._.pick(item, keys),
         });
       });
     });
 
-    return [ schemaFields, paramValue ];
+    return [schemaFields, paramValue];
   };
 
   const getPostData = (data?: any, isTest?: boolean) => {
     const postData = {
       configCode: 'http',
-      ...data
+      ...data,
     };
-    const {apiMethod, apiUrlAddress: address} = formValues;
+    const { apiMethod, apiUrlAddress: address } = formValues;
 
     _.extend(postData, {
       address,
-      apiMethod
+      apiMethod,
     });
 
-    const [ schemaFields, paramValue ] = getSchemaFields(isTest);
+    const [schemaFields, paramValue] = getSchemaFields(isTest);
 
     postData.configs = {};
     postData.paramValue = paramValue;
@@ -552,17 +570,18 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
       valueType: 'STRING',
       httpFieldType: 'REQUEST',
       httpFieldParamType,
-      ...defaultData
+      ...defaultData,
     });
   };
 
-  const changeListItem = (field: string, type: string, index: number) => (event) => {
-    if (configData[type]) {
-      configData[type][index] ??= {};
-      configData[type][index][field] = event.target.value;
-      configData[type] = [...configData[type]];
-    }
-  };
+  const changeListItem =
+    (field: string, type: string, index: number) => (event) => {
+      if (configData[type]) {
+        configData[type][index] ??= {};
+        configData[type][index][field] = event.target.value;
+        configData[type] = [...configData[type]];
+      }
+    };
 
   const deleteListItem = (type: string, index: number) => () => {
     if (configData[type]?.length) {
@@ -591,12 +610,17 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     for (let key in changedValues) {
       formStatus[key] = undefined;
     }
-  }
+  };
 
   const renderBaseForm = () => {
     return (
       <div className={styles.baseForm}>
-        <Form form={baseForm} preserve={false} layout="inline" onValuesChange={handleBaseFormChange}>
+        <Form
+          form={baseForm}
+          preserve={false}
+          layout="inline"
+          onValuesChange={handleBaseFormChange}
+        >
           <Row className={styles.formRow}>
             <Col span={12}>
               <Form.Item
@@ -632,7 +656,10 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
 
   const renderTestForm = () => {
     const menu = (
-      <Menu selectedKeys={[formValues.apiMethod as string]} onClick={handleMethodChange}>
+      <Menu
+        selectedKeys={[formValues.apiMethod as string]}
+        onClick={handleMethodChange}
+      >
         {METHOD_OPTIONS.map((item) => (
           <Menu.Item key={item.value}>{item.label}</Menu.Item>
         ))}
@@ -644,19 +671,19 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         <Form.Item validateStatus={formStatus.apiUrlAddress}>
           <Input.Group compact>
             <Dropdown overlay={menu}>
-              <Button className="ant-btn-green" style={{width: 90}}>
-                {formValues.apiMethod} <DownOutlined/>
+              <Button color="cyan" variant="solid" style={{ width: 90 }}>
+                {formValues.apiMethod} <DownOutlined />
               </Button>
             </Dropdown>
             <Input
-              style={{width: 'calc(100% - 180px)'}}
+              style={{ width: 'calc(100% - 180px)' }}
               value={formValues.apiUrlAddress}
               placeholder={t('common.input.placeholder')}
               onChange={handleUrlChange}
             />
             <Button
               type="primary"
-              style={{width: 90}}
+              style={{ width: 90 }}
               loading={testExecuteRequest.loading}
               onClick={handleTestExecute}
             >
@@ -672,7 +699,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
    * 请求参数
    */
   const renderRequestParams = useMemo(() => {
-    const {pathVariable, requestParam} = configData;
+    const { pathVariable, requestParam } = configData;
     const getTypeAndIndex = (record, index): [string, number] => {
       const listType = record.from === 'path' ? 'pathVariable' : 'requestParam';
       if (listType === 'requestParam') {
@@ -694,7 +721,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('code', ...getTypeAndIndex(record, index))}
           />
-        )
+        ),
       },
       {
         title: t('httpapi.form.params.column.desc'),
@@ -706,7 +733,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('name', ...getTypeAndIndex(record, index))}
           />
-        )
+        ),
       },
       {
         title: t('httpapi.form.params.column.value'),
@@ -716,14 +743,17 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             size="small"
             value={value}
             placeholder={t('common.input.placeholder')}
-            onChange={changeListItem('value', ...getTypeAndIndex(record, index))}
+            onChange={changeListItem(
+              'value',
+              ...getTypeAndIndex(record, index),
+            )}
           />
-        )
+        ),
       },
       {
         title: () => (
           <span className="b-button" onClick={addListItem('requestParam')}>
-            <PlusOutlined/> {t('httpapi.form.params.link.add')}
+            <PlusOutlined /> {t('httpapi.form.params.link.add')}
           </span>
         ),
         width: 80,
@@ -738,19 +768,19 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
           >
             <span
               className={cls('g-button', {
-                disabled: record.from === 'path'
+                disabled: record.from === 'path',
               })}
             >
-              <MinusCircleOutlined/>
+              <MinusCircleOutlined />
             </span>
           </Popconfirm>
-        )
-      }
+        ),
+      },
     ];
 
     const dataSource = _.map(pathVariable, (item: ConfigData) => ({
       ...item,
-      from: 'path'
+      from: 'path',
     })).concat(requestParam as []);
 
     return (
@@ -760,7 +790,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         dataSource={dataSource}
         pagination={false}
         scroll={{
-          y: 320
+          y: 320,
         }}
       />
     );
@@ -781,7 +811,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('code', 'requestHeader', index)}
           />
-        )
+        ),
       },
       {
         title: t('httpapi.form.params.column.desc'),
@@ -793,7 +823,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('name', 'requestHeader', index)}
           />
-        )
+        ),
       },
       {
         title: t('httpapi.form.params.column.value'),
@@ -805,12 +835,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('value', 'requestHeader', index)}
           />
-        )
+        ),
       },
       {
         title: () => (
           <span className="b-button" onClick={addListItem('requestHeader')}>
-            <PlusOutlined/> {t('httpapi.form.params.link.add')}
+            <PlusOutlined /> {t('httpapi.form.params.link.add')}
           </span>
         ),
         width: 80,
@@ -824,11 +854,11 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             onConfirm={deleteListItem('requestHeader', index)}
           >
             <span className="g-button">
-              <MinusCircleOutlined/>
+              <MinusCircleOutlined />
             </span>
           </Popconfirm>
-        )
-      }
+        ),
+      },
     ];
 
     return (
@@ -838,7 +868,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         dataSource={[].concat(configData.requestHeader as [])}
         pagination={false}
         scroll={{
-          y: 320
+          y: 320,
         }}
       />
     );
@@ -860,7 +890,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('code', 'requestBody', index)}
           />
-        )
+        ),
       },
       {
         title: t('httpapi.form.params.column.desc'),
@@ -872,7 +902,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('name', 'requestBody', index)}
           />
-        )
+        ),
       },
       {
         title: t('httpapi.form.params.column.value'),
@@ -884,17 +914,17 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             placeholder={t('common.input.placeholder')}
             onChange={changeListItem('value', 'requestBody', index)}
           />
-        )
+        ),
       },
       {
         title: () => (
           <span
             className={cls('b-button', {
-              disabled: hasBodyTemplate
+              disabled: hasBodyTemplate,
             })}
             onClick={addListItem('requestBody')}
           >
-            <PlusOutlined/> {t('httpapi.form.params.link.add')}
+            <PlusOutlined /> {t('httpapi.form.params.link.add')}
           </span>
         ),
         width: 80,
@@ -909,14 +939,14 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
           >
             <span
               className={cls('g-button', {
-                disabled: hasBodyTemplate
+                disabled: hasBodyTemplate,
               })}
             >
-              <MinusCircleOutlined/>
+              <MinusCircleOutlined />
             </span>
           </Popconfirm>
-        )
-      }
+        ),
+      },
     ];
 
     return (
@@ -926,7 +956,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         dataSource={[].concat(configData.requestBody as [])}
         pagination={false}
         scroll={{
-          y: 320
+          y: 320,
         }}
       />
     );
@@ -936,7 +966,7 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     return (
       <Input.TextArea
         value={bodyTemplate}
-        style={{height: 188}}
+        style={{ height: 188 }}
         placeholder={t('common.input.placeholder')}
         onChange={(event) => {
           setBodyTemplate(event.target.value);
@@ -948,14 +978,14 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
   const renderScriptData = (type: 'prev' | 'post') => {
     return (
       <Input.TextArea
-        style={{height: 188}}
+        style={{ height: 188 }}
         value={scriptData[type]}
         placeholder={t('common.input.placeholder')}
         onChange={(event) => {
           scriptData[type] = event.target.value;
           setScriptData({
-            ...scriptData
-          })
+            ...scriptData,
+          });
         }}
       />
     );
@@ -965,8 +995,8 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     return (
       <Form
         {...{
-          labelCol: {span: 6},
-          wrapperCol: {span: 12}
+          labelCol: { span: 6 },
+          wrapperCol: { span: 12 },
         }}
         size="small"
         form={authForm}
@@ -975,9 +1005,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         <Form.Item
           name="authType"
           label={t('httpapi.form.select.auth_type.label')}
-          rules={[{required: true}]}
+          rules={[{ required: true }]}
         >
-          <Select placeholder={t('common.select.placeholder')} options={AUTH_OPTIONS}/>
+          <Select
+            placeholder={t('common.select.placeholder')}
+            options={AUTH_OPTIONS}
+          />
         </Form.Item>
         {formValues.authType === 'BASIC_AUTH' && (
           <>
@@ -987,11 +1020,13 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
               rules={[
                 {
                   required: true,
-                  message: t('httpapi.form.input.username.error_message')
-                }
+                  message: t('httpapi.form.input.username.error_message'),
+                },
               ]}
             >
-              <Input placeholder={t('httpapi.form.input.username.placeholder')}/>
+              <Input
+                placeholder={t('httpapi.form.input.username.placeholder')}
+              />
             </Form.Item>
             <Form.Item
               name="password"
@@ -999,11 +1034,13 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
               rules={[
                 {
                   required: true,
-                  message: t('httpapi.form.input.password.error_message')
-                }
+                  message: t('httpapi.form.input.password.error_message'),
+                },
               ]}
             >
-              <Input.Password placeholder={t('httpapi.form.input.password.placeholder')}/>
+              <Input.Password
+                placeholder={t('httpapi.form.input.password.placeholder')}
+              />
             </Form.Item>
           </>
         )}
@@ -1015,11 +1052,11 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
               rules={[
                 {
                   required: true,
-                  message: t('httpapi.form.input.token.error_message')
-                }
+                  message: t('httpapi.form.input.token.error_message'),
+                },
               ]}
             >
-              <Input placeholder={t('httpapi.form.input.token.placeholder')}/>
+              <Input placeholder={t('httpapi.form.input.token.placeholder')} />
             </Form.Item>
           </>
         )}
@@ -1033,40 +1070,43 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         size="small"
         activeKey={requestTabKey}
         onChange={handleTabChange}
-        items={_.map([
-          'query_params',
-          // 'auth',
-          'headers',
-          'body',
-          'body_template',
-          'pre_script',
-          'post_script'
-        ], (key, index) => {
-          let children;
+        items={_.map(
+          [
+            'query_params',
+            // 'auth',
+            'headers',
+            'body',
+            'body_template',
+            'pre_script',
+            'post_script',
+          ],
+          (key, index) => {
+            let children;
 
-          if (key === 'query_params') {
-            children = renderRequestParams;
-          } else if (key === 'auth') {
-            children = renderAuthForm();
-          } else if (key === 'headers') {
-            children = renderRequestHeaders;
-          } else if (key === 'body') {
-            children = renderRequestBody;
-          } else if (key === 'body_template') {
-            children = renderRequestBodyTemplate;
-          } else if (key === 'pre_script') {
-            children = renderScriptData('prev');
-          } else if (key === 'post_script') {
-            children = renderScriptData('post');
-          }
+            if (key === 'query_params') {
+              children = renderRequestParams;
+            } else if (key === 'auth') {
+              children = renderAuthForm();
+            } else if (key === 'headers') {
+              children = renderRequestHeaders;
+            } else if (key === 'body') {
+              children = renderRequestBody;
+            } else if (key === 'body_template') {
+              children = renderRequestBodyTemplate;
+            } else if (key === 'pre_script') {
+              children = renderScriptData('prev');
+            } else if (key === 'post_script') {
+              children = renderScriptData('post');
+            }
 
-          return {
-            key: `${index + 1}`,
-            label: t(`httpapi.form.params.${key}`),
-            forceRender: key === 'auth',
-            children
-          }
-        })}
+            return {
+              key: `${index + 1}`,
+              label: t(`httpapi.form.params.${key}`),
+              forceRender: key === 'auth',
+              children,
+            };
+          },
+        )}
       />
     );
   };
@@ -1079,12 +1119,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
             dataSource={[
               {
                 value: '1',
-                label: t('httpapi.form.response.raw')
+                label: t('httpapi.form.response.raw'),
               },
               {
                 value: '2',
-                label: t('httpapi.form.response.pretty')
-              }
+                label: t('httpapi.form.response.pretty'),
+              },
             ]}
             value={responseViewType}
             onChange={(value: string) => setResponseViewType(value)}
@@ -1093,7 +1133,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
         <div className={styles.originalJson}>
           {responseViewType === '2' ? (
             // @ts-ignore
-            <ReactJson name={false} src={responseData.body} displayDataTypes={false} iconStyle="square"  />
+            <ReactJson
+              name={false}
+              src={responseData.body}
+              displayDataTypes={false}
+              iconStyle="square"
+            />
           ) : (
             JSON.stringify(responseData.body, null, '\t')
           )}
@@ -1106,23 +1151,23 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     const columns = [
       {
         title: t('httpapi.form.response.key'),
-        dataIndex: 'field'
+        dataIndex: 'field',
       },
       {
         title: t('httpapi.form.response.value'),
-        dataIndex: 'data'
-      }
+        dataIndex: 'data',
+      },
     ];
 
     return (
-      <div style={{height: 274}}>
+      <div style={{ height: 274 }}>
         <Table
           size="small"
           columns={columns}
           dataSource={[{}]}
           pagination={false}
           scroll={{
-            y: 238
+            y: 238,
           }}
         />
       </div>
@@ -1158,15 +1203,17 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     return (
       <div
         className={cls(styles.configContainer, {
-          [styles.visible]: formConfig.requestVisible
+          [styles.visible]: formConfig.requestVisible,
         })}
       >
         <Divider plain orientation="left">
           <span
             className="g-button"
-            onClick={() => (formConfig.requestVisible = !formConfig.requestVisible)}
+            onClick={() =>
+              (formConfig.requestVisible = !formConfig.requestVisible)
+            }
           >
-            {formConfig.requestVisible ? <DownOutlined/> : <RightOutlined/>}{' '}
+            {formConfig.requestVisible ? <DownOutlined /> : <RightOutlined />}{' '}
             {t('httpapi.form.params.title')}
           </span>
         </Divider>
@@ -1179,15 +1226,17 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
     return (
       <div
         className={cls(styles.configContainer, {
-          [styles.visible]: formConfig.responseVisible
+          [styles.visible]: formConfig.responseVisible,
         })}
       >
         <Divider plain orientation="left">
           <span
             className="g-button"
-            onClick={() => (formConfig.responseVisible = !formConfig.responseVisible)}
+            onClick={() =>
+              (formConfig.responseVisible = !formConfig.responseVisible)
+            }
           >
-            {formConfig.responseVisible ? <DownOutlined/> : <RightOutlined/>}{' '}
+            {formConfig.responseVisible ? <DownOutlined /> : <RightOutlined />}{' '}
             {t('httpapi.form.response.title')}
           </span>
         </Divider>
@@ -1201,12 +1250,12 @@ const HttpApiModal: React.FC<NiceModalProps> = () => {
       width={740}
       destroyOnClose
       title={t(`httpapi.form.${modalType}.title`)}
-      style={{top: 20}}
+      style={{ top: 20 }}
       visible={visible}
       okButtonProps={{
         loading: saveHttpApiRequest.loading,
         // disabled: !responseData.testResult,
-        onClick: handleFormSubmit
+        onClick: handleFormSubmit,
       }}
       onCancel={modal.hide}
     >

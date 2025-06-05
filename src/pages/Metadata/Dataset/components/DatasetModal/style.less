@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 
 @base-form-height: 70px;
 @main-content-height: 578px;
@@ -25,8 +27,10 @@
 @filter-form-height: 80px;
 @right-content-width: 1120px - @left-content-width;
 @config-content-height: 324px;
-@config-editor-width: 590px;
+@config-editor-width: 470px;
 @other-config-width: @right-content-width - @config-editor-width;
+@collapsed-other-config-width: 32px;
+@collapsed-config-editor-width: @right-content-width - @collapsed-other-config-width;
 @code-height: 276px;
 @preview-header-height: 28px;
 
@@ -157,9 +161,36 @@
 
       @header-height: 48px;
 
+      &.collapsed {
+        .configEditor {
+          width: @collapsed-config-editor-width;
+        }
+        .otherConfig {
+          width: @collapsed-other-config-width;
+
+          .paramsLabel {
+            color: #666;
+            width: @config-content-height;
+            cursor: pointer;
+            transform: rotate(90deg);
+            transform-origin: 7px 20px;
+
+            .label {
+              padding-left: 8px;
+            }
+
+            &:hover {
+              color: @primary-color
+            }
+          }
+        }
+      }
+
       .configEditor {
-        width: @config-editor-width;
+        // width: @config-editor-width;
+        flex: 1;
         height: 100%;
+        min-width: 1px;
         border-right: 1px solid @border-color-split;
 
         .header {
@@ -175,9 +206,8 @@
           height: calc(100% - @header-height);
 
           :global {
-            .CodeMirror-gutters {
-              background-color: transparent;
-              border-right: 0;
+            .AceCodeEditor {
+              border: 0;
             }
           }
         }

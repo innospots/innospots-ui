@@ -1,0 +1,210 @@
+
+@import '../../../var';
+@import '../../../../../assets/less/variables.less';
+
+.wrapper {
+  height: 100%;
+
+  &:global(.node-editor-content) {
+    .content {
+      
+      .inner {
+        width: 480px;
+        margin: 12px auto;
+        border-radius: 20px;
+        min-height: calc(100% - 24px);
+      }
+
+      .placeholder {
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+:global {
+  #AppEditContentInner {
+    margin: 0 auto;
+
+    &.desktop {
+      width: 1268px;
+    }
+
+    &.tablet {
+      width: 1024px;
+    }
+
+    &.mobile {
+      width: 640px;
+    }
+  }
+}
+
+.content {
+  //padding: 14px;
+  position: relative;
+  height: calc(100% - @top-bar-height);
+
+  .inner {
+    min-height: 100%;
+    position: relative;
+    background-color: #f6fafd;
+
+    &.empty {
+      width: 100%;
+      z-index: 100;
+
+      &:global {
+        > .react-grid-layout {
+          height: 400px !important;
+        }
+      }
+    }
+
+    .widgetWrapper {
+
+      &:global {
+        &.react-grid-item {
+          & > .react-resizable-handle {
+            z-index: 100;
+            width: 18px;
+            height: 6px;
+            visibility: hidden;
+            border-radius: 3px;
+            background: #fff;
+            border: 2px solid @primary-color;
+
+            &:after {
+              border: 0;
+            }
+
+            &.react-resizable-handle-n {
+              top: -2px;
+            }
+
+            &.react-resizable-handle-s {
+              bottom: -2px;
+            }
+
+            &.react-resizable-handle-s,
+            &.react-resizable-handle-n {
+              transform: rotate(0);
+            }
+
+            &.react-resizable-handle-w,
+            &.react-resizable-handle-e {
+              transform: rotate(90deg);
+            }
+
+            &.react-resizable-handle-w {
+              left: -8px;
+            }
+
+            &.react-resizable-handle-e {
+              right: -8px;
+            }
+          }
+        }
+      }
+
+      &.isHover,
+      &.resizing,
+      &.isActive {
+        &:after {
+          inset: -2px;
+          content: ' ';
+          pointer-events: none;
+          border-radius: 4px;
+          position: absolute;
+          display: inline-block;
+          border-width: 2px;
+          border-color: @primary-color;
+        }
+      }
+
+      &.isHover,
+      &.resizing,
+      &.isActive {
+        &:after {
+          inset: 0;
+        }
+      }
+
+      &.isHover,
+      &.resizing {
+        &:after {
+          border-style: dashed;
+        }
+        &:global {
+          &.react-grid-item {
+            z-index: 101;
+          }
+        }
+      }
+
+      &.isActive {
+        &:after {
+          border-style: solid;
+        }
+        &:global {
+          &.react-grid-item {
+            z-index: 100;
+          }
+        }
+      }
+
+      &.isHover,
+      &.resizing,
+      &.isActive {
+
+        &:global {
+          &.react-grid-item {
+            & > .react-resizable-handle {
+              visibility: visible;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inset: 0;
+    z-index: 101;
+    position: absolute;
+    pointer-events: none;
+
+    span {
+      color: #d4d4d8;
+      font-size: 24px;
+      font-weight: 650;
+    }
+  }
+}
+
+.platform,
+.toolbar {
+  display: flex;
+  align-items: center;
+
+  .toolbarItem {
+    color: #5a5a5a;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 4px;
+
+    .hover();
+    .active();
+    .disabled();
+  }
+}
+
+.platform {
+
+}

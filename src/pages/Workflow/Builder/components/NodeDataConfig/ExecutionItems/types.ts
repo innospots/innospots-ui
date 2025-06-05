@@ -18,12 +18,15 @@
 
 export type ExecutionItemProps = {
     executeData: {
-        inputs: any;
-        outputs: any;
-        data?: any;
-        message?: string;
-        logs?: {
-            [key: string]: string | number;
-        };
+      inputs: any;
+      outputs: any;
+      data?: any;
+      message?: string;
+      logs?: {
+          [key: string]: string | number;
+      };
+      schemaFields: any[]
+      originFields: any[]
+      outputFields: any[]
     };
 };

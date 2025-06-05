@@ -19,7 +19,6 @@
 import React, { useEffect } from 'react';
 
 import { Button, message, Popconfirm, Space, Switch } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 
 import { useModel } from 'umi';
 
@@ -33,6 +32,7 @@ import PageLoading from '@/components/PageLoading';
 import PermissionSection, { usePermission } from '@/components/PermissionSection';
 import IconButton from '@/components/IconButton';
 import { KeyValues } from '@/common/types/Types';
+import PageHelmet from '@/components/PageHelmet';
 
 import styles from './style.less';
 
@@ -182,6 +182,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('notification.channel.title')} />
       {renderPageHeader()}
       {renderDataContent()}
       {renderChannelModal()}

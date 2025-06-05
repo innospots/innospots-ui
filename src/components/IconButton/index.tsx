@@ -87,7 +87,7 @@ const IconButton: React.FC<IconButtonProps> = (props) => {
   const renderPopConfirm = () => {
     return (
       // @ts-ignore
-      <Popconfirm {...popConfirm}>{rootNode}</Popconfirm>
+      <Popconfirm placement="bottom" {...popConfirm}>{rootNode}</Popconfirm>
     );
   };
 

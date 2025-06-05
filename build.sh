@@ -1,4 +1,7 @@
-mvn clean
-yarn
-yarn run build
-mvn install
+#!/usr/bin/env bash
+
+npm run bootstrap
+
+npm run build
+
+mvn -DskipTests=true clean install

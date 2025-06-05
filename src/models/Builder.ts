@@ -16,106 +16,214 @@
  *  limitations under the License.
  */
 
-import { useState } from 'react';
-import * as Service from '@/services/Builder';
-import { useRequest, useReactive } from 'ahooks';
+import {useState} from 'react';
 import _ from 'lodash';
+import {useRequest, useReactive} from 'ahooks';
+
+import * as Service from '@/services/Builder';
+
+import LS from '@/common/utils/LocalStorage';
+
+const getStreamData = (streamData: any) => {
+  const result: any = {};
+
+  if (streamData.id && streamData.data) {
+    const data = JSON.parse(streamData.data);
+    switch (streamData.event) {
+      case 'log':
+        result.log = {
+          id: streamData.id,
+          ...data,
+        };
+        break
+
+      case 'message':
+        result.message = data;
+        break
+
+      case 'response':
+        result.response = data;
+        break
+    }
+  }
+  return result;
+};
+
+const getExecuteMessageData = (streamData: any, currentData: any) => {
+  const { log, message, response } = getStreamData(streamData);
+  if (log) {
+    if (!currentData.logs) {
+      currentData.logs = [];
+    }
+    currentData.logs = [
+      ...currentData.logs,
+      {
+        ...log,
+      }
+    ];
+  }
+
+  if (response) {
+    currentData.response = response;
+  }
+
+  if (message) {
+    if (!currentData.messages) {
+      currentData.messages = [];
+    }
+    if (message.viewType === 'slice') {
+      const index = _.findIndex(currentData.messages, (item: any) => item.viewId === message.viewId);
+      if (index > -1) {
+        const curItem = currentData.messages[index];
+        curItem.data += message.data;
+      } else {
+        currentData.messages.push(message);
+      }
+    } else {
+      currentData.messages.push(message);
+    }
+    currentData.messages = [
+      ...currentData.messages,
+    ]
+  }
+
+  return currentData;
+};
 
 export default () => {
-    const flowData = useReactive({
-        flowTemplate: null,
-        httpApiList: [],
-        webhookList: [],
-    });
+  const flowData = useReactive({
+    flowTemplate: null,
+    httpApiList: [],
+    webhookList: []
+  });
 
-    const [executeLoading, setExecuteLoading] = useState(false);
-    const [nodeExecutions, setNodeExecutions] = useState({});
+  const [workflowType, setWorkflowType] = useState<string>('');
+  const [executeLoading, setExecuteLoading] = useState(false);
+  const [executeFlowLoading, setExecuteFlowLoading] = useState(false);
+  const [nodeExecutions, setNodeExecutions] = useState({});
+  const [executionPageData, setExecutionPageData] = useState({
+    page: 1,
+    size: LS.get('EXEC_PAGE_SIZE') || 20
+  })
 
-    const publishBuilderRequest = useRequest(Service.publishWorkFlowBuilder, {
-        manual: true,
-    });
+  const [workflowExecStreamData, setWorkflowExecStreamData] = useState({});
 
-    const saveBuilderDraftRequest = useRequest(Service.saveWorkflowBuilderDraft, {
-        manual: true,
-    });
+  const publishBuilderRequest = useRequest(Service.publishWorkFlowBuilder, {
+    manual: true
+  });
 
-    const executeBuilderRequest = useRequest(Service.executeWorkflowBuilder, {
-        manual: true,
-    });
+  const saveBuilderDraftRequest = useRequest(Service.saveWorkflowBuilderDraft, {
+    manual: true
+  });
 
-    const nodeExecutionRequest = useRequest(Service.nodeExecution, {
-        manual: true,
-        onSuccess: (result, [id]) => {
-            nodeExecutions[id] = result;
-            setNodeExecutions({
-                ...nodeExecutions,
-            });
-        },
-    });
+  const executeBuilderRequest = useRequest(Service.executeWorkflowBuilder, {
+    manual: true
+  });
 
-    const updateTemplateStatus = useRequest(Service.updateTemplateStatus, {
-        manual: true,
-    });
+  const nodeExecutionRequest = useRequest(Service.nodeExecution, {
+    manual: true,
+    onSuccess: (result, [type, id]) => {
+      if (result) {
+        setNodeExecutions({
+          ...nodeExecutions,
+          [id]: result
+        });
+      }
+    }
+  });
 
-    const executeBuilderNodeRequest = useRequest(Service.executeBuilderNode, {
-        manual: true,
-    });
+  const updateTemplateStatus = useRequest(Service.updateTemplateStatus, {
+    manual: true
+  });
 
-    const executeWorkflowInstanceRequest = useRequest(Service.executeWorkflowInstance, {
-        manual: true,
-    });
+  const executeBuilderNodeRequest = useRequest(Service.executeBuilderNode, {
+    manual: true
+  });
 
-    const saveWebhook = useRequest(Service.saveWebhook, {
-        manual: true,
-        onSuccess: (resData, params) => {
-            if (resData) {
-                const [, type] = params;
-                if (type === 'update') {
-                    const index = _.findIndex(
-                        flowData.webhookList,
-                        (item: any) => item.flowApiId === resData.flowApiId,
-                    );
-                    if (index > -1) {
-                        // @ts-ignore
-                        flowData.webhookList[index] = resData;
-                    }
-                } else {
-                    // @ts-ignore
-                    flowData.webhookList.push(resData);
-                }
-            }
-        },
-    });
+  const executeWorkflowInstanceRequest = useRequest(Service.executeWorkflowInstance, {
+    manual: true
+  });
 
-    const getWebhookList = useRequest<any, any[]>(Service.fetchWebhooks, {
-        manual: true,
-        cacheKey: 'WebhookList',
-        onSuccess: (result) => {
-            flowData.webhookList = result;
-        },
-    });
+  const saveWebhook = useRequest(Service.saveWebhook, {
+    manual: true,
+    onSuccess: (resData, params) => {
+      if (resData) {
+        const [, type] = params;
+        if (type === 'update') {
+          const index = _.findIndex(
+            flowData.webhookList,
+            (item: any) => item.flowApiId === resData.flowApiId
+          );
+          if (index > -1) {
+            // @ts-ignore
+            flowData.webhookList[index] = resData;
+          }
+        } else {
+          // @ts-ignore
+          flowData.webhookList.push(resData);
+        }
+      }
+    }
+  });
 
-    const getWebhookDetail = useRequest(Service.getWebhookDetail, {
-        manual: true,
-    });
+  const getWebhookList = useRequest<any, any[]>(Service.fetchWebhooks, {
+    manual: true,
+    cacheKey: 'WebhookList',
+    onSuccess: (result) => {
+      flowData.webhookList = result;
+    }
+  });
 
-    return {
-        flowData,
-        nodeExecutions,
+  const getWebhookDetail = useRequest(Service.getWebhookDetail, {
+    manual: true
+  });
 
-        executeLoading,
-        setExecuteLoading,
+  const updateFlowStreamData = (key: string, streamData: any) => {
+    const currentData = workflowExecStreamData[key] = workflowExecStreamData[key] || {};
+    try {
+      const data = getExecuteMessageData(streamData, currentData);
+      setWorkflowExecStreamData({
+        ...workflowExecStreamData,
+        [key]: data
+      });
+    } finally {}
+  };
 
-        saveWebhook,
-        getWebhookList,
-        getWebhookDetail,
+  const fetchWorkflowBuilderRequest = useRequest(Service.fetchWorkflowBuilder, {
+    manual: true,
+  });
 
-        updateTemplateStatus,
-        nodeExecutionRequest,
-        executeBuilderRequest,
-        publishBuilderRequest,
-        saveBuilderDraftRequest,
-        executeBuilderNodeRequest,
-        executeWorkflowInstanceRequest,
-    };
+  return {
+    flowData,
+    nodeExecutions,
+    setNodeExecutions,
+
+    executeLoading,
+    setExecuteLoading,
+
+    executeFlowLoading,
+    setExecuteFlowLoading,
+
+    workflowType,
+    setWorkflowType,
+
+    saveWebhook,
+    getWebhookList,
+    getWebhookDetail,
+
+    executionPageData,
+    setExecutionPageData,
+
+    workflowExecStreamData,
+    updateFlowStreamData,
+
+    updateTemplateStatus,
+    nodeExecutionRequest,
+    executeBuilderRequest,
+    publishBuilderRequest,
+    saveBuilderDraftRequest,
+    executeBuilderNodeRequest,
+    executeWorkflowInstanceRequest,
+    fetchWorkflowBuilderRequest
+  };
 };

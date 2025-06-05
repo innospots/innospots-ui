@@ -1,0 +1,30 @@
+@import './vars.less';
+
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: @page-background-color;
+  position: relative;
+}
+
+.pageContent {
+  flex: 1;
+  height: 100%;
+  min-width: 1px;
+  position: relative;
+
+  .pageContentInner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.content {
+  flex: 1;
+  min-height: 1px;
+  padding: @content-padding;
+  padding-top: @header-height + 6px;
+  padding-bottom: 0;
+}

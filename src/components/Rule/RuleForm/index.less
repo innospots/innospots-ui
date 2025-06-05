@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
-@import '~antd/lib/style/themes/default.less';
+/*
+ @import '~antd/lib/style/themes/default.less';
+ */
 
 .formWrapper {
     position: relative;
@@ -24,6 +26,12 @@
     align-items: center;
     padding: 12px 0;
     //margin-left: 56px;
+
+    .emptyText {
+      color: #999;
+      margin: 0 0 0 4px;
+      display: inline-block;
+    }
 
     .identifier {
         position: absolute;
@@ -92,7 +100,7 @@
             position: relative;
             flex: 1 1 auto;
             align-items: center;
-            width: 618px;
+            min-width: 630px;
             border-radius: @border-radius-base;
 
             .inner {

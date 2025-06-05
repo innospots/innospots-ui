@@ -16,8 +16,14 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
-@import '~antd/es/input/style/mixin.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
+/*
+ @import '~antd/es/input/style/mixin.less';
+ */
+
+ @import '@/assets/less/variables.less';
 
 .selector {
   position: relative;
@@ -33,11 +39,11 @@
   }
 
   &.focused {
-    .active();
+    .input-active();
   }
 
   &:hover {
-    .hover();
+    .input-hover();
   }
 
   &.selected {

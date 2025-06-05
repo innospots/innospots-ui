@@ -31,18 +31,18 @@ import WorkspaceInfo from './WorkspaceInfo';
 import StrategyDetail from './StrategyDetail';
 
 export const componentContent = {
-  userLoginLog: UserLoginLog,
-  systemInfo: SystemInfo,
-  newDynamic: NewDynamic,
-  newMessage: NewMessage,
-  newActivity: NewActivity,
-  machineInfo: MachineInfo,
-  planPreview: PlanPreview,
-  changeRecord: ChangeRecord,
-  kafakaPreview: KafakaPreview,
-  webhookPreview: WebhookPreview,
-  workspaceInfo: WorkspaceInfo,
-  // strategyDetail: StrategyDetail,
+  UserLoginLog,
+  SystemInfo,
+  NewDynamic,
+  NewMessage,
+  NewActivity,
+  MachineInfo,
+  PlanPreview,
+  ChangeRecord,
+  KafakaPreview,
+  WebhookPreview,
+  WorkspaceInfo,
+  StrategyDetail
 };
 
 /**

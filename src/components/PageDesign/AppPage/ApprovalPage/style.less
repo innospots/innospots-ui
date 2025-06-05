@@ -1,0 +1,28 @@
+/* @import '~antd/es/style/themes/index.less'; */
+
+@header-height: 64px;
+
+.content {
+  width: 1280px;
+  margin: 0 auto;
+  margin-top: @header-height + 32px;
+}
+
+.header {
+  top: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  z-index: 1000;
+  height: @header-height;
+  box-shadow: 0 1px 4px 0 #0015291e;
+  display: flex;
+  align-items: center;
+
+  .backIcon {
+    width: @header-height - 10;
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+  }
+}

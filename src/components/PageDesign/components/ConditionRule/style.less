@@ -1,0 +1,147 @@
+/* @import '~antd/es/style/themes/index.less'; */
+@import '../../var';
+
+.empty {
+  color: #c8c8c8;
+  padding-top: 24px;
+  text-align: center;
+}
+
+.ruleFormItem {
+  margin-top: -30px;
+}
+
+.container {
+
+  .content {
+    padding: 12px 12px 0;
+  }
+
+  .empty {
+    color: #666;
+  }
+
+  .addedList {
+    padding: 12px 0 6px;
+
+    .addedListItem {
+      height: 38px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      border: 1px solid @border-color;
+      border-radius: 10px;
+      margin-bottom: 8px;
+
+      .label {
+        padding: 0 6px;
+      }
+    }
+  }
+}
+
+.settings {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1002;
+  height: 370px;
+  position: absolute;
+  background-color: #fff;
+
+  .header {
+    width: 100%;
+    height: 48px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid @border-color;
+    border-bottom: 1px solid @border-color;
+
+    .title {
+      font-size: 16px;
+      font-weight: 650;
+    }
+  }
+
+  .content {
+    display: flex;
+    height: calc(100% - 48px);
+
+    .settingPanel {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+.panels {
+  height: 100%;
+  display: flex;
+
+  .panelTop {
+    padding: 12px 18px;
+  }
+
+  .listBox {
+    width: 280px;
+    padding: 12px 0;
+    border-right: 1px solid @border-color;
+  }
+
+  .listBox {
+
+    .ruleList {
+      height: 250px;
+      padding: 6px 18px;
+
+      .ruleListItem {
+        height: 38px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        position: relative;
+        cursor: pointer;
+        margin-bottom: 8px;
+        background-color: #f6fafd;
+
+        &.active {
+          font-weight: 500;
+          background-color: #dee9f1;
+        }
+
+        &:hover {
+          background-color: #dee9f1;
+        }
+      }
+    }
+  }
+
+  .addedList {
+    flex: 1;
+    min-width: 0;
+    padding: 40px;
+    overflow: auto;
+
+    .addedListItem {
+      margin: 6px 0;
+
+      .title {
+        line-height: 34px;
+      }
+    }
+  }
+}
+
+.background {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  position: fixed;
+  background-color: rgba(255,255,255,.1);
+}

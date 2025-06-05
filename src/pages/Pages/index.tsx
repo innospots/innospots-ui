@@ -17,13 +17,9 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-
-import { useModel } from 'umi';
-
+import { useModel, history, useSearchParams } from 'umi';
 import { useSetState } from 'ahooks';
-
 import _ from 'lodash';
-import { useHistory } from 'react-router';
 import { Row, Col, message, TableColumnsType } from 'antd';
 import { RedoOutlined, PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
 
@@ -47,10 +43,13 @@ const DEFAULT_PAGE_DATA = {
   size: 20,
 };
 
-const Page: React.FC<any> = ({ location }) => {
-  const history = useHistory();
-
+const Page: React.FC<any> = () => {
   const { t, loading } = useI18n(['page', 'common']);
+  const [searchParams] = useSearchParams();
+
+  const query = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
 
   const categoryPermissions = useMemo(
     () => ({
@@ -70,7 +69,16 @@ const Page: React.FC<any> = ({ location }) => {
     pageRecycleRequest,
     updateStatusRequest,
     deleteCategoryRequest,
-  } = useModel('Page');
+  } = useModel('Page', model => ({
+    pageData: model.pageData,
+    categories: model.categories,
+    pagesRequest: model.pagesRequest,
+    categoryRequest: model.categoryRequest,
+    deletePageRequest: model.deletePageRequest,
+    pageRecycleRequest: model.pageRecycleRequest,
+    updateStatusRequest: model.updateStatusRequest,
+    deleteCategoryRequest: model.deleteCategoryRequest,
+  }));
 
   const [categoryCollapsed, setCategoryCollapsed] = useState(false);
 
@@ -88,7 +96,7 @@ const Page: React.FC<any> = ({ location }) => {
     category: curCategoryId = 0
   } = {
     ...DEFAULT_PAGE_DATA,
-    ...location.query
+    ...query
   };
 
   useEffect(() => {
@@ -104,17 +112,16 @@ const Page: React.FC<any> = ({ location }) => {
     })
   }, [ curPage, curSize, queryCode ]);
 
-
-  useEffect(() => {
-    getPageList();
-  }, [curCategoryId, queryData]);
-
   const getPageList = () => {
     pagesRequest.run({
       ...queryData,
       categoryId: curCategoryId,
     });
   };
+
+  useEffect(() => {
+    getPageList();
+  }, [curCategoryId, queryData]);
 
   const deletePage = async (id: number) => {
     const result = await deletePageRequest.runAsync(id);

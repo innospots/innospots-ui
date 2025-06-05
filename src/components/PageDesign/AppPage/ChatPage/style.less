@@ -1,0 +1,101 @@
+/* @import '~antd/es/style/themes/index.less';*/
+
+.chats {
+  // width: 96%;
+  height: 100%;
+  min-width: 760px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+
+  :global {
+    .@{ant-prefix} {
+      &-tabs {
+        height: 100%;
+        &-tabpane {
+          height: 100%;
+        }
+        &-content {
+          height: calc(100% - 8px);
+        }
+      }
+
+      // &-tabs-content-holder {
+      //   flex: none;
+      //   height: calc(100% - 62px);
+      // }
+    }
+  }
+
+  .chatContainer {
+    flex: 1;
+    min-height: 0;
+
+    &.showNewButton {
+      padding-bottom: 40px;
+
+      .newChat {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+      }
+    }
+  }
+
+  .content {
+    height: 100%;
+  }
+
+  .form {
+    padding: 4px;
+    border-radius: 10px;
+    background-color: #fff;
+    position: relative;
+    min-height: 44px;
+    border: 1px solid #f0f3fb;
+
+    .controls {
+      padding: 8px;
+      right: 0;
+      bottom: 0;
+      position: absolute;
+
+      &.loading {
+        padding: 0 8px 1px 0;
+
+        .sendButton {
+          display: none;
+        }
+
+        .stopButton {
+          display: block;
+        }
+      }
+
+      .stopButton {
+        width: 28px;
+        color: @primary-color;
+        display: none;
+        cursor: pointer;
+
+        &:hover {
+          color: @primary-color-hover;
+        }
+      }
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+
+    textarea::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    textarea:hover::-webkit-scrollbar-thumb {
+      background: #f0f3fb;
+      border-radius: 5px;
+    }
+  }
+}

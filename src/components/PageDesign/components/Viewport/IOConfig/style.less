@@ -1,0 +1,57 @@
+@import '../../../../../assets/less/variables.less';
+@import '../../../var';
+
+.dataInteraction {
+  padding: 24px;
+
+  .intro {
+    margin-top: 12px;
+    border-bottom: 1px solid @light-border-color;
+
+    .desc {
+      color: #595959;
+    }
+  }
+
+  .ioEditor {
+    margin-top: 20px;
+    overflow-x: hidden;
+    max-height: calc(100vh - 250px);
+  }
+
+  .configContainer {
+    &:first-child {
+      margin-bottom: 24px;
+      border-bottom: 1px solid @border-color;
+    }
+
+    .formList {
+      margin: 24px 0;
+
+      .formItem {
+        margin-bottom: 24px;
+      }
+
+      .formLabel,
+      .indexLabel {
+        text-align: right;
+      }
+
+      .indexLabel {
+        font-weight: bold;
+      }
+
+      .formLabel {
+        color: @text-color-secondary;
+      }
+    }
+  }
+
+  .titleWrap {
+    padding-left: 36px;
+
+    .title {
+      margin-bottom: 0;
+    }
+  }
+}

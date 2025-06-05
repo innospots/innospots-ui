@@ -27,6 +27,7 @@ import { useSetState, useMemoizedFn, useDeepCompareEffect } from 'ahooks';
 import { KeyValues } from '@/common/types/Types';
 import { DEFAULT_PAGINATION_SETTINGS } from '@/common/constants';
 
+import PageHelmet from '@/components/PageHelmet';
 import PageTitle from '@/components/PageTitle';
 import ListTable from '@/components/ListTable';
 import IconButton from '@/components/IconButton';
@@ -51,7 +52,12 @@ interface DataType {
 }
 
 const Index: React.FC = () => {
-  const { currencyData, deleteCurrencyRequest, fetchCurrencyDataRequest, saveCurrencyRequest } = useModel('Currency');
+  const { currencyData, deleteCurrencyRequest, fetchCurrencyDataRequest, saveCurrencyRequest } = useModel('Currency', model => ({
+    currencyData: model.currencyData,
+    saveCurrencyRequest: model.saveCurrencyRequest,
+    deleteCurrencyRequest: model.deleteCurrencyRequest,
+    fetchCurrencyDataRequest: model.fetchCurrencyDataRequest,
+  }));
 
   const [modal] = useModal(MODAL_NAME);
 
@@ -235,6 +241,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('currency.heading_title')} />
       {renderPageHeader()}
       {renderListTable()}
       {renderCurrencyModal()}

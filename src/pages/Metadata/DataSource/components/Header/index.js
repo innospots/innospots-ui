@@ -19,11 +19,13 @@
 import React, { useEffect } from 'react';
 import { history } from 'umi';
 
-import { Row, Col, Tabs, Form, PageHeader } from 'antd';
+import { PageHeader } from '@ant-design/pro-layout';
+
+import { Row, Col, Tabs, Form } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
 import useI18n from '@/common/hooks/useI18n';
-
+import PageHelmet from '@/components/PageHelmet';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
@@ -51,13 +53,14 @@ const Header = ({ dataSource, pageType, onTabChange }) => {
 
   return (
     <div className={styles.pageHeader}>
+      <PageHelmet title={t('datasource.metadata.tab.metadata')} />
       <PageHeader className="polaris-pro-fixed-header">
         <div className="polaris-pro-global-header">
           <Row justify="space-between">
             <Col>
               <Row>
                 <Col>
-                  <div className={styles.backIcon} onClick={() => history.goBack()}>
+                  <div className={styles.backIcon} onClick={() => history.back()}>
                     <ArrowLeftOutlined />
                   </div>
                 </Col>

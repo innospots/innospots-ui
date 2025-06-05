@@ -21,6 +21,5 @@ import _ from 'lodash';
 import * as CustomFormItems from './items';
 
 export const getItemByType = (type: string) => {
-    type = _.upperFirst(_.camelCase(type));
-    return CustomFormItems[type];
+  return CustomFormItems[_.upperFirst(_.camelCase(type))];
 };

@@ -16,13 +16,12 @@
  *  limitations under the License.
  */
 
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo, Suspense } from 'react';
 
 import { useModel } from 'umi';
 import _ from 'lodash';
 import cls from 'classnames';
 import { useRequest } from 'ahooks';
-import { format } from 'sql-formatter';
 
 import {
   Row,
@@ -40,27 +39,30 @@ import {
   message,
   Dropdown,
   Popconfirm,
+  TableColumnsType
 } from 'antd';
 import {
   UpOutlined,
-  PlusOutlined,
   DownOutlined,
-  EditOutlined,
   TableOutlined,
   SearchOutlined,
-  DeleteOutlined,
   DollarOutlined,
   FileDoneOutlined,
   CaretRightOutlined,
   NumberOutlined,
   CalendarOutlined,
+  FunctionOutlined,
+  RightCircleOutlined,
   FieldStringOutlined,
+  MinusCircleOutlined
 } from '@ant-design/icons';
 
 import { useReactive, useMemoizedFn, useDebounceFn, useUpdateEffect } from 'ahooks';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
+import {KeyValues} from '@/common/types/Types';
+import {ExpressionInput} from '@/components/Expression';
 
 import { fetchSchemaRegistryTopics } from '@/services/DataSource';
 
@@ -68,8 +70,15 @@ import NiceModal, { NiceModalProps } from '@/components/Nice/NiceModal';
 import VariableModal, { MODAL_NAME as VARIABLE_MODAL_NAME } from '../VariableModal';
 
 import styles from './style.less';
+import { datasetExecute } from '@/services/Dataset';
+import { randomString } from '@/common/utils';
 
-type Props = {} & NiceModalProps;
+// import AceCodeEditor from '@/components/AceCodeEditor'
+const AceCodeEditor = React.lazy(() => import('@/components/AceCodeEditor'))
+
+type Props = {
+  onSuccess: () => void
+} & NiceModalProps;
 
 const { TabPane } = Tabs;
 
@@ -83,14 +92,6 @@ const TYPE_ICONS = {
   CURRENCY: <DollarOutlined />,
   STRING: <FieldStringOutlined />,
 };
-
-let createTimer, changeTimer;
-
-const codeMirror = require('codemirror/lib/codemirror');
-
-require('codemirror/mode/sql/sql');
-require('codemirror/addon/hint/show-hint');
-require('codemirror/addon/hint/sql-hint');
 
 const FIELD_OPTIONS = [
   {
@@ -131,17 +132,16 @@ const FIELD_OPTIONS = [
 
 export const MODAL_NAME = 'DatasetModal';
 
-const DatasetModal: React.FC<Props> = ({}) => {
+const DatasetModal: React.FC<Props> = ({ onSuccess }) => {
   const editorRef = useRef<{
-    doc: any,
-    on: (type: string, handler: (any) => void) => void,
-    off: (type: string, handler: (any) => void) => void,
-    toTextArea: () => void,
+    beautifyCode: () => void,
   }>(null);
   const modalBody = useRef(null);
   const [formRes] = Form.useForm();
+  const [sqlCode, setSQLCode] = useState('');
   const [queryCode, setQueryCode] = useState('');
   const [dataCollapsed, setDataCollapsed] = useState(false);
+  const [paramsCollapsed, setParamsCollapsed] = useState(false);
   const formStatus = useReactive<{
     name: any;
     category: any;
@@ -187,7 +187,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
   const dataViewValues = useReactive({
     sql: '',
     model: {},
-    credentialId: -1,
+    credentialKey: '',
     pageSize: numberList[0],
   });
 
@@ -214,9 +214,9 @@ const DatasetModal: React.FC<Props> = ({}) => {
   const isUpdate = modalType === 'edit' && initValues;
 
   const filterCredentials = useMemo(() => {
-    return _.map(_.filter(credentials, item => item.connectType === 'JDBC'), item => ({
+    return _.map(_.filter(credentials, item => item.connectType !== 'JDBC'), item => ({
       label: item.name,
-      value: item.credentialId,
+      value: item.credentialKey,
     }))
   }, [ credentials ])
 
@@ -228,14 +228,14 @@ const DatasetModal: React.FC<Props> = ({}) => {
 
   useEffect(() => {
     if (!visible) {
+      setSQLCode('')
       setQueryCode('');
-      destroySQLEditor();
       dataViewValues.model = {};
     }
   }, [visible]);
 
   useUpdateEffect(() => {
-    if (dataViewValues.credentialId !== -1) {
+    if (dataViewValues.credentialKey !== "") {
       const params: {
         queryCode?: string;
       } = {};
@@ -244,23 +244,25 @@ const DatasetModal: React.FC<Props> = ({}) => {
         params.queryCode = queryCode;
       }
 
-      fetchTopics(dataViewValues.credentialId, params);
+      fetchTopics(dataViewValues.credentialKey, params);
     }
-  }, [dataViewValues.credentialId, queryCode]);
+  }, [dataViewValues.credentialKey, queryCode]);
 
   const setInitValues = () => {
     dataPreview.time = 0;
     dataPreview.columns = [];
     dataPreview.dataSource = [];
-    dataPreview.pageBody.pagination = {
-      total: 0,
+    dataPreview.pageBody = {
+      pagination: {
+        total: 0,
+      },
     };
     dataPreview.isExecute = false;
 
     if (isUpdate) {
       formRes.setFieldsValue(initValues);
-      dataViewValues.sql = initValues.script;
-      dataViewValues.credentialId = initValues.credentialId;
+      dataViewValues.sql = initValues.script.script;
+      dataViewValues.credentialKey = initValues.credentialKey;
       variableData.list = initValues.variables || [];
       try {
         dataViewValues.model = JSON.parse(initValues.model);
@@ -268,7 +270,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
     } else {
       dataViewValues.sql = '';
       dataViewValues.model = {};
-      dataViewValues.credentialId = -1;
+      dataViewValues.credentialKey = "";
 
       formRes.setFieldsValue({
         categoryId: selectedCategoryId,
@@ -277,79 +279,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
 
     dataViewValues.pageSize = numberList[0];
 
-    createCodeEditor(dataViewValues.sql);
-  };
-
-  const createCodeEditor = (value) => {
-    const _create = () => {
-      const queryTextarea = document.querySelector('#curCodeEditor');
-
-      if (!queryTextarea) return;
-
-      // @ts-ignore
-      queryTextarea.style.display = '';
-      // @ts-ignore
-      editorRef.current = codeMirror.fromTextArea(queryTextarea, {
-        mode: 'text/x-mysql',
-        theme: 'eclipse',
-        width: '100%',
-        height: '100%',
-        lineNumbers: true,
-        lineWrapping: true,
-        autoCloseBrackets: true,
-        matchBrackets: true,
-        foldGutter: true,
-        gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-        extraKeys: {
-          Ctrl: 'autocomplete',
-        },
-      });
-
-      if (editorRef.current) {
-        editorRef.current.on('change', handleSQLChange);
-        editorRef.current.on('keypress', handleEditorChange);
-      }
-
-      if (value) {
-        // @ts-ignore
-        editorRef.current.doc.setValue(value);
-      }
-    };
-
-    if (editorRef.current) {
-      editorRef.current.doc.setValue(value);
-    } else {
-      if (createTimer) {
-        clearTimeout(createTimer);
-        createTimer = null;
-      }
-
-      createTimer = setTimeout(_create, 500);
-    }
-  };
-
-  const destroySQLEditor = () => {
-    if (editorRef.current) {
-      editorRef.current.off('change', handleSQLChange);
-      editorRef.current.off('keypress', handleEditorChange);
-      editorRef.current.toTextArea();
-      // @ts-ignore
-      editorRef.current = null;
-      const queryTextarea = document.querySelector('#curCodeEditor');
-      // @ts-ignore
-      queryTextarea.style.display = 'none';
-    }
-  };
-
-  const handleEditorChange = (editor) => {
-    if (changeTimer) {
-      clearTimeout(changeTimer);
-      changeTimer = null;
-    }
-
-    changeTimer = setTimeout(() => {
-      editor.showHint();
-    }, 200);
+    setSQLCode(dataViewValues.sql);
   };
 
   const handleFormSubmit = () => {
@@ -369,7 +299,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
         let postData: {
           code?: string;
           name?: string;
-          type?: string;
+          registryType?: string;
         } = {};
 
         if (isUpdate) {
@@ -381,18 +311,19 @@ const DatasetModal: React.FC<Props> = ({}) => {
         postData = {
           ...postData,
           ...values,
-          script: editorRef.current?.doc.getValue(),
+          script: {script: sqlCode},
           variables: variableData.list,
-          credentialId: dataViewValues.credentialId,
-          model: JSON.stringify(dataViewValues.model),
+          credentialKey: dataViewValues.credentialKey,
+          configs: {model: JSON.stringify(dataViewValues.model)},
+          scope: "general"
         };
 
         if (!postData.code) {
-          postData.code = postData.name;
+          postData.code = randomString(6);
         }
 
-        if (!postData.type) {
-          postData.type = 'VIEW';
+        if (!postData.registryType) {
+          postData.registryType = 'DATASET';
         }
 
         saveDataViewData(postData);
@@ -400,10 +331,10 @@ const DatasetModal: React.FC<Props> = ({}) => {
     });
   };
 
-  const fetchTopics = async (credentialId: number, params: any) => {
+  const fetchTopics = async (credentialKey: number, params: any) => {
     try {
       dataSet.list = [];
-      const result = await schemaRegistryTopicsRequest.runAsync(credentialId, params);
+      const result = await schemaRegistryTopicsRequest.runAsync(credentialKey, params);
       // @ts-ignore
       dataSet.list = result;
     } catch (e) {}
@@ -415,6 +346,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
       if (result) {
         message.success(t('common.error_message.save.success'));
         modal.hide();
+        onSuccess();
       }
     } catch (e) {}
   };
@@ -428,8 +360,8 @@ const DatasetModal: React.FC<Props> = ({}) => {
     },
   );
 
-  const handleDataSourceChange = useMemoizedFn((credentialId: number) => {
-    dataViewValues.credentialId = credentialId;
+  const handleDataSourceChange = useMemoizedFn((credentialKey: number) => {
+    dataViewValues.credentialKey = credentialKey;
   });
 
   const handleTreeSelect = useMemoizedFn(
@@ -444,7 +376,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
       }
       const list = await fetchSchemaFieldsRequest.runAsync({
         tableName: code,
-        credentialId: dataViewValues.credentialId,
+        credentialKey: dataViewValues.credentialKey,
       });
       const curItem = _.find(dataSet.list, (item: any) => item.code === code);
 
@@ -463,20 +395,19 @@ const DatasetModal: React.FC<Props> = ({}) => {
 
   const handleSQLFormat = () => {
     if (editorRef.current) {
-      const formatSql = format(editorRef.current.doc.getValue());
-      editorRef.current.doc.setValue(formatSql);
+      editorRef.current.beautifyCode()
     }
   };
 
   const handleDataPreview = async () => {
-    if (dataViewValues.credentialId) {
+    if (dataViewValues.credentialKey) {
       let time = +new Date();
       const listData = await datasetExecuteRequest.runAsync({
-        script: dataViewValues.sql
+        script: sqlCode
       }, {
         page: 1,
         size: dataViewValues.pageSize,
-        credentialId: dataViewValues.credentialId,
+        credentialKey: dataViewValues.credentialKey,
       });
 
       dataPreview.isExecute = true;
@@ -519,13 +450,9 @@ const DatasetModal: React.FC<Props> = ({}) => {
     }
   };
 
-  const handleEditorDidMount = (editor: any) => {
-    // editRef.current = editor;
-  };
-
-  const handleSQLChange = _.debounce((editor: any) => {
-    dataViewValues.sql = editor.doc.getValue();
-  }, 200);
+  const handleSQLChange = (newValue: string) => {
+    setSQLCode(newValue)
+  }
 
   const handleVariableSuccess = useMemoizedFn((type, values) => {
     if (type === 'add') {
@@ -617,7 +544,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
     // }
 
     const datasourceValue =
-      dataViewValues.credentialId === -1 ? undefined : dataViewValues.credentialId;
+      dataViewValues.credentialKey === '' ? undefined : dataViewValues.credentialKey;
 
     return (
       <div className={styles.leftContent}>
@@ -627,7 +554,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
         <div className={styles.filterForms}>
           <Select
             size="small"
-            value={datasourceValue}
+            value={datasourceValue || ''}
             options={filterCredentials}
             placeholder={t('dataset.form.select.datasource.placeholder')}
             style={{ width: '100%', marginBottom: 8 }}
@@ -641,7 +568,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
           />
         </div>
         <div className={styles.treeList}>
-          {treeData?.length && dataViewValues.credentialId !== -1 ? (
+          {treeData?.length && dataViewValues.credentialKey !== -1 ? (
             <Tree
               showIcon
               treeData={treeData}
@@ -663,7 +590,7 @@ const DatasetModal: React.FC<Props> = ({}) => {
 
   const renderConfigEditor = () => {
     const runDisabled =
-      !dataViewValues.credentialId || dataViewValues.credentialId < 0 || !dataViewValues.sql;
+      !dataViewValues.credentialKey || dataViewValues.credentialKey == ''|| !sqlCode;
 
     return (
       <div className={styles.configEditor}>
@@ -712,75 +639,103 @@ const DatasetModal: React.FC<Props> = ({}) => {
           </div>
         </div>
         <div className={styles.editor}>
-          {/*<MonacoEditor*/}
-          {/*    theme="dqlTheme"*/}
-          {/*    language="dql"*/}
-          {/*    options={{*/}
-          {/*        lineDecorationsWidth: 1,*/}
-          {/*        selectOnLineNumbers: true*/}
-          {/*    }}*/}
-          {/*    value={dataViewValues.sql}*/}
-          {/*    onChange={handleSQLChange}*/}
-          {/*    editorWillMount={handleEditorWillMount}*/}
-          {/*    editorDidMount={handleEditorDidMount}*/}
-          {/*/>*/}
-          <textarea
-            style={{ display: 'none' }}
-            id="curCodeEditor"
-            placeholder={t('common.input.placeholder')}
-          />
+          <Suspense fallback={(<span />)}>
+            <AceCodeEditor
+              mode="sql"
+              ref={editorRef}
+              name="DatasetEditor"
+              value={sqlCode}
+              placeholder={t('common.input.placeholder')}
+              onChange={handleSQLChange}
+            />
+          </Suspense>
         </div>
       </div>
     );
   };
 
   const renderOtherConfig = () => {
+    const columns: TableColumnsType<KeyValues> = [
+      {
+        title: '字段',
+        dataIndex: 'code',
+        render: (code: string, record: any, index: number) => (
+          <Input
+            size="small"
+            value={code}
+            placeholder={t('common.input.placeholder')}
+          />
+        )
+      },
+      {
+        title: '默认值',
+        dataIndex: 'value',
+        render: (value, record: any, index: number) => (
+          <ExpressionInput size="small"/>
+        )
+      },
+      {
+        title: () => (
+          <span className="b-button">新增</span>
+        ),
+        width: 50,
+        align: 'center',
+        dataIndex: 'key',
+        render: (key, record: any, index: number) => (
+          <Popconfirm
+            title={t('common.text.delete_confirmation')}
+            okText={t('common.button.confirm')}
+            cancelText={t('common.button.cancel')}
+          >
+            <span className="g-button">
+              <MinusCircleOutlined/>
+            </span>
+          </Popconfirm>
+        )
+      }
+    ];
+
     return (
       <div className={styles.otherConfig}>
-        <Tabs
-          defaultActiveKey="1"
-          tabBarExtraContent={
-            <span className="g-button" onClick={showVariableModal('add', null)}>
-              <PlusOutlined />
-            </span>
-          }
-        >
-          <TabPane key="1" tab={t('dataset.form.variables')}>
-            {variableData.list.length ? (
-              <ul className={styles.variableList}>
-                {variableData.list.map((item: any) => (
-                  <li key={item.id} className={styles.listItem}>
-                    <span>{item.name}</span>
-                    <Space>
-                      <span className="g-button" onClick={showVariableModal('edit', item)}>
-                        <EditOutlined />
-                      </span>
-                      <Popconfirm
-                        title={t('common.text.delete_confirmation')}
-                        onConfirm={removeCurVariable(item.id)}
-                      >
-                        <span className="g-button">
-                          <DeleteOutlined />
-                        </span>
-                      </Popconfirm>
-                    </Space>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-            )}
-          </TabPane>
-        </Tabs>
+        {
+          paramsCollapsed ? (
+            <div className={styles.paramsLabel} onClick={() => setParamsCollapsed(false)}>
+              <FunctionOutlined /><span className={styles.label}>参数配置</span>
+            </div>
+          ) : (
+            <Tabs
+              tabBarExtraContent={
+                <span className="g-button" onClick={() => setParamsCollapsed(true)}>
+                  <RightCircleOutlined />
+                </span>
+              }
+            >
+              <TabPane key="1" tab={(<div><FunctionOutlined />参数配置</div>)}>
+                <div style={{padding: '0 8px'}}>
+                  <Table
+                    size="small"
+                    columns={columns}
+                    pagination={false}
+                    scroll={{
+                      y: 320
+                    }}
+                  />
+                </div>
+              </TabPane>
+            </Tabs>
+          )
+        }
       </div>
     );
   };
 
   const renderConfigContent = () => {
     return (
-      <div className={styles.configContent}>
+      <div className={cls(styles.configContent, {
+        [styles.collapsed]: paramsCollapsed
+      })}>
         {renderConfigEditor()}
-        {renderOtherConfig()}
+        {/* {renderOtherConfig()} */}
       </div>
     );
   };

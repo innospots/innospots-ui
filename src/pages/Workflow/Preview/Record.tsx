@@ -16,25 +16,44 @@
  *  limitations under the License.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ContainerOutlined,
+  HomeOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import {
+  Breadcrumb,
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Tag,
+  Tooltip,
+} from 'antd';
 
-import {Breadcrumb, Button, Col, DatePicker, Form, Input, Popover, Row, Select, Space, Spin, Tag, Tooltip} from 'antd';
-import {ContainerOutlined, HomeOutlined, SearchOutlined} from '@ant-design/icons';
-
-import {useModel} from 'umi';
 import useI18n from '@/common/hooks/useI18n';
+import { useModel, useParams, useSearchParams } from 'umi';
 
-import PageLoading from '@/components/PageLoading';
-import IconButton from "@/components/IconButton";
-import useModal from "@/common/hooks/useModal";
-import ListTable from "@/components/ListTable";
+import useModal from '@/common/hooks/useModal';
+import IconButton from '@/components/IconButton';
+import ListTable from '@/components/ListTable';
 import PageHelmet from '@/components/PageHelmet';
+import PageLoading from '@/components/PageLoading';
 
-import FlowPreview, {MODAL_NAME as PREVIEW_MODAL_NAME} from "../Index/components/FlowPreview/FlowPreview";
+import FlowPreview, {
+  MODAL_NAME as PREVIEW_MODAL_NAME,
+} from '../Index/components/FlowPreview/FlowPreview';
 
 import styles from './index.less';
 
-const {RangePicker} = DatePicker;
+const { RangePicker } = DatePicker;
 
 const dateFormat = 'YYYY-MM-DD';
 
@@ -55,11 +74,11 @@ const STATUS_TAG_COLORS = {
     color: '#31CB8A',
     bgColor: '#DBF4EC',
   },
-  'FAILED': {
+  FAILED: {
     color: '#FF4445',
     bgColor: '#FFF1F2',
   },
-  'COMPLETE': {
+  COMPLETE: {
     color: '#31CB8A',
     bgColor: '#DBF4EC',
   },
@@ -78,7 +97,7 @@ const DEFAULT_PAGE_DATA = {
   size: 20,
 };
 
-const Index: React.FC<any> = ({location}) => {
+const Index: React.FC<any> = () => {
   const {
     strategyDetail,
     resultCodeList,
@@ -91,30 +110,51 @@ const Index: React.FC<any> = ({location}) => {
 
   const [filterForm] = Form.useForm();
   const [previewDrawer] = useModal(PREVIEW_MODAL_NAME);
+  const { workflowType } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
 
-  const workflowId = location.query?.instanceId || 0;
-  const curCategoryId = location.query?.category || 0;
+  const workflowId = query?.instanceId || 0;
+  const curCategoryId = query?.category || 0;
   const [tabId, setTabId] = useState('production');
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
 
   const [pageData, setPageData] = useState<any>({
-    ...DEFAULT_PAGE_DATA
+    ...DEFAULT_PAGE_DATA,
   });
 
   const [input, setInput] = useState<any>('');
 
-  const {t, loading: i18nLoading} = useI18n(['strategy', 'workflow', 'common']);
+  const { t, loading: i18nLoading } = useI18n([
+    'strategy',
+    'workflow',
+    'common',
+  ]);
 
   useEffect(() => {
-    fetchStrategyDetailRequest.run(workflowId);
-  }, []);
+    if (workflowId && workflowType) {
+      fetchStrategyDetailRequest.run(workflowType, workflowId);
+    }
+  }, [workflowId, workflowType]);
+
+  const getExecutionRecord = (params = {}) => {
+    fetchExecutionRecordRequest.run(workflowType, {
+      ...pageData,
+      workflowId,
+      ...params,
+    });
+  };
 
   useEffect(() => {
-    getExecutionRecord();
-  }, [workflowId, pageData]);
+    if (workflowType && workflowId) {
+      getExecutionRecord();
+    }
+  }, [workflowId, pageData, workflowType]);
 
   useEffect(() => {
-    const params: any = {}
+    const params: any = {};
     if (strategyDetail.triggerCode === 'WEBHOOK' && !!input) {
       params.inputs = input;
     }
@@ -126,26 +166,21 @@ const Index: React.FC<any> = ({location}) => {
   }, [input]);
 
   useEffect(() => {
-    if (strategyDetail.triggerCode === 'WEBHOOK' || strategyDetail.triggerCode === 'CRONTIMER') {
-      fetchResultCodeRequest.run()
+    if (
+      strategyDetail.triggerCode === 'WEBHOOK' ||
+      strategyDetail.triggerCode === 'CRONTIMER'
+    ) {
+      fetchResultCodeRequest.run();
     }
   }, [strategyDetail.triggerCode]);
 
-  const getExecutionRecord = (params = {}) => {
-    fetchExecutionRecordRequest.run({
-      ...pageData,
-      workflowId,
-      ...params
-    });
-  };
-
   if (i18nLoading) {
-    return <PageLoading/>;
+    return <PageLoading />;
   }
 
   const handleReset = () => {
     setPageData({
-      ...DEFAULT_PAGE_DATA
+      ...DEFAULT_PAGE_DATA,
     });
     setInput('');
 
@@ -168,8 +203,7 @@ const Index: React.FC<any> = ({location}) => {
       endTime?: string;
     } = {};
     if (values) {
-
-      const {status, createdTime} = values;
+      const { status, createdTime } = values;
 
       if (status) {
         params.statuses = status.join(',');
@@ -184,8 +218,12 @@ const Index: React.FC<any> = ({location}) => {
       }
 
       if (createdTime?.length) {
-        params.startTime = createdTime[0] ? createdTime[0].format(dateFormat) : '';
-        params.endTime = createdTime[1] ? createdTime[1].format(dateFormat) : '';
+        params.startTime = createdTime[0]
+          ? createdTime[0].format(dateFormat)
+          : '';
+        params.endTime = createdTime[1]
+          ? createdTime[1].format(dateFormat)
+          : '';
       }
     }
 
@@ -198,22 +236,21 @@ const Index: React.FC<any> = ({location}) => {
     return (
       <Form form={filterForm} layout="vertical" onFinish={handleFormSubmit}>
         <Form.Item name="createdTime" label={t('请求时间')}>
-          <RangePicker style={{width: '100%'}}/>
+          <RangePicker style={{ width: '100%' }} />
         </Form.Item>
-        {
-          (strategyDetail.triggerCode === 'WEBHOOK' || strategyDetail.triggerCode === 'CRONTIMER') && (
-            <Form.Item name="status" label={t('响应码')}>
-              <Select
-                allowClear
-                mode="multiple"
-                placeholder={t('common.select.placeholder')}
-                options={resultCodeList.map(re => ({label: re, value: re}))}
-              />
-            </Form.Item>
-          )
-        }
+        {(strategyDetail.triggerCode === 'WEBHOOK' ||
+          strategyDetail.triggerCode === 'CRONTIMER') && (
+          <Form.Item name="status" label={t('响应码')}>
+            <Select
+              allowClear
+              mode="multiple"
+              placeholder={t('common.select.placeholder')}
+              options={resultCodeList.map((re) => ({ label: re, value: re }))}
+            />
+          </Form.Item>
+        )}
         <Form.Item>
-          <Button type="primary" htmlType="submit" style={{float: 'right'}}>
+          <Button type="primary" htmlType="submit" style={{ float: 'right' }}>
             {t('common.button.confirm')}
           </Button>
         </Form.Item>
@@ -222,7 +259,10 @@ const Index: React.FC<any> = ({location}) => {
   };
 
   const renderPageTitle = () => {
-    const inputPlaceholder = strategyDetail.triggerCode === 'WEBHOOK' ? 'workflow.board.execution.record.message.placeholder' : 'workflow.board.execution.record.info.placeholder'
+    const inputPlaceholder =
+      strategyDetail.triggerCode === 'WEBHOOK'
+        ? 'workflow.board.execution.record.message.placeholder'
+        : 'workflow.board.execution.record.info.placeholder';
 
     const filterContent = (
       <div className={styles.filterContent}>
@@ -252,18 +292,20 @@ const Index: React.FC<any> = ({location}) => {
         </Col>
         <Col>
           <Space>
-            {
-              strategyDetail.triggerCode !== 'CRONTIMER' && (
-                <Input
-                  prefix={<SearchOutlined/>}
-                  value={input}
-                  placeholder={t(inputPlaceholder)}
-                  style={{width: 280, backgroundColor: '#fff', borderColor: '#fff'}}
-                  onChange={(event) => setInput(event.target.value)}
-                  onPressEnter={(event) => setInput(event.target.value)}
-                />
-              )
-            }
+            {strategyDetail.triggerCode !== 'CRONTIMER' && (
+              <Input
+                prefix={<SearchOutlined />}
+                value={input}
+                placeholder={t(inputPlaceholder)}
+                style={{
+                  width: 280,
+                  backgroundColor: '#fff',
+                  borderColor: '#fff',
+                }}
+                onChange={(event) => setInput(event.target.value)}
+                onPressEnter={(event) => setInput(event.target.value)}
+              />
+            )}
             <Popover
               open={filterOpen}
               trigger="click"
@@ -274,7 +316,9 @@ const Index: React.FC<any> = ({location}) => {
             >
               <Button type="primary">{t('common.button.filter')}</Button>
             </Popover>
-            <Button type="primary" onClick={handleReset}>{t('common.button.reset')}</Button>
+            <Button type="primary" onClick={handleReset}>
+              {t('common.button.reset')}
+            </Button>
           </Space>
         </Col>
       </Row>
@@ -283,7 +327,7 @@ const Index: React.FC<any> = ({location}) => {
 
   const renderExecutionRecord = () => {
     const columnsData: any = {
-      'WEBHOOK': [
+      WEBHOOK: [
         {
           title: t('workflow.board.card.columns.requestTime'),
           dataIndex: 'startTime',
@@ -292,7 +336,7 @@ const Index: React.FC<any> = ({location}) => {
           title: t('workflow.board.card.columns.lastedTime'),
           dataIndex: 'lastTime',
           render: (lastTime, record) => {
-            const {startTime, endTime} = record;
+            const { startTime, endTime } = record;
             if (startTime && endTime) {
               const eT = new Date(endTime).getTime();
               const sT = new Date(startTime).getTime();
@@ -352,7 +396,7 @@ const Index: React.FC<any> = ({location}) => {
           ),
         },
       ],
-      'KAFKA_TRIGGER': [
+      KAFKA_TRIGGER: [
         {
           title: t('workflow.board.card.columns.processingTime'),
           dataIndex: 'createdTime',
@@ -361,7 +405,7 @@ const Index: React.FC<any> = ({location}) => {
           title: t('workflow.board.card.columns.lastedTime'),
           dataIndex: 'lastTime',
           render: (lastTime, record) => {
-            const {startTime, endTime} = record;
+            const { startTime, endTime } = record;
             if (startTime && endTime) {
               const eT = new Date(endTime).getTime();
               const sT = new Date(startTime).getTime();
@@ -387,14 +431,14 @@ const Index: React.FC<any> = ({location}) => {
           ),
         },
       ],
-      'CRONTIMER': [
+      CRONTIMER: [
         {
           title: t('workflow.board.card.columns.jobId'),
           dataIndex: 'flowExecutionId',
         },
         {
           title: t('workflow.board.card.columns.triggerMode'),
-          dataIndex: 'executeMode'
+          dataIndex: 'executeMode',
         },
         {
           title: t('workflow.board.card.columns.triggerTime'),
@@ -434,7 +478,7 @@ const Index: React.FC<any> = ({location}) => {
           title: t('workflow.board.card.columns.lastedTime'),
           dataIndex: 'lastTime',
           render: (lastTime, record) => {
-            const {startTime, endTime} = record;
+            const { startTime, endTime } = record;
             if (startTime && endTime) {
               const eT = new Date(endTime).getTime();
               const sT = new Date(startTime).getTime();
@@ -446,31 +490,32 @@ const Index: React.FC<any> = ({location}) => {
               return '---';
             }
           },
-        }
+        },
       ],
-    }
-    const column = columnsData[strategyDetail?.triggerCode] || []
+    };
+    const column =
+      columnsData[strategyDetail?.triggerCode] || columnsData['CRONTIMER'];
 
     if (column.length > 0) {
-      column.push(
-        {
-          title: t('common.table.column.action'),
-          dataIndex: 'flowInstanceId',
-          width: 60,
-          align: 'center',
-          render: (id: number, record: any) => {
-            return (
-              <IconButton
-                icon={<ContainerOutlined/>}
-                tooltip={t('common.button.detail')}
-                onClick={() => previewDrawer.show({
-                  id
-                })}
-              />
-            );
-          },
-        }
-      )
+      column.push({
+        title: t('common.table.column.action'),
+        dataIndex: 'flowInstanceId',
+        width: 60,
+        align: 'center',
+        render: (id: number, record: any) => {
+          return (
+            <IconButton
+              icon={<ContainerOutlined />}
+              tooltip={t('common.button.detail')}
+              onClick={() =>
+                previewDrawer.show({
+                  id,
+                })
+              }
+            />
+          );
+        },
+      });
     }
 
     return (
@@ -493,22 +538,36 @@ const Index: React.FC<any> = ({location}) => {
     return (
       <div className={styles.pageBreadcrumb}>
         <Breadcrumb separator=">">
-          <Breadcrumb.Item> <HomeOutlined/> {t('workflow.board.breadcrumb.home.title')}</Breadcrumb.Item>
+          <Breadcrumb.Item>
+            {' '}
+            <HomeOutlined /> {t('workflow.board.breadcrumb.home.title')}
+          </Breadcrumb.Item>
+          <Breadcrumb.Item href={`/workflow/index?category=${curCategoryId}`}>
+            {t('workflow.main.heading_title')}
+          </Breadcrumb.Item>
           <Breadcrumb.Item
-            href={`/workflow/index?category=${curCategoryId}`}>{t('workflow.main.heading_title')}</Breadcrumb.Item>
-          <Breadcrumb.Item
-            href={`/workflow/preview?category=${curCategoryId}&&instanceId=${workflowId}`}>{strategyDetail?.name || '---'}</Breadcrumb.Item>
-          <Breadcrumb.Item>{t(PAGE_TITLE[strategyDetail?.triggerCode]) || '---'}</Breadcrumb.Item>
+            href={`/workflow/preview?category=${curCategoryId}&&instanceId=${workflowId}`}
+          >
+            {strategyDetail?.name || '---'}
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>
+            {t(PAGE_TITLE[strategyDetail?.triggerCode]) || '---'}
+          </Breadcrumb.Item>
         </Breadcrumb>
       </div>
-    )
+    );
   };
 
-  const renderFlowDrawer = () => <FlowPreview/>;
+  const renderFlowDrawer = () => <FlowPreview />;
 
   return (
     <>
-      <PageHelmet title={[strategyDetail?.name, t('workflow.board.execution.record.title')].join(' - ')}/>
+      <PageHelmet
+        title={[
+          strategyDetail?.name,
+          t('workflow.board.execution.record.title'),
+        ].join(' - ')}
+      />
       {/*{renderBreadcrumb()}*/}
       {renderPageTitle()}
       {renderExecutionRecord()}

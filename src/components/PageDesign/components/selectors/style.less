@@ -1,0 +1,395 @@
+
+@import '../../../../assets/less/variables.less';
+
+@form-widget-color: #ff8f18;
+
+.widgetContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.expandBtn {
+  top: -30px;
+  right: 0;
+  position: absolute;
+}
+
+.editNodeWrapper {
+  :global {
+    .@{ant-prefix}-table-cell-fix-left, .@{ant-prefix}-table-cell-fix-right {
+      z-index: 0;
+    }
+  }
+
+  &.opacity {
+    :global {
+      .@{ant-prefix}-form-item {
+        opacity: .5;
+      }
+    }
+  }
+}
+
+.nodeWrapper,
+.viewNodeWrapper,
+.resizer {
+  position: relative;
+
+  &.Form {
+    background-color: #fff;
+
+    > :global(.@{ant-prefix}-form-item) {
+      margin-bottom: 0;
+    } 
+  }
+
+  &.isRootNode {
+    margin: 0 auto;
+  }
+
+  &:not(:last-child) {
+    //margin-bottom: 8px;
+  }
+}
+
+.viewNodeWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  &.Form {
+    background-color: transparent;
+  }
+}
+
+.formLabel {
+  padding: 6px 0 8px;
+}
+
+.nodeWrapper {
+  width: 100%;
+  height: 100%;
+
+  :global {
+    .@{ant-prefix}-form-item-label {
+      padding-top: 6px;
+    }
+  }
+
+  &.isHover,
+  &.isActive {
+    > .nodeName,
+    > .nodeMenu {
+      display: block;
+    }
+  }
+
+  &.inForm {
+    .nodeName {
+      top: 0;
+      color: @form-widget-color;
+    }
+
+    .nodeMenu {
+      color: #fff;
+      padding-left: 0;
+      background-color: @form-widget-color;
+
+      &.tl {
+        top: 0;
+        left: 0px;
+        right: auto;
+        bottom: auto;
+      }
+
+      &.br {
+        top: -22px;
+        left: 22px;
+        right: auto;
+        bottom: auto;
+      }
+    }
+  }
+
+  .nodeName {
+    top: -22px;
+    right: 0;
+    padding: 2px 8px;
+    z-index: 999;
+    position: absolute;
+    display: none;
+    color: @primary-color;
+    font-size: 14px;
+  }
+
+  .disabled,
+  .hidden {
+    font-size: 12px;
+    display: inline-block;
+  }
+
+  .hidden {
+    color: #ff8f18;
+  }
+
+  .disabled {
+    color: #ff1818;
+  }
+
+  .nodeMenu {
+    top: -20px;
+    color: #fff;
+    height: 22px;
+    display: none;
+    padding: 0 2px;
+    z-index: 999;
+    position: absolute;
+    background-color: @primary-color;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+
+    &.tl {
+      left: 0;
+    }
+
+    &.br {
+      left: 22px;
+    }
+
+    > span {
+      padding: 0 4px;
+    }
+
+    > .btn {
+      cursor: pointer;
+      padding: 0 4px;
+      display: inline-block;
+
+      &.moveBtn {
+        cursor: move;
+      }
+    }
+  }
+}
+
+.node {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .inner {
+    width: 100%;
+    height: 100%;
+  }
+
+  &.table {
+
+    &.isLoading {
+      overflow: hidden;
+    }
+    
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border: 1px solid #f2f2f2;
+      background-color: #fff;
+
+      .col {
+        height: 36.8px;
+        background-color: #fff;
+        border: 1px solid #f2f2f2;
+      }
+
+      .empty {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .text {
+          color: #333;
+          font-size: 16px;
+          margin-bottom: 0;
+        }
+      }
+
+      &:after {
+        content: '';
+        inset: 0;
+        display: block;
+        position: absolute;
+        background-color: rgba(255,255,255,.3);
+      }
+    }
+  }
+
+  &.form {
+
+    > .inner {
+
+      :global {
+        .react-grid-layout {
+          min-height: 100%;
+        }
+      }
+    }
+
+    :global {
+      .react-grid-layout {
+        //min-height: 100%;
+      }
+    }
+
+    .formWidget {
+      height: 100%;
+
+      &:global {
+        &.react-grid-item {
+          & > .react-resizable-handle {
+            z-index: 100;
+            width: 18px;
+            height: 6px;
+            visibility: hidden;
+            border-radius: 3px;
+            background: #fff;
+            border: 1px solid @form-widget-color;
+
+            &:after {
+              border: 0;
+            }
+
+            &.react-resizable-handle-n {
+              top: -2px;
+            }
+
+            &.react-resizable-handle-s {
+              bottom: -2px;
+            }
+
+            &.react-resizable-handle-s,
+            &.react-resizable-handle-n {
+              transform: rotate(0);
+            }
+
+            &.react-resizable-handle-w,
+            &.react-resizable-handle-e {
+              margin-top: -4px;
+              transform: rotate(90deg);
+            }
+
+            &.react-resizable-handle-w {
+              left: -8px;
+            }
+
+            &.react-resizable-handle-e {
+              right: -8px;
+            }
+          }
+        }
+      }
+
+      &.isHover,
+      &.resizing,
+      &.isActive {
+        &:after {
+          inset: -2px;
+          content: ' ';
+          pointer-events: none;
+          border-radius: 4px;
+          position: absolute;
+          display: inline-block;
+          border-width: 1px;
+          border-color: @form-widget-color;
+        }
+      }
+
+      &.isHover,
+      &.resizing,
+      &.isActive {
+        &:after {
+          inset: 0;
+        }
+      }
+
+      &.isHover,
+      &.resizing {
+        &:after {
+          border-style: dashed;
+        }
+      }
+
+      &.isActive {
+        &:after {
+          border-style: solid;
+        }
+      }
+
+      &.isHover,
+      &.resizing,
+      &.isActive {
+
+        &:global {
+          &.react-grid-item {
+            & > .react-resizable-handle {
+              visibility: visible;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.button {
+  }
+
+  &.input {
+    .label {
+      height: 38px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+
+      label {
+        max-width: 100%;
+      }
+    }
+
+    .formItem {
+      position: relative;
+
+      :global {
+        .cur-btn {
+          height: 24px;
+          font-size: 12px;
+          line-height: 24px;
+        }
+      }
+      :global {
+        .@{ant-prefix}-upload-list {
+          overflow: auto;
+          height: calc(100% - 34px);
+
+          &::-webkit-scrollbar-thumb {
+            background-color: transparent;
+          }
+
+          &::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+          }
+
+          &:hover::-webkit-scrollbar-thumb {
+            background: #0004;
+            border-radius: 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.settingContainer {
+  padding: 0 24px;
+}

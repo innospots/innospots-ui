@@ -278,9 +278,9 @@ const MenuLink: React.FC<MenuLinkProps> = (props) => {
 
   return (
     <div>
-      <div className="polaris-row polaris-form-item">
-        <div className="polaris-col polaris-form-item-label" style={{ flex: '0 0 112px' }}>
-          <label className="polaris-form-item-required" title={t('menu.form.app_link.label')}>
+      <div className="ant-row ant-form-item">
+        <div className="ant-col ant-form-item-label" style={{ flex: '0 0 112px' }}>
+          <label className="ant-form-item-required" title={t('menu.form.app_link.label')}>
             {t('menu.form.app_link.label')}
           </label>
         </div>
@@ -309,7 +309,8 @@ const MenuLink: React.FC<MenuLinkProps> = (props) => {
                   }}
                 >
                   <img
-                    src={require('@/assets/images/common/s_logo.png')}
+                    src={item.icon || require('@/assets/images/common/s_logo.png')}
+                    // src={require('@/assets/images/common/s_logo.png')}
                     alt=""
                     className={styles.icon}
                   />

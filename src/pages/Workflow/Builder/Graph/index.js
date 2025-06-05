@@ -16,25 +16,26 @@
  *  limitations under the License.
  */
 
-import {Graph, Addon} from '@antv/x6';
+import { Graph, Addon } from '@antv/x6';
 import _ from 'lodash';
 
-import {FlowNode} from './shape/node';
-import {FlowEdge, StressFlowEdge, getLabelData} from './shape/edge';
+import { FlowNode } from './shape/node';
+import { FlowEdge, StressFlowEdge, getLabelData } from './shape/edge';
 
-import {randomString} from '@/common/utils';
+import { randomString } from '@/common/utils';
 
 const getNewInPort = (id) => ({
-  id: id || randomString(4), group: 'in',
+  id: id || randomString(4),
+  group: 'in',
 });
 
 const getNewOutPort = (id) => ({
-  id: id || randomString(4), group: 'out',
+  id: id || randomString(4),
+  group: 'out',
 });
 
 const defOptions = {
-  callback () {
-  },
+  callback() {},
 };
 
 const getNodeByCode = (options) => {
@@ -122,29 +123,42 @@ export default class FlowGraph {
   static dagreLayout;
   static nodeConfigData;
 
-  static init (options, pageMode = 'edit') {
+  static init(options, pageMode = 'edit') {
     this.options = {
-      ...defOptions, ...options,
+      ...defOptions,
+      ...options,
     };
 
-    const editAble = this.editAble = pageMode === 'edit';
+    const editAble = (this.editAble = pageMode === 'edit');
 
     const graph = (this.graph = new Graph({
-      ...options, panning: true, grid: {
-        size: 20, visible: true, type: 'mesh', args: {
-          color: '#eff2f8', thickness: 3,
+      ...options,
+      panning: true,
+      grid: {
+        size: 20,
+        visible: true,
+        type: 'mesh',
+        args: {
+          color: '#eff2f8',
+          thickness: 3,
         },
-      }, background: {
+      },
+      background: {
         color: '#f6fafd',
-      }, selecting: {
-        enabled: true, multiple: false, rubberband: false, // movable: true,
-        showNodeSelectionBox: false, filter: ['groupNode'],
-      }, mousewheel: {
+      },
+      selecting: {
+        enabled: true,
+        multiple: false,
+        rubberband: false, // movable: true,
+        showNodeSelectionBox: false,
+        filter: ['groupNode'],
+      },
+      mousewheel: {
         enabled: true, // guard: () => false
         // modifiers: ['ctrl', 'meta'],
-      }, interacting: {
-        nodeMovable: editAble
-      }, connecting: {
+      },
+      interacting: editAble,
+      connecting: {
         snap: true,
         anchor: 'center',
         highlight: true,
@@ -153,7 +167,7 @@ export default class FlowGraph {
         allowBlank: false,
         allowMulti: 'withPort',
         connectionPoint: 'anchor',
-        createEdge ({sourceMagnet}) {
+        createEdge({ sourceMagnet }) {
           const s = sourceMagnet.attributes.getNamedItem('port');
           if (s.value === 'failureBranchPort') {
             return new StressFlowEdge();
@@ -161,8 +175,8 @@ export default class FlowGraph {
           return new FlowEdge();
         },
 
-        validateMagnet ({cell, magnet}) {
-          return true
+        validateMagnet({ cell, magnet }) {
+          return true;
 
           // if (!editAble) return false;
           //
@@ -190,10 +204,14 @@ export default class FlowGraph {
           // return count < max;
         },
 
-        validateConnection ({
-          sourceView, targetView, targetCell, targetPort, sourceMagnet, targetMagnet,
+        validateConnection({
+          sourceView,
+          targetView,
+          targetCell,
+          targetPort,
+          sourceMagnet,
+          targetMagnet,
         }) {
-
           if (!editAble) return false;
 
           if (sourceView === targetView) {
@@ -235,26 +253,35 @@ export default class FlowGraph {
               });
 
               return !result;
-            } catch (e) {
-            }
+            } catch (e) {}
           }
 
           return true;
         },
-      }, highlighting: {
+      },
+      highlighting: {
         magnetAvailable: {
-          name: 'stroke', args: {
-            padding: 2, attrs: {
-              strokeWidth: 2, stroke: '#ff6d5a',
+          name: 'stroke',
+          args: {
+            padding: 2,
+            attrs: {
+              strokeWidth: 2,
+              stroke: '#ff6d5a',
             },
           },
         },
-      }, snapline: editAble, history: editAble, clipboard: {
+      },
+      snapline: editAble,
+      history: editAble,
+      clipboard: {
         enabled: editAble,
-      }, keyboard: {
+      },
+      keyboard: {
         enabled: editAble,
-      }, embedding: {
-        enabled: editAble, findParent ({node}) {
+      },
+      embedding: {
+        enabled: editAble,
+        findParent({ node }) {
           const bbox = node.getBBox();
           return this.getNodes().filter((node) => {
             // 只有 data.parent 为 true 的节点才是父节点
@@ -274,7 +301,7 @@ export default class FlowGraph {
     return this.graph;
   }
 
-  static changeData (json) {
+  static changeData(json) {
     this.clear();
 
     if (json) {
@@ -282,13 +309,13 @@ export default class FlowGraph {
     }
   }
 
-  static clear () {
+  static clear() {
     this.graph.clearCells({
       silent: true,
     });
   }
 
-  static resetNodeData (node) {
+  static resetNodeData(node) {
     if (node) {
       const nodeData = node.getData();
 
@@ -303,7 +330,7 @@ export default class FlowGraph {
     }
   }
 
-  static resetChildrenData (cell, callback) {
+  static resetChildrenData(cell, callback) {
     // if (cell) {
     //   const {
     //     nextNodeKeys
@@ -325,9 +352,10 @@ export default class FlowGraph {
     // }
   }
 
-  static getJSONData () {
+  static getJSONData() {
     const jsonData = {
-      nodes: [], edges: [],
+      nodes: [],
+      edges: [],
     };
 
     _.each(this.graph.getCells(), (cell) => {
@@ -351,40 +379,43 @@ export default class FlowGraph {
     return jsonData;
   }
 
-  static zoomGraph (factor) {
+  static zoomGraph(factor) {
     const graph = this.graph;
     if (typeof factor === 'number') {
       graph.zoomTo(factor);
     } else if (factor === 'fit') {
       const container = graph.container;
       const size = {
-        width: container.clientWidth, height: container.clientHeight,
+        width: container.clientWidth,
+        height: container.clientHeight,
       };
       graph.zoomTo(1);
-      graph.fitToContent({padding: 12});
+      graph.fitToContent({ padding: 12 });
       graph.resize(size.width, size.height);
     } else if (factor) {
     }
   }
 
-  static zoomTo (factor) {
+  static zoomTo(factor) {
     const graph = this.graph;
     if (typeof factor === 'number') {
       graph.zoomTo(factor * graph.zoom());
     }
   }
 
-  static resize ({width, height}) {
-    this.graph.resize(width, height);
+  static resize({ width, height }) {
+    if (this.graph) {
+      this.graph.resize(width, height);
+    }
   }
 
-  static updateStencilItems (nodeGroups, excludes = []) {
+  static updateStencilItems(nodeGroups, excludes = []) {
     const newGroups = filterNodeGroups(nodeGroups, excludes);
     this.loadStencilItems(newGroups);
   }
 
-  static loadStencilItems (nodeGroups) {
-    const {graph} = this;
+  static loadStencilItems(nodeGroups) {
+    const { graph } = this;
 
     _.each(nodeGroups, (item) => {
       const nodes = _.map(item.nodes, (data) => {
@@ -402,17 +433,21 @@ export default class FlowGraph {
           }
         });
 
-        return graph ? graph.createNode({
-          data: {
-            ...defaultNodeData, ...nodeData,
-          }, shape: 'stencil-flow-node',
-        }) : null;
+        return graph
+          ? graph.createNode({
+              data: {
+                ...defaultNodeData,
+                ...nodeData,
+              },
+              shape: 'stencil-flow-node',
+            })
+          : null;
       });
       this.stencil.load(nodes, item.code);
     });
   }
 
-  static createStencil (nodeGroups, excludes = [], options, nodeConfigData) {
+  static createStencil(nodeGroups, excludes = [], options, nodeConfigData) {
     if (!this.graph) return;
 
     this.nodeConfigData = nodeConfigData;
@@ -443,7 +478,7 @@ export default class FlowGraph {
         rowHeight: 100,
         columnWidth: 220 / 3,
       },
-      getDragNode (sourceNode, options) {
+      getDragNode(sourceNode, options) {
         const nodeData = sourceNode.data;
         const configData = {
           ...nodeData,
@@ -456,7 +491,7 @@ export default class FlowGraph {
           },
         });
       },
-      getDropNode (draggingNode, {sourceNode}) {
+      getDropNode(draggingNode, { sourceNode }) {
         const nodeData = sourceNode.data;
         const configData = {
           ...nodeData,
@@ -464,13 +499,15 @@ export default class FlowGraph {
         const nodeId = ['fn' + randomString(7)].join('');
 
         return getNodeByCode({
-          id: nodeId, data: {
+          id: nodeId,
+          data: {
             ...nodeData,
             configData,
             pageMode: 'edit',
           },
         });
-      }, ...options,
+      },
+      ...options,
     });
     const stencilContainer = document.querySelector('#stencil');
     stencilContainer.appendChild(this.stencil.container);
@@ -482,18 +519,24 @@ export default class FlowGraph {
    * 监听节点连线事件
    * @param edge
    */
-  static handleEdgeConnected (edge) {
+  static handleEdgeConnected(edge) {
     const sourceNode = edge.getSourceNode();
     const targetNode = edge.getTargetNode();
-    const sourceOutPorts = _.filter(_.get(sourceNode, 'ports.items'), (item) => item.group === 'out',);
-    const targetInPorts = _.filter(_.get(targetNode, 'ports.items'), (item) => item.group === 'in',);
+    const sourceOutPorts = _.filter(
+      _.get(sourceNode, 'ports.items'),
+      (item) => item.group === 'out',
+    );
+    const targetInPorts = _.filter(_.get(targetNode, 'ports.items'), (item) => item.group === 'in');
     const edgeOutPort = edge.source.port;
     const edgeInPort = edge.target.port;
 
     const targetPort = _.find(targetInPorts, (p) => p.id === edgeInPort) || {};
     const sourcePort = _.find(sourceOutPorts, (p) => p.id === edgeOutPort) || {};
 
-    const edgeLabels = [getLabelData('out', targetPort.data?.label), getLabelData('in', sourcePort.data?.label),];
+    const edgeLabels = [
+      getLabelData('out', targetPort.data?.label),
+      getLabelData('in', sourcePort.data?.label),
+    ];
     edge.setLabels(edgeLabels);
   }
 
@@ -502,7 +545,7 @@ export default class FlowGraph {
    * 如果是sourceNode是分支节点
    * 则删除多余的连接点
    */
-  static handleEdgeRemoved (edge) {
+  static handleEdgeRemoved(edge) {
     const storeData = edge.store.data;
 
     if (!storeData) return;
@@ -516,7 +559,8 @@ export default class FlowGraph {
       const targetInfo = targetNode.getData();
       if (['MERGE', 'FILTER'].includes(targetInfo.code) && storeData.target.port === 'flow-in-1') {
         targetInfo.data = {
-          ...targetInfo.data, main_source_node: '',
+          ...targetInfo.data,
+          main_source_node: '',
         };
         targetNode.updateData(targetInfo);
         return;
@@ -535,8 +579,11 @@ export default class FlowGraph {
      * 触发分支节点改变事件
      */
     this.trigger('switch:change', {
-      type: 'edge.delete', data: {
-        node: sourceNode, target: targetId, portIndex: _.findIndex(outPorts, (p) => storeData.source.port === p.id),
+      type: 'edge.delete',
+      data: {
+        node: sourceNode,
+        target: targetId,
+        portIndex: _.findIndex(outPorts, (p) => storeData.source.port === p.id),
       },
     });
   }
@@ -546,22 +593,28 @@ export default class FlowGraph {
    * @param sourceNode
    * @param conditions
    */
-  static changeSwitchNodePorts (sourceNode, conditions) {
+  static changeSwitchNodePorts(sourceNode, conditions) {
     const graph = this.graph;
     const outPorts = sourceNode.getPortsByGroup('out');
-    const defPort = _.find(outPorts, (item) => item.id === 'flow-out');
-    const filedOutPorts = _.filter(outPorts, (item) => item.id !== defPort.id);
 
     //现有的输出连线
     const outgoingEdges = graph.getOutgoingEdges(sourceNode) || [];
     const newPorts = [];
 
-    _.each(_.filter(conditions, (item) => !!item.branch), (item, index) => {
-      const p = filedOutPorts[index] || getNewOutPort();
-      newPorts.push(p);
-    },);
-
-    newPorts.push(defPort);
+    _.each(
+      _.filter(conditions, (item) => !!item.branch),
+      (item, index) => {
+        const p = getNewOutPort(item.sourceAnchor);
+        const label = item.sourceAnchor === '#default' ? '#default' : `#${index + 1}`;
+        p.data = {
+          label,
+          name: p.id,
+          count: 1,
+          group: 'out',
+        };
+        newPorts.push(p);
+      },
+    );
 
     if (outPorts.length !== newPorts.length) {
       sourceNode.removePorts(outPorts, {
@@ -580,14 +633,9 @@ export default class FlowGraph {
       _.each(newPorts, (port, index) => {
         const edge = _.find(outgoingEdges, (item) => item.source.port === port.id);
         if (edge) {
-          let label = index + 1 + '';
-
-          if (index === length - 1) {
-            label = 'O';
-          }
-
+          const label = port.id === '#default' ? '#default' : `#${index + 1}`;
           //更新线上的数字
-          edge.setLabels(index, {
+          edge.setLabels(label, {
             silent: true,
           });
 
@@ -605,12 +653,12 @@ export default class FlowGraph {
    * @param current
    * @param previous
    */
-  static checkNodeDataChange ({node, current, previous}) {
+  static checkNodeDataChange({ node, current, previous }) {
     const curData = (current || {}).data || {};
     const preData = (previous || {}).data || {};
     const code = (current || {}).code;
 
-    if (code === 'SWITCH') {
+    if (['approve_switch', 'SWITCH'].includes(code)) {
       /**
        * 分支节点检测分支的数据是否发生变化
        */
@@ -619,19 +667,19 @@ export default class FlowGraph {
       }
     } else if (code === 'PARALLEL') {
       //并行执行节点
-      changeOutputPorts(node, curData.parallel_number);
+      // changeOutputPorts(node, curData.parallel_number);
     } else if (code === 'COMBINE') {
       //并行执行合并节点
-      changeInPorts(node, curData.combine_number);
+      // changeInPorts(node, curData.combine_number);
     }
   }
 
-  static initEvent () {
+  static initEvent() {
     const _this = this;
-    const {graph} = _this;
+    const { graph } = _this;
 
     graph.on('node:change:data', (event) => {
-      // this.checkNodeDataChange(event);
+      this.checkNodeDataChange(event);
       this.trigger('change:data', event);
     });
 
@@ -691,7 +739,7 @@ export default class FlowGraph {
     // });
   }
 
-  static trigger (name, event) {
+  static trigger(name, event) {
     if (name.indexOf(':') < 0) {
       let type = 'node';
 
@@ -705,16 +753,21 @@ export default class FlowGraph {
     this.options.callback(name, event);
   }
 
-  static initShape (defData) {
+  static initShape(defData) {
     const nodeData = {};
     this.graph.addNode({
-      x: 140, y: 140, id: ['fn' + randomString(7)].join(''), shape: 'flow-node', data: {
-        ...defData, ...nodeData,
+      x: 140,
+      y: 140,
+      id: ['fn' + randomString(7)].join(''),
+      shape: 'flow-node',
+      data: {
+        ...defData,
+        ...nodeData,
       },
     });
   }
 
-  static fromJSON (json) {
+  static fromJSON(json) {
     this.graph.fromJSON(json, {
       slient: true,
     });

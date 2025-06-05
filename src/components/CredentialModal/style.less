@@ -106,6 +106,7 @@
     .rightContent {
       position: relative;
       background-color: #fff;
+      padding: 0 36px;
 
       .header {
         border-bottom: 1px solid @border-color-split;
@@ -245,70 +246,70 @@
       }
     }
 
-    .applications {
-      padding: 0 24px;
+    .appList,.curApp {
+      margin-left: 30px;
+      //min-height: 200px;
 
-      .appTabs {
-        margin-top: 24px;
+      .appItem {
+        width: 80px;
+        height: 72px;
 
-        .tabLabel {
-          width: 110px;
-          text-align: right;
+        &.disabled {
+          opacity: 0.5;
+          pointer-events: none;
         }
 
-        .appList {
-          margin-left: 30px;
-          min-height: 400px;
+        .inner {
+          width: 100%;
+          height: 100%;
+          margin: 0 4px;
+          padding: 12px 0 0;
+          display: flex;
+          text-align: center;
+          align-items: center;
+          justify-content: left;
+          flex-direction: column;
+          border-radius: 10px;
+          border: 1px solid transparent;
+          cursor: pointer;
 
-          .appItem {
-            width: 80px;
-            height: 72px;
+          &:hover {
+            border-color: @primary-1;
+          }
 
-            &.disabled {
-              opacity: 0.5;
-              pointer-events: none;
-            }
+          &.active {
+            border-color: @primary-color;
+            background-color: #165dff1a;
+          }
 
-            .inner {
-              width: 100%;
-              height: 100%;
-              margin: 0 4px;
-              padding: 12px 0 0;
-              display: flex;
-              text-align: center;
-              align-items: center;
-              justify-content: left;
-              flex-direction: column;
-              border-radius: 10px;
-              border: 1px solid transparent;
-              cursor: pointer;
+          .label {
+            width: 100%;
+            font-size: 12px;
+            margin: 4px 0 0;
+          }
 
-              &:hover {
-                border-color: @primary-1;
-              }
+          img {
+            max-height: 30px;
+          }
 
-              &.active {
-                border-color: @primary-color;
-                background-color: #165dff1a;
-              }
-
-              .label {
-                width: 100%;
-                font-size: 12px;
-                margin: 4px 0 0;
-              }
-
-              img {
-                max-height: 30px;
-              }
-
-              :global(.node-icon) {
-                font-size: 30px;
-              }
-            }
+          :global(.node-icon) {
+            font-size: 30px;
           }
         }
       }
+    }
+  }
+
+  .curApp .appItem .inner {
+    cursor: revert!important;
+    background-color: #f5f5f5;
+
+    &:hover {
+      border: 1px solid transparent!important;
+    }
+
+    &.active {
+      border-color: unset!important;
     }
   }
 }

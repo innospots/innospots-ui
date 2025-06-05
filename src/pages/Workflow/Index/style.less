@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 
 @container-height: calc(100vh - 160px);
 
@@ -34,4 +36,24 @@
             margin-right: 0;
         }
     }
+}
+
+.iconNode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: #f4f7fb;
+  border-radius: 50%;
+
+  .icon {
+    color: #c9cdd4;
+    font-size: 14px;
+  }
+
+  .node-image-icon {
+    width: 14px;
+    height: 14px;
+  }
 }

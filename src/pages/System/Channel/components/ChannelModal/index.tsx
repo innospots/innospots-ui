@@ -148,7 +148,7 @@ const ChannelModal: React.FC = () => {
           (pa: any) => !pa.code || _.isNull(pa.code) || _.isUndefined(pa.code),
         )?.length >= postData.params?.length
       ) {
-        message.warn(t('notification.channel.form.error_message'));
+        message.warning(t('notification.channel.form.error_message'));
         return;
       }
 

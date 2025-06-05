@@ -1,0 +1,125 @@
+/* @import '~antd/es/style/themes/index.less'; */
+/* @import '~antd/lib/style/themes/default.less'; */
+
+.configButton {
+  line-height: 1;
+  color: @primary-color;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-block;
+  margin-left: 24px;
+  background-color: rgba(18,69,250,.1);
+
+  &:hover {
+    background-color: rgba(18,69,250,.2);
+  }
+}
+.setting{
+  padding: 20px 0 12px 20px;
+  height: calc(100% - 50px);
+
+  > form {
+    height: 100%;
+  }
+
+  .settingInner {
+    height: 100%;
+    padding-right: 12px;
+  }
+
+  :global {
+    .@{ant-prefix}-tabs-content, .@{ant-prefix}-tabs-tabpane {
+      height: 100%;
+    }
+
+    .@{ant-prefix}-tabs-left {
+      .@{ant-prefix}-tabs-tab{
+        width: 150px;
+      }
+      .@{ant-prefix}-tabs-tab-active {
+        background-color: rgba(18,69,250,.1);
+      }
+    }
+  }
+  .icon{
+    font-size: 18px;
+    margin-right: 8px;
+  }
+
+  .tabPane {
+    width: 320px;
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+.previewWrap{
+  background: #fff;
+  padding: 25px;
+  .preview{
+    border: 1px solid #e6ecff;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    .appName{
+      font-size: 16px;
+      font-weight: bold;
+      border-bottom: 1px solid #e6ecff;
+      padding: 16px;
+      height: 54px;
+    }
+    .content{
+      .noTabContent{
+        padding: 16px;
+      }
+      flex: 1;
+      background-color: #eef1f6;
+      :global {
+        .@{ant-prefix}-tabs-left {
+          height: 100%;
+          .@{ant-prefix}-tabs-nav {
+            width: 250px;
+            .@{ant-prefix}-tabs-nav-list{
+              .@{ant-prefix}-tabs-tab{
+                margin: 8px 16px;
+              }
+            }
+          }
+        }
+        .@{ant-prefix}-tabs{
+          .@{ant-prefix}-tabs-nav {
+            background: #fff;
+            .@{ant-prefix}-tabs-nav-list{
+              .@{ant-prefix}-tabs-tab{
+                padding: 4px 8px;
+                border: none;
+                background: none;
+              }
+              .@{ant-prefix}-tabs-tab-active{
+                color: #1245FA;
+                background-color: rgba(18,69,250,.1);
+              }
+            }
+          }
+          .@{ant-prefix}-tabs-content{
+            height: 100%;
+            padding: 16px;
+          }
+        }
+        .@{ant-prefix}-tabs-top{
+          .@{ant-prefix}-tabs-nav{
+            .@{ant-prefix}-tabs-nav-list{
+              .@{ant-prefix}-tabs-tab{
+                margin: 8px 0 8px 16px;
+              }
+            }
+          }
+          .@{ant-prefix}-tabs-content{
+            padding: 0 16px;
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -16,14 +16,15 @@
  *  limitations under the License.
  */
 
-import React, {useContext, useMemo} from 'react';
 import _ from 'lodash';
+import { useDebounceEffect } from 'ahooks'
+import {useContext, useMemo, useEffect} from 'react';
 
 import { useModel } from 'umi';
 import {Row, Col} from 'antd';
 
 import CurContext from '../../common/context';
-import ConfigFormRender from '../NodeDataConfig/ConfigFormRender';
+import WidgetFormRender from './WidgetFormRender';
 
 import styles from './index.less';
 
@@ -34,6 +35,13 @@ const NodeConfig = () => {
     currentAppInfo
   } = useModel('App', model => ({
     currentAppInfo: model.currentAppInfo
+  }));
+  const {
+    formValues,
+    updateFormValue
+  } = useModel('AppEditor', model => ({
+    formValues: model.formValues,
+    updateFormValue: model.updateFormValue
   }));
 
   const configData = _.get(nodeData, 'configData', {});
@@ -48,9 +56,18 @@ const NodeConfig = () => {
     };
   }, [nodeData.data, nodeData.displayName]);
 
+  useDebounceEffect(() => {
+    formValues.currentValues = {
+      ...initialValues
+    }
+    updateFormValue(formValues)
+  }, [ initialValues ], {
+    wait: 1e3
+  })
+
   const renderConfigInfo = () => {
     return (
-      <ConfigFormRender
+      <WidgetFormRender
         nodeId={nodeId}
         viewType="info"
         { ...configData }
@@ -64,12 +81,14 @@ const NodeConfig = () => {
 
   return (
     <div className={styles.nodeConfig}>
-      <Row style={{marginBottom: 24}} gutter={12}>
-        <Col>nodeKey:</Col>
-        <Col>
-          <span className="form-item-value">{nodeId}</span>
-        </Col>
-      </Row>
+      <div style={{padding: '0 12px'}}>
+        <Row style={{marginBottom: 24}} gutter={12}>
+          <Col>nodeKey:</Col>
+          <Col>
+            <span className="form-item-value">{nodeId}</span>
+          </Col>
+        </Row>
+      </div>
       <div>{renderConfigInfo()}</div>
     </div>
   );

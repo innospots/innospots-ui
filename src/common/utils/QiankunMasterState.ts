@@ -20,6 +20,7 @@ import _ from 'lodash';
 
 import Module from '@/common/utils/module';
 import useModal from '@/common/hooks/useModal';
+import { componentContent } from '@/components/widget';
 
 import { logout, getSessionData } from '@/common/utils';
 
@@ -56,7 +57,8 @@ const getQiankunMasterState = () => {
     useModal,
     getSessionData,
     masterNavigateTo,
-    getMasterComponent,
+    componentContent,
+
   };
   return state;
 };

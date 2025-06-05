@@ -20,11 +20,16 @@ import { IListQueryParams } from '@/common/types/Types';
 
 export const BASE_URL = '/';
 export const AJAX_PREFIX = BASE_URL + 'innospots/api/';
+export const APPS_AJAX_PREFIX = BASE_URL + 'innospots/apps/api';
 
 export const SESSION_DATA = 'SESSION_DATA';
 export const RSA_PUBLIC_KEY = 'RSA_PUBLIC_KEY';
 
+export const LOGIN_PATH = '/login';
+
 export const UPLOAD_IMAGE_PATH = AJAX_PREFIX + 'sys-config/image';
+export const UPLOAD_LOGO_PATH = AJAX_PREFIX + 'configuration/logo';
+export const UPLOAD_FAVICON_PATH = AJAX_PREFIX + 'configuration/favicon';
 export const UPLOAD_AVATAR_PATH = AJAX_PREFIX + 'user/avatar';
 
 export const IS_DEV = process.env.NODE_ENV !== 'production';
@@ -46,6 +51,54 @@ export const DEFAULT_PAGINATION_SETTINGS: IListQueryParams = {
 export const NAME_PATTERN = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
 
 export const DEFAULT_LIST_QUERY = DEFAULT_PAGINATION_SETTINGS;
+
+export const APPROVE_STATUS_TYPES = {
+  PROCESSING: {
+    text: 'approve.status.processing',
+    color: '#0064D0',
+    bgColor: '#e7f0fa',
+  },
+  STARTING: {
+    text: 'approve.status.starting',
+    color: '#70B603',
+    bgColor: '#f1f8e6',
+  },
+  DRAFT: {
+    text: 'approve.status.draft',
+    color: '#0064D0',
+    bgColor: '#e7f0fa',
+  },
+  APPROVED: {
+    text: 'approve.status.approved',
+    color: '#70B603',
+    bgColor: '#f1f8e6',
+  },
+  REJECTED: {
+    text: 'approve.status.rejected',
+    color: '#D9001B',
+    bgColor: '#fbe6e9',
+  },
+  FAILED: {
+    text: 'approve.status.failed',
+    color: '#F59A23',
+    bgColor: '#fef5e9',
+  },
+  STOPPED: {
+    text: 'approve.status.stopped',
+    color: '#F59A23',
+    bgColor: '#fef5e9',
+  },
+  REVOKED: {
+    text: 'approve.status.revoked',
+    color: '#F59A23',
+    bgColor: '#fef5e9',
+  },
+  REMOVED: {
+    text: 'approve.status.removed',
+    color: '#F59A23',
+    bgColor: '#fef5e9',
+  },
+};
 
 /**
  * 菜单类型
@@ -245,3 +298,27 @@ export const NAME_VALID_REGEX = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
 export const LOCAL_DATA_KEY = 'INNOSPOT_DATA';
 
 export const PAGE_TITLE_SUFFIX = 'Innospots';
+
+export const GRID_LAYOUT_CONFIG = {
+  16: {
+    labelCol: 8,
+    wrapperCol: 16,
+  },
+  8: {
+    labelCol: 4,
+    wrapperCol: 8,
+  },
+  4: {
+    labelCol: 2,
+    wrapperCol: 4,
+  },
+}
+
+export const ALL_MODELS = {
+  INDEX: [
+    'ali-emb3',
+    'micro-emb3',
+    'zhipu-emb3',
+    'bge-m3'
+  ]
+}

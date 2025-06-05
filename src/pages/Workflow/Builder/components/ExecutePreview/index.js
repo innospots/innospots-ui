@@ -33,153 +33,156 @@ import { formatListData } from '@/common/utils';
 import styles from './index.less';
 
 const tabList = [
-    {
-        id: 'result',
-    },
-    {
-        id: 'log',
-    },
+  {
+    id: 'result',
+  },
+  {
+    id: 'log',
+  },
 ];
 
 const { Text, Paragraph } = Typography;
 
 const ExecutePreview = ({ defaultCollapsed, nodeId, allExecuteData, onClose, onCollapsed }) => {
-    const { t } = useI18n(['workflow', 'common']);
+  const { t } = useI18n(['workflow', 'common']);
 
-    const [wrapWidth, setWrapWidth] = useState(0);
-    const [collapsed, setCollapsed] = useState(!!defaultCollapsed);
+  const [wrapWidth, setWrapWidth] = useState(0);
+  const [collapsed, setCollapsed] = useState(!!defaultCollapsed);
 
-    const { nodeExecutions, nodeExecutionRequest } = useModel('Builder');
+  const { nodeExecutions, nodeExecutionRequest } = useModel('Builder');
 
-    useEffect(() => {
-        setWrapWidth(JQuery('#resultListWrap').width());
-    }, []);
+  useEffect(() => {
+    setWrapWidth(JQuery('#resultListWrap').width());
+  }, []);
 
-    const execution = useMemo(() => {
-        const nodeExecutionId = allExecuteData?.[nodeId]?.nodeExecutionId;
-        if (nodeExecutionId) {
-            return nodeExecutions[nodeExecutionId] || {};
-        }
-        return {};
-    }, [nodeId, allExecuteData, nodeExecutions]);
+  const execution = useMemo(() => {
+    const nodeExecutionId = allExecuteData?.[nodeId]?.nodeExecutionId;
+    if (nodeExecutionId) {
+      return nodeExecutions[nodeExecutionId] || {};
+    }
+    return {};
+  }, [nodeId, allExecuteData, nodeExecutions]);
 
-    const toggleCollapsed = () => {
-        const c = !collapsed;
-        setCollapsed(c);
+  const toggleCollapsed = () => {
+    const c = !collapsed;
+    setCollapsed(c);
 
-        onCollapsed && onCollapsed(c);
+    onCollapsed && onCollapsed(c);
+  };
+
+  /**
+   * 日志内容
+   * @returns {XML}
+   */
+  const getLogContent = useMemo(() => {
+    const logsData = execution.logs || {};
+    const keys = _.keys(logsData);
+
+    if (!keys.length) {
+      return <div className={styles.logContent}>{t('workflow.builder.execution.empty')}</div>;
+    }
+
+    const list = _.map(keys, (key) => (
+      <Paragraph key={key}>
+        {key}: {logsData[key] || '-'}
+      </Paragraph>
+    ));
+    return <div className={styles.logContent}>{list}</div>;
+  }, [execution.logs]);
+
+  /**
+   * 执行结果列表
+   * @returns {XML}
+   */
+  const getResultList = useMemo(() => {
+    const outputs = execution.outputs || [];
+    const results = (outputs[0] || {}).results || {};
+    const dataList = formatListData(results.list || []);
+    const dataRow = {
+      ...dataList[0],
     };
 
-    /**
-     * 日志内容
-     * @returns {XML}
-     */
-    const getLogContent = useMemo(() => {
-        const logsData = execution.logs || {};
-        const keys = _.keys(logsData);
+    delete dataRow.__key;
 
-        if (!keys.length) {
-            return <div className={styles.logContent}>{t('workflow.builder.execution.empty')}</div>;
-        }
+    // const getWidth = (len) => len * 8;
 
-        const list = _.map(keys, (key) => (
-            <Paragraph key={key}>
-                {key}: {logsData[key] || '-'}
-            </Paragraph>
-        ));
-        return <div className={styles.logContent}>{list}</div>;
-    }, [execution.logs]);
+    const getValue = (v) => {
+      if (v === '' || v === undefined || v === null) {
+        return '-';
+      } else if (_.isArray(v)) {
+        return v.map((item, index) => {
+          return <span key={index}>{getValue(item)}</span>;
+        });
+      } else if (_.isObject(v)) {
+        return JSON.stringify(v);
+      }
+      return v.toString();
+    };
 
-    /**
-     * 执行结果列表
-     * @returns {XML}
-     */
-    const getResultList = useMemo(() => {
-        const outputs = execution.outputs || [];
-        const dataList = formatListData((outputs[0] || {}).results || []);
-        const dataRow = {
-            ...dataList[0],
-        };
-
-        delete dataRow.__key;
-
-        const getWidth = (len) => len * 8;
-
-        const columns = _.map(_.keys(dataRow), (k) => ({
-            key: k,
-            title: k,
-            dataIndex: k, // width: getWidth(Math.min(Math.max((dataRow[k] + '').length, k.length), 200)),
-            render(value) {
-                if (value === '' || value === undefined || value === null) {
-                    return '-';
-                } else if (_.isObject(value)) {
-                    return JSON.stringify(value);
-                }
-                return value.toString();
-            },
-        }));
-
-        return (
-            <div className={styles.resultList} id="resultListWrap">
-                <ListTable
-                    zebra
-                    noSpacing
-                    size="mini"
-                    columns={columns}
-                    dataSource={dataList}
-                    scroll={{
-                        y: 170,
-                        x: columns.length * 150,
-                    }}
-                />
-            </div>
-        );
-    }, [execution]);
-
-    const getTabNode = (
-        <Tabs
-            items={_.map(tabList, (item) => ({
-                key: item.id,
-                label: (
-                    <span className={styles.tabBar}>
-                        {t(`workflow.builder.execution.${item.id}`)}
-                    </span>
-                ),
-                children: (
-                    <div className={styles.content}>
-                        {item.id === 'result' ? getResultList : getLogContent}
-                    </div>
-                ),
-            }))}
-            tabBarExtraContent={
-                <Row>
-                    <Col>
-                        <span className={styles.exeBtn} onClick={toggleCollapsed}>
-                            {collapsed ? <BorderOutlined /> : <MinusOutlined />}
-                        </span>
-                    </Col>
-                    <Col>
-                        <span className={styles.exeBtn} onClick={onClose}>
-                            <CloseOutlined />
-                        </span>
-                    </Col>
-                </Row>
-            }
-            defaultActiveKey={tabList[0] ? tabList[0].id : ''}
-            onChange={() => {
-                if (collapsed) {
-                    setCollapsed(!collapsed);
-                }
-            }}
-        />
-    );
+    const columns = _.map(_.keys(dataRow), (k) => ({
+      key: k,
+      title: k,
+      dataIndex: k, // width: getWidth(Math.min(Math.max((dataRow[k] + '').length, k.length), 200)),
+      render: getValue,
+    }));
 
     return (
-        <div className={cls(styles.wrapper, { [styles.collapsed]: collapsed }, 'execute-preview')}>
-            <Spin spinning={!!nodeExecutionRequest.loading} />
-            {getTabNode}
-        </div>
+      <div className={styles.resultList} id="resultListWrap">
+        <ListTable
+          zebra
+          noSpacing
+          size="mini"
+          columns={columns}
+          dataSource={dataList}
+          scroll={{
+            y: 170,
+            x: columns.length * 150,
+          }}
+        />
+      </div>
     );
+  }, [execution]);
+
+  const getTabNode = (
+    <Tabs
+      items={_.map(tabList, (item) => ({
+        key: item.id,
+        label: <span className={styles.tabBar}>{t(`workflow.builder.execution.${item.id}`)}</span>,
+        children: (
+          <div className={styles.content}>
+            {item.id === 'result' ? getResultList : getLogContent}
+          </div>
+        ),
+      }))}
+      tabBarExtraContent={
+        <Row>
+          <Col>
+            <span className={styles.exeBtn} onClick={toggleCollapsed}>
+              {collapsed ? <BorderOutlined /> : <MinusOutlined />}
+            </span>
+          </Col>
+          <Col>
+            <span className={styles.exeBtn} onClick={onClose}>
+              <CloseOutlined />
+            </span>
+          </Col>
+        </Row>
+      }
+      defaultActiveKey={tabList[0] ? tabList[0].id : ''}
+      onChange={() => {
+        if (collapsed) {
+          setCollapsed(!collapsed);
+        }
+      }}
+    />
+  );
+
+  return (
+    <div className={cls(styles.wrapper, { [styles.collapsed]: collapsed }, 'execute-preview')}>
+      <Spin spinning={!!nodeExecutionRequest.loading} />
+      {getTabNode}
+    </div>
+  );
 };
 
 export default ExecutePreview;

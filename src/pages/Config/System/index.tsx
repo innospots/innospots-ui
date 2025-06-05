@@ -17,36 +17,34 @@
  */
 
 import React, { useState, useEffect } from 'react';
-
+import { history, useLocation, useSearchParams } from 'umi';
 import { Row, Col, Menu } from 'antd';
 
-import { useHistory } from 'react-router';
-
+import PageHelmet from '@/components/PageHelmet';
 import PageTitle from '@/components/PageTitle';
-
-import styles from './style.less';
-import InfoConfig from './components/BasicConfig';
-import EmailConfig from './components/EmailConfig';
 import useI18n from '@/common/hooks/useI18n';
 import PageLoading from '@/components/PageLoading';
 
-const Index: React.FC = () => {
-  const history = useHistory();
+import InfoConfig from './components/BasicConfig';
+import EmailConfig from './components/EmailConfig';
+import EnvConfig from './components/EnvConfig';
+
+import styles from './style.less';
+
+const SystemConfig: React.FC = () => {
+  const location = useLocation();
   const {
-    location: {
-      // @ts-ignore
-      query,
-      pathname,
-    },
-  } = history;
+    pathname,
+  } = location;
+  const [searchParams] = useSearchParams();
 
-  const { t, loading: i18nLoading } = useI18n(['configuration', 'common']);
+  const { t, loading: i18nLoading } = useI18n(['configuration', 'system', 'common']);
 
-  const [tabKey, setTabKey] = useState(query.tabKey || 'basic');
+  const [tabKey, setTabKey] = useState(searchParams.get('tabKey') || 'basic');
 
   useEffect(() => {
-    setTabKey(query.tabKey || 'basic');
-  }, [query]);
+    setTabKey(searchParams.get('tabKey') || 'basic');
+  }, [searchParams]);
 
   useEffect(() => {
     history.push({
@@ -59,7 +57,7 @@ const Index: React.FC = () => {
   }, [tabKey]);
 
   const renderPageHeader = () => {
-    return <PageTitle title={t('configuration.main.heading_title')} style={{ height: 64 }} />;
+    return <PageTitle title={t('configuration.main.heading_title')} />;
   };
 
   const handleTabChange = ({ key }) => {
@@ -67,7 +65,15 @@ const Index: React.FC = () => {
   };
 
   const getTabContent = () => {
-    return tabKey === 'basic' ? <InfoConfig /> : <EmailConfig />;
+    if (tabKey === 'basic') {
+      return <InfoConfig />;
+    }
+    if (tabKey === 'email') {
+      return <EmailConfig />;
+    }
+    if (tabKey === 'env') {
+      return <EnvConfig />;
+    }
   };
 
   const renderPageContent = () => {
@@ -80,6 +86,7 @@ const Index: React.FC = () => {
                 <Menu mode="inline" onClick={handleTabChange} selectedKeys={[tabKey || '']}>
                   <Menu.Item key="basic">{t('configuration.form.tab.org.title')}</Menu.Item>
                   <Menu.Item key="email">{t('configuration.form.tab.email.title')}</Menu.Item>
+                  <Menu.Item key="env">{t('configuration.form.tab.env.title')}</Menu.Item>
                 </Menu>
               </div>
             </div>
@@ -96,10 +103,11 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('configuration.main.heading_title')} />
       {renderPageHeader()}
       {renderPageContent()}
     </>
   );
 };
 
-export default Index;
+export default SystemConfig;

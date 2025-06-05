@@ -16,10 +16,12 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 
-@normal-height: 76px;
-@simple-header-height: 60px;
+@normal-height: 52px;
+@simple-header-height: 32px;
 
 .niceModal {
   &.simple {
@@ -28,6 +30,7 @@
       .@{ant-prefix}-modal-footer {
         height: @simple-header-height;
         border-color: transparent;
+        box-shadow: none;
       }
 
       .@{ant-prefix}-modal-footer {
@@ -35,8 +38,8 @@
       }
 
       .@{ant-prefix}-modal-close-x {
-        height: @simple-header-height;
-        line-height: @simple-header-height;
+        // height: @simple-header-height;
+        // line-height: @simple-header-height;
       }
     }
   }
@@ -78,10 +81,10 @@
     }
 
     .@{ant-prefix}-modal-close-x {
-      height: @simple-header-height;
+      // height: @simple-header-height;
       color: #bfbfbf;
       font-size: 14px;
-      line-height: @simple-header-height;
+      // line-height: @simple-header-height;
     }
   }
 }

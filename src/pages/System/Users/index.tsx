@@ -33,6 +33,7 @@ import { DEFAULT_PAGINATION_SETTINGS } from '@/common/constants';
 
 import PageLoading from '@/components/PageLoading';
 import PageTitle from '@/components/PageTitle';
+import PageHelmet from '@/components/PageHelmet';
 import ListTable from '@/components/ListTable';
 import UserAvatar from '@/components/UserAvatar';
 import useI18n from '@/common/hooks/useI18n';
@@ -53,7 +54,12 @@ import styles from './style.less';
 
 const Index: React.FC = () => {
   const { sessionData } = useModel('Account');
-  const { userData, changeStatusRequest, userRequest, deleteUserRequest } = useModel('User');
+  const { userData, changeStatusRequest, userRequest, deleteUserRequest } = useModel('User', model => ({
+    userData: model.userData,
+    userRequest: model.userRequest,
+    deleteUserRequest: model.deleteUserRequest,
+    changeStatusRequest: model.changeStatusRequest,
+  }));
 
   const currentAdmin = sessionData?.admin;
 
@@ -175,8 +181,8 @@ const Index: React.FC = () => {
       // },
       {
         title: t('user.main.column.role'),
-        dataIndex: ['roleNames', '0'],
-        render: (roleName: string) => roleName || '-',
+        dataIndex: 'roleNames',
+        render: (roleNames: string[]) => roleNames?.join(', ') || '-',
       },
       {
         title: t('user.main.column.visit_time'),
@@ -280,6 +286,7 @@ const Index: React.FC = () => {
 
   return (
     <UserConfigContext.Provider value={{ onFormSubmitSuccess }}>
+      <PageHelmet title={t('user.main.heading_title')} />
       {renderPageHeader()}
       {renderDataContent()}
       <MemberModal />

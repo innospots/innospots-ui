@@ -1,0 +1,222 @@
+/* @import '~antd/es/style/themes/index.less'; */
+/* @import '~antd/lib/style/themes/default.less'; */
+
+@page-border-color: #e6ecff;
+
+.listItem {
+  padding-top: 8px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+
+  &.listActive {
+    background-color: #f0f5ff;
+  }
+}
+
+.pageWrapper {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  border: 1px solid @page-border-color;
+  background-color: #fff;
+
+  .appName {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .navbar {
+    display: flex;
+
+    > li {
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+      display: block;
+      border-radius: 6px;
+      padding: 6px 12px;
+
+      &:hover {
+        color: @primary-color;
+      }
+
+      &.active {
+        cursor: default;
+        font-weight: 600;
+        color: @primary-color;
+        background-color: rgb(232 237 255);
+      }
+    }
+  }
+
+  .navs {
+    .appName {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+
+  &.top {
+    flex-direction: column;
+
+    .appName {
+      height: 54px;
+      padding: 16px 24px;
+      border-bottom: 1px solid @page-border-color;
+    }
+
+    .navbar {
+      padding: 8px 24px;
+      border-bottom: 1px solid @page-border-color;
+
+      > li {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  &.left {
+    .navs {
+      width: 260px;
+      padding: 0 4px;
+      border-right: 1px solid @page-border-color;
+    }
+
+    .appName {
+      padding: 24px;
+    }
+
+    .navbar {
+      padding: 0 16px 0 20px;
+      height: calc(100% - 82px);
+      flex-direction: column;
+
+      > li {
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  &.hideNav {
+    .navs {
+      display: none;
+    }
+  }
+
+  .pageContent {
+    flex: 1;
+    background-color: #f6fafd;
+
+    @border-radius: 12px;
+    @title-height: 42px;
+
+    &.chatPage,
+    &.dataPage {
+      display: flex;
+      padding: 12px;
+      min-width: 1200px;
+
+      .widgetsWrapper {
+        width: 426px;
+        position: relative;
+        border-radius: @border-radius;
+        background-color: #fff;
+
+        :global {
+          .@{ant-prefix} {
+            &-tabs-tab {
+              padding-left: 8px;
+              padding-right: 8px;
+              margin-left: 12px;
+            }
+          }
+        }
+
+        .panlButtons {
+          top: 11px;
+          right: 12px;
+          z-index: 10;
+          position: absolute;
+        }
+
+        &.collapse {
+          width: 70px;
+          height: 42px;
+          overflow: hidden;
+
+          .appSettings {
+            display: none;
+          }
+        }
+
+        .widgetsTitle {
+          width: 100%;
+          padding: 0 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          line-height: @title-height;
+          border-top-left-radius: @border-radius;
+          border-top-right-radius: @border-radius;
+          border-bottom: 1px solid @page-border-color;
+
+          > span {
+            font-weight: bold;
+          }
+        }
+
+        .appSettings {
+          height: 100%;
+
+          .settingsContent {
+            height: calc(100% - 70px);
+
+            &:not(.shown) {
+              display: none;
+            }
+
+            .conversations {
+              padding: 0 16px;
+            }
+          }
+        }
+      }
+    }
+
+    &.chatPage {
+      justify-content: end;
+
+      &.showSetting {
+        .chatContainer {
+          margin-right: 20px;
+        }
+      }
+
+      .chatContainer {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    &.dataPage {
+      .resultContainer {
+        flex: 1;
+        min-width: 0;
+        margin-left: 20px;
+        border-radius: @border-radius;
+        background-color: #fff;
+      }
+    }
+
+    &.formPage {
+      .widgetsWrapper {
+        min-width: 1200px;
+      }
+    }
+
+    .widgetsWrapper {
+      height: 100%;
+    }
+  }
+}

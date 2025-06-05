@@ -24,11 +24,11 @@ import { Row, Col, Form, Spin, Input, Button, Upload, Select, Divider, message }
 import { PlusOutlined, SyncOutlined } from '@ant-design/icons';
 import { useMemoizedFn } from 'ahooks';
 
-import { UPLOAD_IMAGE_PATH } from '@/common/constants';
+import {UPLOAD_FAVICON_PATH, UPLOAD_IMAGE_PATH, UPLOAD_LOGO_PATH} from '@/common/constants';
 import { getAuthHeader } from '@/common/request/header';
 import PermissionSection, { usePermission } from '@/components/PermissionSection';
 import useI18n from '@/common/hooks/useI18n';
-
+import { isRequestSuccess } from '@/common/utils';
 import styles from './style.less';
 
 const formItemLayout = {
@@ -40,11 +40,20 @@ const InfoConfig: React.FC = () => {
   const [formRes] = Form.useForm();
   const { t } = useI18n(['configuration', 'common']);
 
-  const { infoConfigsRequest, saveInfoConfigRequest } = useModel('Setting');
+  const { infoConfigsRequest, saveInfoConfigRequest } = useModel('Setting', (model) => ({
+    infoConfigsRequest: model.infoConfigsRequest,
+    saveInfoConfigRequest: model.saveInfoConfigRequest,
+  }));
 
-  const { locales, languageList, getLanguageList, fetchLocalesRequest } = useModel('I18n');
+  const { locales, languageList, getLanguageList, fetchLocalesRequest } = useModel('I18n', (model) => ({
+    locales: model.locales,
+    languageList: model.languageList,
+    getLanguageList: model.getLanguageList,
+    fetchLocalesRequest: model.fetchLocalesRequest,
+  }));
 
-  const [uploadAuth] = usePermission('SysConfig-uploadImage');
+  const [uploadLogoAuth] = usePermission('SysConfig-uploadLogo');
+  const [uploadFaviconAuth] = usePermission('SysConfig-uploadFavicon');
 
   const [imgData, setImgData] = useState({
     icon: {
@@ -131,11 +140,11 @@ const InfoConfig: React.FC = () => {
     }
     if (info.file.status === 'done') {
       const response = info.file.response || {};
-      if (response.code === '10000') {
+      if (isRequestSuccess(response.code)) {
         setImgData({
           ...imgData,
           [type]: {
-            imgUrl: 'data:image/png;base64,' + response.data,
+            imgUrl: 'data:image/png;base64,' + response.body,
             loading: false,
           },
         });
@@ -162,9 +171,9 @@ const InfoConfig: React.FC = () => {
     if (changeKey === 'logo' || changeKey === 'favIcon') {
       if (changeValue?.file.status === 'done') {
         const response = changeValue?.file.response || {};
-        if (response.code === '10000') {
+        if (isRequestSuccess(response.code)) {
           formRes.setFieldsValue({
-            [changeKey]: 'data:image/png;base64,' + response.data,
+            [changeKey]: 'data:image/png;base64,' + response.body,
           });
         }
       }
@@ -266,7 +275,7 @@ const InfoConfig: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={[16, 0]}>
+          {/* <Row gutter={[16, 0]}>
             <Col span={13}>
               <Form.Item
                 name="favIcon"
@@ -277,14 +286,14 @@ const InfoConfig: React.FC = () => {
               >
                 <Upload
                   name="image"
-                  disabled={!uploadAuth}
+                  disabled={!uploadLogoAuth}
                   headers={getAuthHeader()}
                   showUploadList={false}
                   listType="picture-card"
                   className={styles.upload}
                   beforeUpload={beforeUpload}
                   onChange={handleImgChange('icon')}
-                  action={UPLOAD_IMAGE_PATH}
+                  action={UPLOAD_FAVICON_PATH}
                 >
                   {imgData['icon']?.imgUrl ? (
                     <img src={imgData['icon']?.imgUrl} alt="avatar" style={{ width: '100%' }} />
@@ -310,14 +319,14 @@ const InfoConfig: React.FC = () => {
               >
                 <Upload
                   name="image"
-                  disabled={!uploadAuth}
+                  disabled={!uploadFaviconAuth}
                   headers={getAuthHeader()}
                   showUploadList={false}
                   listType="picture-card"
                   beforeUpload={beforeUpload}
                   className={styles.logoUpload}
                   onChange={handleImgChange('logo')}
-                  action={UPLOAD_IMAGE_PATH}
+                  action={UPLOAD_LOGO_PATH}
                 >
                   {imgData['logo']?.imgUrl ? (
                     <img src={imgData['logo']?.imgUrl} alt="avatar" style={{ width: '100%' }} />
@@ -330,7 +339,7 @@ const InfoConfig: React.FC = () => {
             <Col span={10} className={styles.message}>
               <span>{t('configuration.form.image.logo.info')}</span>
             </Col>
-          </Row>
+          </Row> */}
         </Form>
       </div>
     );

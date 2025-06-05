@@ -29,7 +29,7 @@ import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 import InnoIcon from '@/components/Icons/InnoIcon';
 import PageLoading from '@/components/PageLoading';
-
+import PageHelmet from '@/components/PageHelmet';
 import PermissionSection, { usePermission } from '@/components/PermissionSection';
 import PageTitle from '@/components/PageTitle';
 import NiceSwitch from '@/components/Nice/NiceSwitch';
@@ -306,6 +306,7 @@ const DataSource: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('datasource.main.heading_title')} />
       {renderPageHeader()}
       {renderCardNode()}
       {renderDataSourceModal()}

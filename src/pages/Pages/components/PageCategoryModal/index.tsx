@@ -81,7 +81,7 @@ const PageCategoryModal: React.FC = () => {
 
   const renderForm = () => {
     return (
-      <Form form={formRes} preserve={false} {...formItemLayout} style={{ marginBottom: -24 }}>
+      <Form form={formRes} preserve={false} {...formItemLayout}>
         <Form.Item
           label={t('common.category.name.label')}
           name="categoryName"

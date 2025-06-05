@@ -1,0 +1,65 @@
+{
+  "id": "2689576",
+  "name": "innospot-isp",
+  "font_family": "innospot-isp-iconfont",
+  "css_prefix_text": "innospot-icon-",
+  "description": "innospot-isp",
+  "glyphs": [
+    {
+      "icon_id": "959601",
+      "name": "backspace",
+      "font_class": "backspace",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
+      "icon_id": "7900941",
+      "name": "调用",
+      "font_class": "diaoyong",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "9597759",
+      "name": "HTTP Get请求",
+      "font_class": "http-get",
+      "unicode": "e84f",
+      "unicode_decimal": 59471
+    },
+    {
+      "icon_id": "9604372",
+      "name": "HTTP POST请求",
+      "font_class": "http-post",
+      "unicode": "e85c",
+      "unicode_decimal": 59484
+    },
+    {
+      "icon_id": "19099237",
+      "name": "Link",
+      "font_class": "link",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "3110262",
+      "name": "edit",
+      "font_class": "edit",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "8052132",
+      "name": "联动",
+      "font_class": "liandong",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "15651141",
+      "name": "格式化",
+      "font_class": "geshihua",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    }
+  ]
+}

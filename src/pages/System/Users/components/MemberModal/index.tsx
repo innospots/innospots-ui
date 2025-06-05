@@ -33,7 +33,7 @@ import useModal from '@/common/hooks/useModal';
 
 import UserConfigContext from '../contexts/UserConfigContext';
 
-import { encrypt, randomString } from '@/common/utils';
+import { encrypt, randomString, isRequestSuccess } from '@/common/utils';
 
 import styles from './style.less';
 
@@ -156,7 +156,7 @@ const MemberModal: React.FC = () => {
     if (file.status === 'done') {
       setUploading(false);
       const response = file.response || {};
-      if (response.code === '10000') {
+      if (isRequestSuccess(response.code)) {
         setUploadImg('data:image/png;base64,' + response.body);
       }
     }

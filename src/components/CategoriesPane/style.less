@@ -32,38 +32,8 @@
       padding: 16px;
 
       .title {
-        font-weight: bold;
+        // font-weight: bold;
         font-size: 16px;
-      }
-    }
-
-    .menuList {
-
-      :global {
-        .@{ant-prefix}-menu-inline {
-          border-right-color: transparent;
-          > .@{ant-prefix}-menu-item {
-            height: 36px;
-            line-height: 36px;
-            margin: 4px 0 8px !important;
-          }
-        }
-
-        .@{ant-prefix}-menu-item-selected {
-          .@{ant-prefix}-typography {
-            color: @primary-color;
-          }
-
-          &:after {
-            display: none;
-          }
-        }
-
-        .@{ant-prefix}-typography {
-          max-width: 126px;
-          margin-bottom: 0;
-          color: inherit;
-        }
       }
     }
   }

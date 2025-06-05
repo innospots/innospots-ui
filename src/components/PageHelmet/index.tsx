@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import { Helmet } from 'umi';
+import { Helmet, useModel } from 'umi';
 
 import { PAGE_TITLE_SUFFIX } from '@/common/constants';
 
@@ -26,11 +26,17 @@ export type PageHelmetProps = {
 };
 
 const PageHelmet: React.FC<PageHelmetProps> = ({ title }) => {
+  const { serverInfo } = useModel('Account', (model) => ({
+    serverInfo: model.serverInfo,
+  }));
+
   return (
     <Helmet>
       <title>
-        {title} - {PAGE_TITLE_SUFFIX}
+        {title} - {serverInfo.title || PAGE_TITLE_SUFFIX}
       </title>
+      <link rel="icon" href={serverInfo.favicon || '/static/images/common/favicon.png'} />
+      <meta name="description" content={serverInfo.description || serverInfo.title || ''} />
     </Helmet>
   );
 };

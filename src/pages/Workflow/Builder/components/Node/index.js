@@ -16,37 +16,42 @@
  *  limitations under the License.
  */
 
-import React, {useRef, useMemo, useState, useEffect} from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import _ from 'lodash';
 import cls from 'classnames';
-import {Image, Popconfirm, Spin} from 'antd';
 import {
-  WarningFilled, CloseCircleFilled, CheckCircleFilled, PlusCircleOutlined,
+  WarningFilled,
+  LoadingOutlined,
+  CloseCircleFilled,
+  CheckCircleFilled,
+  PlusCircleOutlined,
 } from '@ant-design/icons';
 
-import {useDeepCompareEffect} from 'ahooks';
+import { useDeepCompareEffect } from 'ahooks';
 
 import useI18n from '@/common/hooks/useI18n';
-import NodeIcon, {renderNodeIcon} from '../NodeIcon';
-import {STRESS_COLOR, FAILURE_BRANCH_PORT_ID} from '../../common/constants';
+import NodeIcon, { renderNodeIcon } from '../NodeIcon';
+import { STRESS_COLOR, FAILURE_BRANCH_PORT_ID } from '../../common/constants';
 
 import styles from './index.less';
 
 const NODE_INFO_KEYS = ['icon', 'color', 'name', 'displayName', 'description'];
 
-const Node = ({node}) => {
-  const {t} = useI18n(['workflow', 'common']);
+const Node = ({ node }) => {
+  const { t } = useI18n(['workflow', 'common']);
   const nodeData = _.get(node, 'data', {});
   const nodeConfig = _.get(node, 'data.configData', {});
   const nodeCode = (nodeData.code || '').toLowerCase();
   const editAble = nodeData.pageMode === 'edit';
+  const resources = nodeConfig.resources || {}
 
   const movedRef = useRef(false);
 
   const [nodeHover, setNodeHover] = useState(false);
 
-  const inPorts = useMemo(() => nodeConfig.inPorts, [nodeConfig.inPorts]);
-  const outPorts = useMemo(() => nodeConfig.outPorts, [nodeConfig.outPorts]);
+  const inPorts = useMemo(() => resources.inPorts, [ resources.inPorts ]);
+  const outPorts = useMemo(() => nodeConfig.outPorts || resources.outPorts, [ resources.outPorts, nodeConfig.outPorts ]);
+  const playAble = useMemo(() => !['job', 'approval'].includes(_.toLower(nodeData.flowCode)), [nodeData.flowCode]);
 
   const nodeInfo = useMemo(() => {
     return {
@@ -55,27 +60,13 @@ const Node = ({node}) => {
   }, [nodeData]);
 
   useEffect(() => {
-    node.on('change:position', () => {
-      movedRef.current = true;
-    });
-
-    node.on('anchor-change', handleAnchorChange);
-
-    return () => {
-      node.off();
-    };
-  }, []);
-
-  useDeepCompareEffect(() => {
-    createNodePorts();
-  }, [inPorts, outPorts]);
-
-  useEffect(() => {
     const hasPort = node.hasPort(FAILURE_BRANCH_PORT_ID);
     if (nodeData.failureBranch) {
       if (!hasPort) {
         node.addPort({
-          id: FAILURE_BRANCH_PORT_ID, group: 'out', attrs: {
+          id: FAILURE_BRANCH_PORT_ID,
+          group: 'out',
+          attrs: {
             circle: {
               fill: STRESS_COLOR,
             },
@@ -105,11 +96,14 @@ const Node = ({node}) => {
 
     ports[portIndex] = event.data;
 
-    node.setData({
-      configData: {
-        [portType]: ports,
+    node.setData(
+      {
+        configData: {
+          [portType]: ports,
+        },
       },
-    }, {deep: true},);
+      { deep: true },
+    );
 
     if (nodePort) {
       if (portType === 'outPorts') {
@@ -124,15 +118,17 @@ const Node = ({node}) => {
     node.remove();
   };
 
-  const handleExecute = (event) => {
+  const handleExecute = () => {
     node._model.graph.trigger('node:menu-click', {
-      cell: node, type: 'execute',
+      cell: node,
+      type: 'execute',
     });
   };
 
   const handleEditLoop = (event) => {
     node._model.graph.trigger('node:menu-click', {
-      cell: node, type: 'loop-edit',
+      cell: node,
+      type: 'loop-edit',
     });
   };
 
@@ -144,7 +140,7 @@ const Node = ({node}) => {
     const enableDelete = nodeConfig.enableDelete || nodeConfig.primitive !== 'trigger';
 
     return (
-      <div className={cls(styles.menu, {[styles.defaultNode]: !enableDelete})}>
+      <div className={cls(styles.menu, { [styles.defaultNode]: !enableDelete })}>
         {enableDelete && (
           // <Popconfirm
           //   title={t('workflow.builder.delete_confirmation')}
@@ -152,20 +148,22 @@ const Node = ({node}) => {
           //   okText={t('common.button.confirm')}
           //   cancelText={t('common.button.cancel')}
           // >
-            <NodeIcon className={styles.icon} type="flow-node-delete" onClick={handleDelete}/>
+          <NodeIcon className={styles.icon} type="flow-node-delete" onClick={handleDelete} />
           // </Popconfirm>
         )}
-        <NodeIcon type="flow-node-play" className={styles.icon} onClick={handleExecute}/>
+        {playAble && <NodeIcon type="flow-node-play" className={styles.icon} onClick={handleExecute} />}
         {/*<NodeIcon type="flow-node-suspend" className={styles.icon}/>*/}
       </div>
     );
-  }, [nodeConfig, editAble]);
+  }, [nodeConfig, editAble, playAble]);
 
   const loopIcon = useMemo(() => {
     if (nodeData.code === 'LOOP') {
-      return (<div className={styles.loopIcon} onClick={handleEditLoop}>
-          <PlusCircleOutlined/>
-        </div>);
+      return (
+        <div className={styles.loopIcon} onClick={handleEditLoop}>
+          <PlusCircleOutlined />
+        </div>
+      );
     } else {
       return null;
     }
@@ -173,7 +171,7 @@ const Node = ({node}) => {
 
   const iconStyle = useMemo(() => {
     const style = {};
-    const {iconWidth, iconHeight} = nodeConfig;
+    const { iconWidth, iconHeight } = nodeConfig;
 
     if (iconWidth) {
       style.width = iconWidth;
@@ -201,24 +199,32 @@ const Node = ({node}) => {
       return {};
     };
 
-    _.each(inPorts, (port) => {
-      ports.push({
-        id: port.id || port.name,
-        group: port.group || 'in',
-        attrs: getAttrs(port), data: {
-          ...(port.data || port),
-        },
-      });
+    _.each(inPorts, (port, index) => {
+      const portId = port.id || port.name || `in_${index}`
+      if (!node.hasPort(portId)) {
+        ports.push({
+          id: portId,
+          group: port.group || 'in',
+          attrs: getAttrs(port),
+          data: {
+            ...(port.data || port),
+          },
+        });
+      }
     });
 
-    _.each(outPorts, (port) => {
-      ports.push({
-        id: port.id || port.name,
-        group: port.group || 'out',
-        attrs: getAttrs(port), data: {
-          ...(port.data || port),
-        },
-      });
+    _.each(outPorts, (port, index) => {
+      const portId = port.id || port.name || `out_${index}`
+      if (!node.hasPort(portId)) {
+        ports.push({
+          id: portId,
+          group: port.group || 'out',
+          attrs: getAttrs(port),
+          data: {
+            ...(port.data || port),
+          },
+        });
+      }
     });
 
     node.addPorts(ports);
@@ -231,7 +237,8 @@ const Node = ({node}) => {
     }
 
     node._model.graph.trigger('node:cur-select', {
-      cell: node, trigger: true,
+      cell: node,
+      trigger: true,
     });
   };
 
@@ -245,7 +252,9 @@ const Node = ({node}) => {
 
   const wrapperCls = useMemo(() => {
     return cls(styles.nodeWrapper, {
-      [styles.nodeHover]: nodeHover, [styles.nodeActive]: nodeData.__selected, [styles.executing]: nodeData.executing
+      [styles.nodeHover]: nodeHover,
+      [styles.nodeActive]: nodeData.__selected,
+      [styles.executing]: nodeData.executing,
     });
   }, [nodeHover, nodeData.__selected, nodeData.executing]);
 
@@ -255,21 +264,37 @@ const Node = ({node}) => {
     });
   }, [nodeData.__selected, nodeData.category]);
 
+  useEffect(() => {
+    node.on('change:position', () => {
+      movedRef.current = true;
+    });
+
+    node.on('anchor-change', handleAnchorChange);
+
+    return () => {
+      node.off();
+    };
+  }, []);
+
+  useDeepCompareEffect(() => {
+    createNodePorts();
+  }, [inPorts, outPorts]);
+
   const statusNode = useMemo(() => {
     if (!nodeData.nodeStatus || nodeCode === 'start') return null;
 
     let icon;
     switch (nodeData.nodeStatus) {
       case 'FAILED':
-        icon = <CloseCircleFilled className={cls(styles.icon, styles.fail)}/>;
+        icon = <CloseCircleFilled className={cls(styles.icon, styles.fail)} />;
         break;
 
       case 'COMPLETE':
-        icon = <CheckCircleFilled className={cls(styles.icon, styles.success)}/>;
+        icon = <CheckCircleFilled className={cls(styles.icon, styles.success)} />;
         break;
 
       case 'WARNING':
-        icon = <WarningFilled className={cls(styles.icon, styles.warning)}/>;
+        icon = <WarningFilled className={cls(styles.icon, styles.warning)} />;
         break;
 
       default:
@@ -283,7 +308,7 @@ const Node = ({node}) => {
   return (
     <div className={wrapperCls}>
       <div className={styles.spin}>
-        <Spin/>
+        <LoadingOutlined spin style={{ fontSize: 24 }} />
       </div>
       <div onMouseEnter={handleHoverNode} onMouseLeave={handleLeaveNode}>
         {menuNode}

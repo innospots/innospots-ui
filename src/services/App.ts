@@ -20,21 +20,42 @@ import { fetch, dataRequest } from '@/common/request';
 import { DEFAULT_PAGINATION_SETTINGS } from '@/common/constants';
 
 export function fetchCategories<T> (): Promise<T> {
-  return fetch<T>('apps/category/list');
+  return fetch<T>('app/definition/category');
 };
-
-export function fetchAppInfo<T> (nodeId: number): Promise<T> {
-  return fetch<T>(`apps/definition/${nodeId}`);
-};
-
-export function appExecute<T> (data: any): Promise<T> {
-  return dataRequest.post(`apps/definition/debug/execute`, {
-    data
+export const createCategory = (categoryName: string): any => {
+  return fetch(`app/definition/category?categoryName=${categoryName}`, {
+    method: 'post',
   });
 };
 
+export const updateCategory = (categoryId: number, categoryName: string) => {
+  return fetch(`app/definition/category/${categoryId}?categoryName=${categoryName}`, {
+    method: 'put',
+  });
+};
+export const deleteCategory = (categoryId: number) => {
+  return fetch(`app/definition/category/${categoryId}`, {
+    method: 'delete',
+  });
+};
+
+export function checkPermission<T> (approvelnstancekey: string, params?: any): Promise<T> {
+  return fetch<T>(`approve/permission/check/${approvelnstancekey}`, {
+    params,
+  });
+};
+
+export function fetchAppInfo<T> (appKey: string): Promise<T> {
+  return fetch<T>(`app/show/${appKey}`);
+  // return fetch<T>(`app/definition/${appKey}`);
+};
+
+export const fetchAppDatasetList = (appKey: string) => {
+  return fetch(`schema/registry/list-app/`+appKey);
+};
+
 export function fetchApps<T> (data?: any): Promise<T> {
-  return fetch(`apps/definition/page`, {
+  return fetch(`app/definition/page`, {
     params: {
       ...DEFAULT_PAGINATION_SETTINGS,
       ...data,
@@ -42,28 +63,47 @@ export function fetchApps<T> (data?: any): Promise<T> {
   });
 };
 
-export function updateAppStatus<T> (nodeId: number, status: string): Promise<T> {
-  return fetch(`apps/definition/${nodeId}/status/${status}`, {
+export function fetchShowApps<T> (data?: any): Promise<T> {
+  return fetch(`app/show/page`, {
+    params: {
+      ...DEFAULT_PAGINATION_SETTINGS,
+      ...data,
+    },
+  });
+};
+
+export function updateAppStatus<T> (appKey: string, status: string): Promise<T> {
+  return fetch(`app/definition/${appKey}/status/${status}`, {
     method: 'put',
   });
 };
 
 export function postAppInfo<T> (data: any, method: 'put' | 'post' = 'post'): Promise<T> {
-  return fetch(`apps/definition/info`, {
+  return fetch(`app/definition`, {
     data,
     method,
   });
 };
 
-export function deleteAppInfo<T> (nodeId: number): Promise<T> {
-  return fetch(`apps/definition/${nodeId}`, {
+export function deleteAppInfo<T> (appKey: string): Promise<T> {
+  return fetch(`app/definition/${appKey}`, {
     method: 'delete'
   });
 };
 
 export function updateAppInfo<T> (data: any): Promise<T> {
-  return fetch(`apps/definition`, {
+  return fetch(`app/definition`, {
     data,
     method: 'put'
   });
+};
+
+export function fetchRegistryList<T> (registryType: string, params?: any): Promise<T> {
+  return fetch(`app/schema-registry/page/${registryType}`, {
+    params,
+  });
+};
+
+export function fetchRegistryFields<T> (registryType: string, registryCode: string): Promise<T> {
+  return fetch(`app/schema-registry/type/${registryType}/${registryCode}`);
 };

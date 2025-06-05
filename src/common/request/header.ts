@@ -16,15 +16,21 @@
  *  limitations under the License.
  */
 
+import moment from 'moment-timezone';
 import { getSessionData } from '@/common/utils';
+
+const currentTimezone = moment.tz.guess();
 
 export const getAuthToken = () => {
   const sessionData = getSessionData();
   return sessionData?.rawToken;
 };
 
-export const getAuthHeader = () => {
-  const headers: any = {};
+export const getAuthHeader = (defaultHeaders: any = {}) => {
+  const headers: any = {
+    'User-Timezone': currentTimezone,
+    ...defaultHeaders,
+  };
   const token = getAuthToken();
 
   if (token) {

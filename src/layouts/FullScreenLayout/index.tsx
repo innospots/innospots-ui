@@ -16,19 +16,23 @@
  *  limitations under the License.
  */
 
+import { Outlet, history, useModel, useLocation } from 'umi';
+import Cookies from 'js-cookie';
+import moment from 'moment-timezone';
 import ProLayout, { getMenuData, getPageTitle } from '@ant-design/pro-layout';
 import { Helmet } from 'react-helmet';
 import React, { useMemo, useEffect } from 'react';
 import { Modal } from 'antd';
+import { useEventEmitter } from 'ahooks'
 import useI18n from '@/common/hooks/useI18n';
 import { checkUserStatus } from '@/services/Account';
-import { history, useModel } from 'umi';
 import PageLoading from '@/components/PageLoading';
 import RootConfigProvider from '@/components/RootConfigProvider';
-
+import { isRequestSuccess, isTokenExpired } from '@/common/utils';
 import styles from './style.less';
 
 const loginPath = '/login';
+const currentTimezone = moment.tz.guess();
 
 const FullScreenLayout = (props) => {
   const {
@@ -37,14 +41,20 @@ const FullScreenLayout = (props) => {
     },
   } = props;
   const { routes = [] } = route;
-  const {
-    children,
-    location = {
-      pathname: '',
-    },
-  } = props;
+  const location = useLocation();
 
+  const $event = useEventEmitter()
   const { logout, sessionData, setSessionData } = useModel('Account');
+
+  useEffect(() => {
+    if ($event) {
+      window.AppEvent = $event
+    }
+  }, [$event])
+
+  useEffect(() => {
+    Cookies.set('timezone', currentTimezone);
+  }, []);
 
   const currentUserData = useMemo(() => {
     return sessionData;
@@ -67,9 +77,9 @@ const FullScreenLayout = (props) => {
   const checkUserInfo = async (url: string) => {
     try {
       const result = await checkUserStatus(url);
-      if (['60003', '60004'].includes(result?.code)) {
+      if (isTokenExpired(result?.code)) {
         logout();
-      } else if (result?.code === '10000') {
+      } else if (isRequestSuccess(result?.code)) {
         setSessionData(result.body);
       }
     } catch (e) {
@@ -103,7 +113,7 @@ const FullScreenLayout = (props) => {
             height: '100vh',
           }}
         >
-          {children}
+          <Outlet />
         </div>
       </ProLayout>
     );

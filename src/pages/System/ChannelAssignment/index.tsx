@@ -25,6 +25,7 @@ import { useToggle } from 'ahooks';
 
 import PageTitle from '@/components/PageTitle';
 import useI18n from '@/common/hooks/useI18n';
+import PageHelmet from '@/components/PageHelmet';
 import PageLoading from '@/components/PageLoading';
 import PermissionSection from '@/components/PermissionSection';
 import ReceivingSettingTable from './components/ReceivingSettingTable';
@@ -107,6 +108,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('notification.assignment.title')} />
       {renderPageHeader()}
       {renderDataContent()}
     </>

@@ -1,249 +1,979 @@
-<!--
-  ~ Copyright © 2021-2023 Innospots (http://www.innospots.com)
-  ~  Licensed to the Apache Software Foundation (ASF) under one or more
-  ~  contributor license agreements.  See the NOTICE file distributed with
-  ~  this work for additional information regarding copyright ownership.
-  ~  The ASF licenses this file to You under the Apache License, Version 2.0
-  ~  (the "License"); you may not use this file except in compliance with
-  ~  the License. You may obtain a copy of the License at
-  ~
-  ~  http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~  Unless required by applicable law or agreed to in writing, software
-  ~  distributed under the License is distributed on an "AS IS" BASIS,
-  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~  See the License for the specific language governing permissions and
-  ~  limitations under the License.
-  -->
-
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>IconFont Demo</title>
-        <link
-            rel="shortcut icon"
-            href="//img.alicdn.com/imgextra/i2/O1CN01ZyAlrn1MwaMhqz36G_!!6000000001499-73-tps-64-64.ico"
-            type="image/x-icon"
-        />
-        <link
-            rel="icon"
-            type="image/svg+xml"
-            href="//img.alicdn.com/imgextra/i4/O1CN01EYTRnJ297D6vehehJ_!!6000000008020-55-tps-64-64.svg"
-        />
-        <link rel="stylesheet" href="https://g.alicdn.com/thx/cube/1.3.2/cube.min.css" />
-        <link rel="stylesheet" href="demo.css" />
-        <link rel="stylesheet" href="iconfont.css" />
-        <script src="iconfont.js"></script>
-        <!-- jQuery -->
-        <script src="https://a1.alicdn.com/oss/uploads/2018/12/26/7bfddb60-08e8-11e9-9b04-53e73bb6408b.js"></script>
-        <!-- 代码高亮 -->
-        <script src="https://a1.alicdn.com/oss/uploads/2018/12/26/a3f714d0-08e6-11e9-8a15-ebf944d7534c.js"></script>
-    </head>
-    <body>
-        <div class="main">
-            <h1 class="logo">
-                <a href="https://www.iconfont.cn/" title="iconfont 首页" target="_blank"
-                    >&#xe86b;</a
-                >
-            </h1>
-            <div class="nav-tabs">
-                <ul id="tabs" class="dib-box">
-                    <li class="dib active"><span>Unicode</span></li>
-                    <li class="dib"><span>Font class</span></li>
-                    <li class="dib"><span>Symbol</span></li>
-                </ul>
+<head>
+  <meta charset="utf-8"/>
+  <title>iconfont Demo</title>
+  <link rel="shortcut icon" href="//img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg" type="image/x-icon"/>
+  <link rel="icon" type="image/svg+xml" href="//img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg"/>
+  <link rel="stylesheet" href="https://g.alicdn.com/thx/cube/1.3.2/cube.min.css">
+  <link rel="stylesheet" href="demo.css">
+  <link rel="stylesheet" href="iconfont.css">
+  <script src="iconfont.js"></script>
+  <!-- jQuery -->
+  <script src="https://a1.alicdn.com/oss/uploads/2018/12/26/7bfddb60-08e8-11e9-9b04-53e73bb6408b.js"></script>
+  <!-- 代码高亮 -->
+  <script src="https://a1.alicdn.com/oss/uploads/2018/12/26/a3f714d0-08e6-11e9-8a15-ebf944d7534c.js"></script>
+  <style>
+    .main .logo {
+      margin-top: 0;
+      height: auto;
+    }
 
-                <a
-                    href="https://www.iconfont.cn/manage/index?manage_type=myprojects&projectId=2511846"
-                    target="_blank"
-                    class="nav-more"
-                    >查看项目</a
-                >
-            </div>
-            <div class="tab-container">
-                <div class="content unicode" style="display: block">
-                    <ul class="icon_lists dib-box">
-                        <li class="dib">
-                            <span class="icon flownodeiconfont">&#xe66e;</span>
-                            <div class="name">播放</div>
-                            <div class="code-name">&amp;#xe66e;</div>
-                        </li>
+    .main .logo a {
+      display: flex;
+      align-items: center;
+    }
 
-                        <li class="dib">
-                            <span class="icon flownodeiconfont">&#xe6cd;</span>
-                            <div class="name">删 除</div>
-                            <div class="code-name">&amp;#xe6cd;</div>
-                        </li>
+    .main .logo .sub-title {
+      margin-left: 0.5em;
+      font-size: 22px;
+      color: #fff;
+      background: linear-gradient(-45deg, #3967FF, #B500FE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h1 class="logo"><a href="https://www.iconfont.cn/" title="iconfont 首页" target="_blank">
+      <img width="200" src="https://img.alicdn.com/imgextra/i3/O1CN01Mn65HV1FfSEzR6DKv_!!6000000000514-55-tps-228-59.svg">
+      
+    </a></h1>
+    <div class="nav-tabs">
+      <ul id="tabs" class="dib-box">
+        <li class="dib active"><span>Unicode</span></li>
+        <li class="dib"><span>Font class</span></li>
+        <li class="dib"><span>Symbol</span></li>
+      </ul>
+      
+      <a href="https://www.iconfont.cn/manage/index?manage_type=myprojects&projectId=2511846" target="_blank" class="nav-more">查看项目</a>
+      
+    </div>
+    <div class="tab-container">
+      <div class="content unicode" style="display: block;">
+          <ul class="icon_lists dib-box">
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe65b;</span>
+                <div class="name">folder</div>
+                <div class="code-name">&amp;#xe65b;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe691;</span>
+                <div class="name">文件</div>
+                <div class="code-name">&amp;#xe691;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe680;</span>
+                <div class="name">baidu</div>
+                <div class="code-name">&amp;#xe680;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe721;</span>
+                <div class="name">file-shell</div>
+                <div class="code-name">&amp;#xe721;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe639;</span>
+                <div class="name">java</div>
+                <div class="code-name">&amp;#xe639;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe65a;</span>
+                <div class="name">groovy</div>
+                <div class="code-name">&amp;#xe65a;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe891;</span>
+                <div class="name">Python</div>
+                <div class="code-name">&amp;#xe891;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe68b;</span>
+                <div class="name">workflow</div>
+                <div class="code-name">&amp;#xe68b;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe670;</span>
+                <div class="name">7、流程调度模板</div>
+                <div class="code-name">&amp;#xe670;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe6ba;</span>
+                <div class="name">提取查询</div>
+                <div class="code-name">&amp;#xe6ba;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe663;</span>
+                <div class="name">离线计算函数</div>
+                <div class="code-name">&amp;#xe663;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe661;</span>
+                <div class="name">结束模板</div>
+                <div class="code-name">&amp;#xe661;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe615;</span>
+                <div class="name">返回（右）</div>
+                <div class="code-name">&amp;#xe615;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe660;</span>
+                <div class="name">加号</div>
+                <div class="code-name">&amp;#xe660;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe66f;</span>
+                <div class="name">并行节点</div>
+                <div class="code-name">&amp;#xe66f;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe61d;</span>
+                <div class="name">field</div>
+                <div class="code-name">&amp;#xe61d;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe73d;</span>
+                <div class="name">合并</div>
+                <div class="code-name">&amp;#xe73d;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe708;</span>
+                <div class="name">合并</div>
+                <div class="code-name">&amp;#xe708;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe6f1;</span>
+                <div class="name">非上报设备数据过滤</div>
+                <div class="code-name">&amp;#xe6f1;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe627;</span>
+                <div class="name">刷新</div>
+                <div class="code-name">&amp;#xe627;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe659;</span>
+                <div class="name">kafka-trigger</div>
+                <div class="code-name">&amp;#xe659;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe651;</span>
+                <div class="name">condition</div>
+                <div class="code-name">&amp;#xe651;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe652;</span>
+                <div class="name">rule</div>
+                <div class="code-name">&amp;#xe652;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe653;</span>
+                <div class="name">branch</div>
+                <div class="code-name">&amp;#xe653;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe654;</span>
+                <div class="name">script</div>
+                <div class="code-name">&amp;#xe654;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe655;</span>
+                <div class="name">calculation</div>
+                <div class="code-name">&amp;#xe655;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe656;</span>
+                <div class="name">webhook</div>
+                <div class="code-name">&amp;#xe656;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe657;</span>
+                <div class="name">http-api</div>
+                <div class="code-name">&amp;#xe657;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe658;</span>
+                <div class="name">mysql</div>
+                <div class="code-name">&amp;#xe658;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe650;</span>
+                <div class="name">kafka</div>
+                <div class="code-name">&amp;#xe650;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe62d;</span>
+                <div class="name">等待</div>
+                <div class="code-name">&amp;#xe62d;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe63a;</span>
+                <div class="name">定时</div>
+                <div class="code-name">&amp;#xe63a;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe66e;</span>
+                <div class="name">播放</div>
+                <div class="code-name">&amp;#xe66e;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe6cd;</span>
+                <div class="name">删 除</div>
+                <div class="code-name">&amp;#xe6cd;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe865;</span>
+                <div class="name">play</div>
+                <div class="code-name">&amp;#xe865;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon flownodeicon">&#xe76a;</span>
+                <div class="name">暂停</div>
+                <div class="code-name">&amp;#xe76a;</div>
+              </li>
+          
+          </ul>
+          <div class="article markdown">
+          <h2 id="unicode-">Unicode 引用</h2>
+          <hr>
 
-                        <li class="dib">
-                            <span class="icon flownodeiconfont">&#xe76a;</span>
-                            <div class="name">暂停</div>
-                            <div class="code-name">&amp;#xe76a;</div>
-                        </li>
-                    </ul>
-                    <div class="article markdown">
-                        <h2 id="unicode-">Unicode 引用</h2>
-                        <hr />
-
-                        <p>Unicode 是字体在网页端最原始的应用方式，特点是：</p>
-                        <ul>
-                            <li>兼容性最好，支持 IE6+，及所有现代浏览器。</li>
-                            <li>支持按字体的方式去动态调整图标大小，颜色等等。</li>
-                            <li>
-                                但是因为是字体，所以不支持多色。只能使用平台里单色的图标，就算项目里有多色图标也会自动去色。
-                            </li>
-                        </ul>
-                        <blockquote>
-                            <p>
-                                注意：新版 iconfont 支持多色图标，这些多色图标在 Unicode
-                                模式下将不能使用，如果有需求建议使用symbol 的引用方式
-                            </p>
-                        </blockquote>
-                        <p>Unicode 使用步骤如下：</p>
-                        <h3 id="-font-face">第一步：拷贝项目下面生成的 <code>@font-face</code></h3>
-                        <pre><code class="language-css"
+          <p>Unicode 是字体在网页端最原始的应用方式，特点是：</p>
+          <ul>
+            <li>支持按字体的方式去动态调整图标大小，颜色等等。</li>
+            <li>默认情况下不支持多色，直接添加多色图标会自动去色。</li>
+          </ul>
+          <blockquote>
+            <p>注意：新版 iconfont 支持两种方式引用多色图标：SVG symbol 引用方式和彩色字体图标模式。（使用彩色字体图标需要在「编辑项目」中开启「彩色」选项后并重新生成。）</p>
+          </blockquote>
+          <p>Unicode 使用步骤如下：</p>
+          <h3 id="-font-face">第一步：拷贝项目下面生成的 <code>@font-face</code></h3>
+<pre><code class="language-css"
 >@font-face {
-  font-family: 'flownodeiconfont';
-  src: url('iconfont.eot');
-  src: url('iconfont.eot?#iefix') format('embedded-opentype'),
-      url('iconfont.woff2') format('woff2'),
-      url('iconfont.woff') format('woff'),
-      url('iconfont.ttf') format('truetype'),
-      url('iconfont.svg#flownodeiconfont') format('svg');
+  font-family: 'flownodeicon';
+  src: url('iconfont.woff2?t=1694691231960') format('woff2'),
+       url('iconfont.woff?t=1694691231960') format('woff'),
+       url('iconfont.ttf?t=1694691231960') format('truetype');
 }
 </code></pre>
-                        <h3 id="-iconfont-">第二步：定义使用 iconfont 的样式</h3>
-                        <pre><code class="language-css"
->.flownodeiconfont {
-  font-family: "flownodeiconfont" !important;
+          <h3 id="-iconfont-">第二步：定义使用 iconfont 的样式</h3>
+<pre><code class="language-css"
+>.flownodeicon {
+  font-family: "flownodeicon" !important;
   font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 </code></pre>
-                        <h3 id="-">第三步：挑选相应图标并获取字体编码，应用于页面</h3>
-                        <pre>
+          <h3 id="-">第三步：挑选相应图标并获取字体编码，应用于页面</h3>
+<pre>
 <code class="language-html"
->&lt;span class="flownodeiconfont"&gt;&amp;#x33;&lt;/span&gt;
+>&lt;span class="flownodeicon"&gt;&amp;#x33;&lt;/span&gt;
 </code></pre>
-                        <blockquote>
-                            <p>
-                                "flownodeiconfont" 是你项目下的
-                                font-family。可以通过编辑项目查看，默认是 "iconfont"。
-                            </p>
-                        </blockquote>
-                    </div>
-                </div>
-                <div class="content font-class">
-                    <ul class="icon_lists dib-box">
-                        <li class="dib">
-                            <span class="icon flownodeiconfont flow-node-iconplay"></span>
-                            <div class="name">播放</div>
-                            <div class="code-name">.flow-node-iconplay</div>
-                        </li>
+          <blockquote>
+            <p>"flownodeicon" 是你项目下的 font-family。可以通过编辑项目查看，默认是 "iconfont"。</p>
+          </blockquote>
+          </div>
+      </div>
+      <div class="content font-class">
+        <ul class="icon_lists dib-box">
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-u1408"></span>
+            <div class="name">
+              folder
+            </div>
+            <div class="code-name">.flow-node-u1408
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-wenjian"></span>
+            <div class="name">
+              文件
+            </div>
+            <div class="code-name">.flow-node-wenjian
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-baidu"></span>
+            <div class="name">
+              baidu
+            </div>
+            <div class="code-name">.flow-node-baidu
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-shell"></span>
+            <div class="name">
+              file-shell
+            </div>
+            <div class="code-name">.flow-node-shell
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-java"></span>
+            <div class="name">
+              java
+            </div>
+            <div class="code-name">.flow-node-java
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-groovy"></span>
+            <div class="name">
+              groovy
+            </div>
+            <div class="code-name">.flow-node-groovy
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-python"></span>
+            <div class="name">
+              Python
+            </div>
+            <div class="code-name">.flow-node-python
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-sub-flow"></span>
+            <div class="name">
+              workflow
+            </div>
+            <div class="code-name">.flow-node-sub-flow
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-flow"></span>
+            <div class="name">
+              7、流程调度模板
+            </div>
+            <div class="code-name">.flow-node-flow
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-extract"></span>
+            <div class="name">
+              提取查询
+            </div>
+            <div class="code-name">.flow-node-extract
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-aggregation"></span>
+            <div class="name">
+              离线计算函数
+            </div>
+            <div class="code-name">.flow-node-aggregation
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-end"></span>
+            <div class="name">
+              结束模板
+            </div>
+            <div class="code-name">.flow-node-end
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-next-loop"></span>
+            <div class="name">
+              返回（右）
+            </div>
+            <div class="code-name">.flow-node-next-loop
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-plus"></span>
+            <div class="name">
+              加号
+            </div>
+            <div class="code-name">.flow-node-plus
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-parallel"></span>
+            <div class="name">
+              并行节点
+            </div>
+            <div class="code-name">.flow-node-parallel
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-join"></span>
+            <div class="name">
+              field
+            </div>
+            <div class="code-name">.flow-node-join
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-merge"></span>
+            <div class="name">
+              合并
+            </div>
+            <div class="code-name">.flow-node-merge
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-combine"></span>
+            <div class="name">
+              合并
+            </div>
+            <div class="code-name">.flow-node-combine
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-filter"></span>
+            <div class="name">
+              非上报设备数据过滤
+            </div>
+            <div class="code-name">.flow-node-filter
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-loop"></span>
+            <div class="name">
+              刷新
+            </div>
+            <div class="code-name">.flow-node-loop
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-kafka-trigger"></span>
+            <div class="name">
+              kafka-trigger
+            </div>
+            <div class="code-name">.flow-node-kafka-trigger
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-condition"></span>
+            <div class="name">
+              condition
+            </div>
+            <div class="code-name">.flow-node-condition
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-rule"></span>
+            <div class="name">
+              rule
+            </div>
+            <div class="code-name">.flow-node-rule
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-branch"></span>
+            <div class="name">
+              branch
+            </div>
+            <div class="code-name">.flow-node-branch
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-script"></span>
+            <div class="name">
+              script
+            </div>
+            <div class="code-name">.flow-node-script
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-calculation"></span>
+            <div class="name">
+              calculation
+            </div>
+            <div class="code-name">.flow-node-calculation
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-webhook"></span>
+            <div class="name">
+              webhook
+            </div>
+            <div class="code-name">.flow-node-webhook
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-http-api"></span>
+            <div class="name">
+              http-api
+            </div>
+            <div class="code-name">.flow-node-http-api
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-mysql"></span>
+            <div class="name">
+              mysql
+            </div>
+            <div class="code-name">.flow-node-mysql
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-kafka"></span>
+            <div class="name">
+              kafka
+            </div>
+            <div class="code-name">.flow-node-kafka
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-interval"></span>
+            <div class="name">
+              等待
+            </div>
+            <div class="code-name">.flow-node-interval
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-dingshi"></span>
+            <div class="name">
+              定时
+            </div>
+            <div class="code-name">.flow-node-dingshi
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-play"></span>
+            <div class="name">
+              播放
+            </div>
+            <div class="code-name">.flow-node-play
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-delete"></span>
+            <div class="name">
+              删 除
+            </div>
+            <div class="code-name">.flow-node-delete
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-start"></span>
+            <div class="name">
+              play
+            </div>
+            <div class="code-name">.flow-node-start
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon flownodeicon flow-node-suspend"></span>
+            <div class="name">
+              暂停
+            </div>
+            <div class="code-name">.flow-node-suspend
+            </div>
+          </li>
+          
+        </ul>
+        <div class="article markdown">
+        <h2 id="font-class-">font-class 引用</h2>
+        <hr>
 
-                        <li class="dib">
-                            <span class="icon flownodeiconfont flow-node-icondelete"></span>
-                            <div class="name">删 除</div>
-                            <div class="code-name">.flow-node-icondelete</div>
-                        </li>
-
-                        <li class="dib">
-                            <span class="icon flownodeiconfont flow-node-iconsuspend"></span>
-                            <div class="name">暂停</div>
-                            <div class="code-name">.flow-node-iconsuspend</div>
-                        </li>
-                    </ul>
-                    <div class="article markdown">
-                        <h2 id="font-class-">font-class 引用</h2>
-                        <hr />
-
-                        <p>
-                            font-class 是 Unicode 使用方式的一种变种，主要是解决 Unicode
-                            书写不直观，语意不明确的问题。
-                        </p>
-                        <p>与 Unicode 使用方式相比，具有如下特点：</p>
-                        <ul>
-                            <li>兼容性良好，支持 IE8+，及所有现代浏览器。</li>
-                            <li>
-                                相比于 Unicode 语意明确，书写更直观。可以很容易分辨这个 icon
-                                是什么。
-                            </li>
-                            <li>
-                                因为使用 class 来定义图标，所以当要替换图标时，只需要修改 class
-                                里面的 Unicode 引用。
-                            </li>
-                            <li>不过因为本质上还是使用的字体，所以多色图标还是不支持的。</li>
-                        </ul>
-                        <p>使用步骤如下：</p>
-                        <h3 id="-fontclass-">第一步：引入项目下面生成的 fontclass 代码：</h3>
-                        <pre><code class="language-html">&lt;link rel="stylesheet" href="./iconfont.css"&gt;
+        <p>font-class 是 Unicode 使用方式的一种变种，主要是解决 Unicode 书写不直观，语意不明确的问题。</p>
+        <p>与 Unicode 使用方式相比，具有如下特点：</p>
+        <ul>
+          <li>相比于 Unicode 语意明确，书写更直观。可以很容易分辨这个 icon 是什么。</li>
+          <li>因为使用 class 来定义图标，所以当要替换图标时，只需要修改 class 里面的 Unicode 引用。</li>
+        </ul>
+        <p>使用步骤如下：</p>
+        <h3 id="-fontclass-">第一步：引入项目下面生成的 fontclass 代码：</h3>
+<pre><code class="language-html">&lt;link rel="stylesheet" href="./iconfont.css"&gt;
 </code></pre>
-                        <h3 id="-">第二步：挑选相应图标并获取类名，应用于页面：</h3>
-                        <pre><code class="language-html">&lt;span class="flownodeiconfont flow-node-iconxxx"&gt;&lt;/span&gt;
+        <h3 id="-">第二步：挑选相应图标并获取类名，应用于页面：</h3>
+<pre><code class="language-html">&lt;span class="flownodeicon flow-node-xxx"&gt;&lt;/span&gt;
 </code></pre>
-                        <blockquote>
-                            <p>
-                                " flownodeiconfont" 是你项目下的
-                                font-family。可以通过编辑项目查看，默认是 "iconfont"。
-                            </p>
-                        </blockquote>
-                    </div>
-                </div>
-                <div class="content symbol">
-                    <ul class="icon_lists dib-box">
-                        <li class="dib">
-                            <svg class="icon svg-icon" aria-hidden="true">
-                                <use xlink:href="#flow-node-iconplay"></use>
-                            </svg>
-                            <div class="name">播放</div>
-                            <div class="code-name">#flow-node-iconplay</div>
-                        </li>
+        <blockquote>
+          <p>"
+            flownodeicon" 是你项目下的 font-family。可以通过编辑项目查看，默认是 "iconfont"。</p>
+        </blockquote>
+      </div>
+      </div>
+      <div class="content symbol">
+          <ul class="icon_lists dib-box">
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-u1408"></use>
+                </svg>
+                <div class="name">folder</div>
+                <div class="code-name">#flow-node-u1408</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-wenjian"></use>
+                </svg>
+                <div class="name">文件</div>
+                <div class="code-name">#flow-node-wenjian</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-baidu"></use>
+                </svg>
+                <div class="name">baidu</div>
+                <div class="code-name">#flow-node-baidu</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-shell"></use>
+                </svg>
+                <div class="name">file-shell</div>
+                <div class="code-name">#flow-node-shell</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-java"></use>
+                </svg>
+                <div class="name">java</div>
+                <div class="code-name">#flow-node-java</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-groovy"></use>
+                </svg>
+                <div class="name">groovy</div>
+                <div class="code-name">#flow-node-groovy</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-python"></use>
+                </svg>
+                <div class="name">Python</div>
+                <div class="code-name">#flow-node-python</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-sub-flow"></use>
+                </svg>
+                <div class="name">workflow</div>
+                <div class="code-name">#flow-node-sub-flow</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-flow"></use>
+                </svg>
+                <div class="name">7、流程调度模板</div>
+                <div class="code-name">#flow-node-flow</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-extract"></use>
+                </svg>
+                <div class="name">提取查询</div>
+                <div class="code-name">#flow-node-extract</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-aggregation"></use>
+                </svg>
+                <div class="name">离线计算函数</div>
+                <div class="code-name">#flow-node-aggregation</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-end"></use>
+                </svg>
+                <div class="name">结束模板</div>
+                <div class="code-name">#flow-node-end</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-next-loop"></use>
+                </svg>
+                <div class="name">返回（右）</div>
+                <div class="code-name">#flow-node-next-loop</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-plus"></use>
+                </svg>
+                <div class="name">加号</div>
+                <div class="code-name">#flow-node-plus</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-parallel"></use>
+                </svg>
+                <div class="name">并行节点</div>
+                <div class="code-name">#flow-node-parallel</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-join"></use>
+                </svg>
+                <div class="name">field</div>
+                <div class="code-name">#flow-node-join</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-merge"></use>
+                </svg>
+                <div class="name">合并</div>
+                <div class="code-name">#flow-node-merge</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-combine"></use>
+                </svg>
+                <div class="name">合并</div>
+                <div class="code-name">#flow-node-combine</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-filter"></use>
+                </svg>
+                <div class="name">非上报设备数据过滤</div>
+                <div class="code-name">#flow-node-filter</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-loop"></use>
+                </svg>
+                <div class="name">刷新</div>
+                <div class="code-name">#flow-node-loop</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-kafka-trigger"></use>
+                </svg>
+                <div class="name">kafka-trigger</div>
+                <div class="code-name">#flow-node-kafka-trigger</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-condition"></use>
+                </svg>
+                <div class="name">condition</div>
+                <div class="code-name">#flow-node-condition</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-rule"></use>
+                </svg>
+                <div class="name">rule</div>
+                <div class="code-name">#flow-node-rule</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-branch"></use>
+                </svg>
+                <div class="name">branch</div>
+                <div class="code-name">#flow-node-branch</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-script"></use>
+                </svg>
+                <div class="name">script</div>
+                <div class="code-name">#flow-node-script</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-calculation"></use>
+                </svg>
+                <div class="name">calculation</div>
+                <div class="code-name">#flow-node-calculation</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-webhook"></use>
+                </svg>
+                <div class="name">webhook</div>
+                <div class="code-name">#flow-node-webhook</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-http-api"></use>
+                </svg>
+                <div class="name">http-api</div>
+                <div class="code-name">#flow-node-http-api</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-mysql"></use>
+                </svg>
+                <div class="name">mysql</div>
+                <div class="code-name">#flow-node-mysql</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-kafka"></use>
+                </svg>
+                <div class="name">kafka</div>
+                <div class="code-name">#flow-node-kafka</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-interval"></use>
+                </svg>
+                <div class="name">等待</div>
+                <div class="code-name">#flow-node-interval</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-dingshi"></use>
+                </svg>
+                <div class="name">定时</div>
+                <div class="code-name">#flow-node-dingshi</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-play"></use>
+                </svg>
+                <div class="name">播放</div>
+                <div class="code-name">#flow-node-play</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-delete"></use>
+                </svg>
+                <div class="name">删 除</div>
+                <div class="code-name">#flow-node-delete</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-start"></use>
+                </svg>
+                <div class="name">play</div>
+                <div class="code-name">#flow-node-start</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#flow-node-suspend"></use>
+                </svg>
+                <div class="name">暂停</div>
+                <div class="code-name">#flow-node-suspend</div>
+            </li>
+          
+          </ul>
+          <div class="article markdown">
+          <h2 id="symbol-">Symbol 引用</h2>
+          <hr>
 
-                        <li class="dib">
-                            <svg class="icon svg-icon" aria-hidden="true">
-                                <use xlink:href="#flow-node-icondelete"></use>
-                            </svg>
-                            <div class="name">删 除</div>
-                            <div class="code-name">#flow-node-icondelete</div>
-                        </li>
-
-                        <li class="dib">
-                            <svg class="icon svg-icon" aria-hidden="true">
-                                <use xlink:href="#flow-node-iconsuspend"></use>
-                            </svg>
-                            <div class="name">暂停</div>
-                            <div class="code-name">#flow-node-iconsuspend</div>
-                        </li>
-                    </ul>
-                    <div class="article markdown">
-                        <h2 id="symbol-">Symbol 引用</h2>
-                        <hr />
-
-                        <p>
-                            这是一种全新的使用方式，应该说这才是未来的主流，也是平台目前推荐的用法。相关介绍可以参考这篇<a
-                                href=""
-                                >文章</a
-                            >
-                            这种用法其实是做了一个 SVG 的集合，与另外两种相比具有如下特点：
-                        </p>
-                        <ul>
-                            <li>支持多色图标了，不再受单色限制。</li>
-                            <li>
-                                通过一些技巧，支持像字体那样，通过 <code>font-size</code>,
-                                <code>color</code> 来调整样式。
-                            </li>
-                            <li>兼容性较差，支持 IE9+，及现代浏览器。</li>
-                            <li>浏览器渲染 SVG 的性能一般，还不如 png。</li>
-                        </ul>
-                        <p>使用步骤如下：</p>
-                        <h3 id="-symbol-">第一步：引入项目下面生成的 symbol 代码：</h3>
-                        <pre><code class="language-html">&lt;script src="./iconfont.js"&gt;&lt;/script&gt;
+          <p>这是一种全新的使用方式，应该说这才是未来的主流，也是平台目前推荐的用法。相关介绍可以参考这篇<a href="">文章</a>
+            这种用法其实是做了一个 SVG 的集合，与另外两种相比具有如下特点：</p>
+          <ul>
+            <li>支持多色图标了，不再受单色限制。</li>
+            <li>通过一些技巧，支持像字体那样，通过 <code>font-size</code>, <code>color</code> 来调整样式。</li>
+            <li>兼容性较差，支持 IE9+，及现代浏览器。</li>
+            <li>浏览器渲染 SVG 的性能一般，还不如 png。</li>
+          </ul>
+          <p>使用步骤如下：</p>
+          <h3 id="-symbol-">第一步：引入项目下面生成的 symbol 代码：</h3>
+<pre><code class="language-html">&lt;script src="./iconfont.js"&gt;&lt;/script&gt;
 </code></pre>
-                        <h3 id="-css-">第二步：加入通用 CSS 代码（引入一次就行）：</h3>
-                        <pre><code class="language-html">&lt;style&gt;
+          <h3 id="-css-">第二步：加入通用 CSS 代码（引入一次就行）：</h3>
+<pre><code class="language-html">&lt;style&gt;
 .icon {
   width: 1em;
   height: 1em;
@@ -253,33 +983,34 @@
 }
 &lt;/style&gt;
 </code></pre>
-                        <h3 id="-">第三步：挑选相应图标并获取类名，应用于页面：</h3>
-                        <pre><code class="language-html">&lt;svg class="icon" aria-hidden="true"&gt;
+          <h3 id="-">第三步：挑选相应图标并获取类名，应用于页面：</h3>
+<pre><code class="language-html">&lt;svg class="icon" aria-hidden="true"&gt;
   &lt;use xlink:href="#icon-xxx"&gt;&lt;/use&gt;
 &lt;/svg&gt;
 </code></pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script>
-            $(document).ready(function () {
-                $('.tab-container .content:first').show();
+          </div>
+      </div>
 
-                $('#tabs li').click(function (e) {
-                    var tabContent = $('.tab-container .content');
-                    var index = $(this).index();
+    </div>
+  </div>
+  <script>
+  $(document).ready(function () {
+      $('.tab-container .content:first').show()
 
-                    if ($(this).hasClass('active')) {
-                        return;
-                    } else {
-                        $('#tabs li').removeClass('active');
-                        $(this).addClass('active');
+      $('#tabs li').click(function (e) {
+        var tabContent = $('.tab-container .content')
+        var index = $(this).index()
 
-                        tabContent.hide().eq(index).fadeIn();
-                    }
-                });
-            });
-        </script>
-    </body>
+        if ($(this).hasClass('active')) {
+          return
+        } else {
+          $('#tabs li').removeClass('active')
+          $(this).addClass('active')
+
+          tabContent.hide().eq(index).fadeIn()
+        }
+      })
+    })
+  </script>
+</body>
 </html>

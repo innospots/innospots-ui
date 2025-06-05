@@ -16,31 +16,54 @@
  *  limitations under the License.
  */
 
+import {
+  PlusOutlined,
+  SearchOutlined,
+  VerticalAlignTopOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Col,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Spin,
+  Upload,
+} from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Col, Input, message, Modal, Row, Select, Spin, Upload } from 'antd';
-import { SearchOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 
 import _ from 'lodash';
 import { useModel } from 'umi';
 
 import { useDeepCompareEffect, useMemoizedFn, useSetState } from 'ahooks';
 
-import { IS_DEV, AJAX_PREFIX, DEFAULT_PAGINATION_SETTINGS } from '@/common/constants';
+import {
+  AJAX_PREFIX,
+  DEFAULT_PAGINATION_SETTINGS,
+  IS_DEV,
+} from '@/common/constants';
 import { getAuthHeader } from '@/common/request/header';
 
-import PageTitle from '@/components/PageTitle';
-import ListTable from '@/components/ListTable';
 import IconButton from '@/components/IconButton';
+import ListTable from '@/components/ListTable';
+import PageTitle from '@/components/PageTitle';
 import TransModal, { MODAL_NAME } from './components/TransModal';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
+import {
+  getFormattedLocale,
+  isRequestSuccess,
+  randomString,
+} from '@/common/utils';
+import PageHelmet from '@/components/PageHelmet';
 import PageLoading from '@/components/PageLoading';
-import { getFormattedLocale, randomString } from '@/common/utils';
 
-import styles from './style.less';
-import { UploadProps } from 'antd';
 import FlagIcon from '@/components/Icons/FlagIcon';
+import { UploadProps } from 'antd';
+import styles from './style.less';
 
 const Index: React.FC = () => {
   const {
@@ -48,12 +71,22 @@ const Index: React.FC = () => {
     appModuleList,
     translationData,
     translationHeaderColumn,
-
     appListRequest,
     translationRequest,
+    deleteTransRequest,
     appModuleListRequest,
     translationHeaderColumnRequest,
-  } = useModel('I18n');
+  } = useModel('I18n', (model) => ({
+    appList: model.appList,
+    appModuleList: model.appModuleList,
+    translationData: model.translationData,
+    appListRequest: model.appListRequest,
+    translationRequest: model.translationRequest,
+    appModuleListRequest: model.appModuleListRequest,
+    deleteTransRequest: model.deleteTransRequest,
+    translationHeaderColumn: model.translationHeaderColumn,
+    translationHeaderColumnRequest: model.translationHeaderColumnRequest,
+  }));
 
   const [modal] = useModal(MODAL_NAME);
 
@@ -96,7 +129,7 @@ const Index: React.FC = () => {
 
   useDeepCompareEffect(() => {
     formatHeaderColumn();
-  }, [translationHeaderColumn]);
+  }, [translationHeaderColumn, i18nLoading]);
 
   const onListPageChange = useMemoizedFn((curPage, pageSize) => {
     setQueryData({
@@ -134,7 +167,10 @@ const Index: React.FC = () => {
           uploadFile: uploadFile,
         });
 
-        if (info.file.status === 'done' && info.file.response?.code === '10000') {
+        if (
+          info.file.status === 'done' &&
+          isRequestSuccess(info.file.response?.code)
+        ) {
           message.success(t('common.error_message.upload.success'));
 
           translationRequest.run({
@@ -154,10 +190,10 @@ const Index: React.FC = () => {
         width="400px"
         footer={null}
         title={t('translation.upload.title')}
-        visible={uploadModalData.visible}
+        open={uploadModalData.visible}
         onCancel={() => {
           if (uploadModalData.uploadFile?.status === 'uploading') {
-            message.warn('Uploading...');
+            message.warning('Uploading...');
           } else {
             setUploadModalData({
               visible: false,
@@ -188,10 +224,20 @@ const Index: React.FC = () => {
               uploadModalData.uploadFile?.status !== 'uploading'
                 ? t('translation.upload.result.title')
                 : ''}
-              {uploadModalData.uploadFile?.response?.code === '10000' ? (
-                <pre>{JSON.stringify(uploadModalData.uploadFile?.response?.body, null, 2)}</pre>
+              {isRequestSuccess(
+                uploadModalData.uploadFile?.response?.code as string,
+              ) ? (
+                <pre>
+                  {JSON.stringify(
+                    uploadModalData.uploadFile?.response?.body,
+                    null,
+                    2,
+                  )}
+                </pre>
               ) : (
-                <div style={{ color: 'red' }}>{uploadModalData.uploadFile?.response?.message}</div>
+                <div style={{ color: 'red' }}>
+                  {uploadModalData.uploadFile?.response?.message}
+                </div>
               )}
             </div>
           )}
@@ -200,69 +246,99 @@ const Index: React.FC = () => {
     );
   };
 
+  const deleteTrans = async (dictionaryId: number) => {
+    const result = await deleteTransRequest.runAsync(dictionaryId);
+    if (result) {
+      message.success(t('common.error_message.delete.success'));
+      translationRequest.run(queryData);
+    }
+  };
+
   const renderPageHeader = () => {
     return (
       <>
         <PageTitle
           title={t('translation.main.heading_title')}
-          style={{ height: 64, paddingTop: 8 }}
+          rightContent={
+            <Row gutter={16}>
+              <Col>
+                <Select
+                  allowClear
+                  value={queryData.app}
+                  placeholder={t('translation.main.column.app')}
+                  onChange={(value: any) =>
+                    setQueryData({
+                      ...queryData,
+                      page: 1,
+                      app: value,
+                      module: null,
+                    })
+                  }
+                >
+                  {appList?.map((am, index) => (
+                    <Select.Option key={[am, index].join('-')} value={am}>
+                      {am}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Col>
+
+              <Col>
+                <Select
+                  allowClear
+                  value={queryData.module}
+                  disabled={
+                    _.isEmpty(queryData.app) || appModuleListRequest.loading
+                  }
+                  placeholder={t('translation.main.select.filter.placeholder')}
+                  onChange={(value: any) =>
+                    setQueryData({ ...queryData, page: 1, module: value })
+                  }
+                >
+                  {appModuleList?.map((am, index) => (
+                    <Select.Option key={[am, index].join('-')} value={am}>
+                      {am}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Col>
+
+              <Col>
+                <Input
+                  prefix={<SearchOutlined />}
+                  placeholder={t('translation.main.input.search.placeholder')}
+                  onPressEnter={(event: any) =>
+                    setQueryData({
+                      ...queryData,
+                      page: 1,
+                      code: event.target.value,
+                    })
+                  }
+                />
+              </Col>
+              <Col>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => modal.show()}
+                >
+                  {t('translation.main.button.add')}
+                </Button>
+              </Col>
+              {IS_DEV && (
+                <Col>
+                  <Button
+                    type="primary"
+                    icon={<VerticalAlignTopOutlined />}
+                    onClick={uploadDocument}
+                  >
+                    {t('translation.main.button.upload')}
+                  </Button>
+                </Col>
+              )}
+            </Row>
+          }
         />
-
-        <Row gutter={16} className={styles.headerSearch}>
-          <Col>
-            <Select
-              allowClear
-              value={queryData.app}
-              placeholder={t('translation.main.column.app')}
-              onChange={(value: any) =>
-                setQueryData({ ...queryData, page: 1, app: value, module: null })
-              }
-            >
-              {appList?.map((am, index) => (
-                <Select.Option key={[am, index].join('-')} value={am}>
-                  {am}
-                </Select.Option>
-              ))}
-            </Select>
-          </Col>
-
-          <Col>
-            <Select
-              allowClear
-              value={queryData.module}
-              disabled={_.isEmpty(queryData.app) || appModuleListRequest.loading}
-              placeholder={t('translation.main.select.filter.placeholder')}
-              onChange={(value: any) => setQueryData({ ...queryData, page: 1, module: value })}
-            >
-              {appModuleList?.map((am, index) => (
-                <Select.Option key={[am, index].join('-')} value={am}>
-                  {am}
-                </Select.Option>
-              ))}
-            </Select>
-          </Col>
-
-          <Col>
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder={t('translation.main.input.search.placeholder')}
-              onPressEnter={(event: any) =>
-                setQueryData({
-                  ...queryData,
-                  page: 1,
-                  code: event.target.value,
-                })
-              }
-            />
-          </Col>
-          {IS_DEV && (
-            <Col>
-              <Button type="primary" icon={<VerticalAlignTopOutlined />} onClick={uploadDocument}>
-                {t('translation.main.button.upload')}
-              </Button>
-            </Col>
-          )}
-        </Row>
       </>
     );
   };
@@ -313,20 +389,36 @@ const Index: React.FC = () => {
       },
       {
         title: t('common.table.column.action'),
-        width: 72,
+        width: 84,
         dataIndex: 'operate',
         align: 'center',
         fixed: 'right',
         render: (operate: any, record: any) => {
           return (
-            <IconButton
-              icon="edit"
-              tooltip={t('translation.form.edit.title')}
-              permissions="I18nTransMessage-updateTransMessage"
-              onClick={() => {
-                modal.show(record);
-              }}
-            />
+            <>
+              <IconButton
+                icon="edit"
+                tooltip={t('translation.form.edit.title')}
+                permissions="I18nTransMessage-updateTransMessage"
+                onClick={() => {
+                  modal.show(record);
+                }}
+              />
+              <IconButton
+                icon="delete"
+                tooltip={t('common.tooltip.delete')}
+                popConfirm={{
+                  title: t('common.text.delete_confirmation'),
+                  placement: 'left',
+                  okButtonProps: {
+                    loading: deleteTransRequest.loading,
+                  },
+                  onConfirm: () => {
+                    deleteTrans(record.dictionary.dictionaryId);
+                  },
+                }}
+              />
+            </>
           );
         },
       },
@@ -342,7 +434,11 @@ const Index: React.FC = () => {
             </Col>
             <Col style={{ display: 'flex', alignItems: 'center' }}>
               <span>{column.name || '-'}</span>
-              <span>{column.defaultLan ? `(${t('translation.main.default')})` : null}</span>
+              <span>
+                {column.defaultLan
+                  ? `(${t('translation.main.default')})`
+                  : null}
+              </span>
             </Col>
           </Row>
         ),
@@ -379,7 +475,13 @@ const Index: React.FC = () => {
   };
 
   const renderTransModal = () => {
-    return <TransModal />;
+    return (
+      <TransModal
+        onSuccess={() => {
+          translationRequest.run(queryData);
+        }}
+      />
+    );
   };
 
   if (i18nLoading) {
@@ -388,6 +490,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('translation.main.heading_title')} />
       {renderPageHeader()}
       {renderDataContent()}
       {renderTransModal()}

@@ -37,7 +37,7 @@ export const MODAL_NAME = 'AppCategoryModal';
 
 const AppCategoryModal: React.FC = () => {
   const [formRes] = Form.useForm();
-  const { createRequest, updateRequest } = useModel('Page', (model) => ({
+  const { createRequest, updateRequest } = useModel('App', (model) => ({
     createRequest: model.createCategoryRequest,
     updateRequest: model.updateCategoryRequest,
   }));
@@ -46,7 +46,7 @@ const AppCategoryModal: React.FC = () => {
 
   const [modal, modalInfo] = useModal(MODAL_NAME);
 
-  const { visible, modalType, initValues } = modalInfo;
+  const { visible, modalType = 'edit', initValues } = modalInfo;
 
   useEffect(() => {
     if (visible) {
@@ -58,11 +58,11 @@ const AppCategoryModal: React.FC = () => {
 
   const handleFormSubmit = () => {
     formRes.validateFields().then((values) => {
-      savePageCategory(values.categoryName);
+      saveAppCategory(values.categoryName);
     });
   };
 
-  const savePageCategory = async (categoryName: string) => {
+  const saveAppCategory = async (categoryName: string) => {
     try {
       let result;
 
@@ -81,7 +81,7 @@ const AppCategoryModal: React.FC = () => {
 
   const renderForm = () => {
     return (
-      <Form form={formRes} preserve={false} {...formItemLayout} style={{ marginBottom: -24 }}>
+      <Form form={formRes} preserve={false} {...formItemLayout}>
         <Form.Item
           label={t('common.category.name.label')}
           name="categoryName"

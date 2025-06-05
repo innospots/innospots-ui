@@ -1,0 +1,25 @@
+import React from 'react';
+import { Input, Switch } from 'antd';
+
+import {
+  WidgetSetting,
+  SettingItem,
+  WidgetNameSetting,
+  WidgetCommonSetting,
+  WidgetConditionRule,
+  WidgetValidationRule,
+} from '@/components/PageDesign/components/Viewport/Settings';
+
+const Settings: React.FC = () => {
+  return (
+    <WidgetSetting>
+      <WidgetNameSetting />
+      <WidgetCommonSetting />
+      <SettingItem required name={['settings', 'text']} label="标题">
+        <Input placeholder="请输入标题" />
+      </SettingItem>
+    </WidgetSetting>
+  );
+};
+
+export default Settings;

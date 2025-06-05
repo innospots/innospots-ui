@@ -20,5 +20,6 @@ export { default as Json } from './Json';
 export { default as Result } from './Result';
 export { default as Log } from './Logger';
 export { default as Attachment } from './Attachment';
+export { default as SchemaFields } from './SchemaFields';
 
 export { default as WebhookExecution } from './WebhookExecution';

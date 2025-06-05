@@ -24,30 +24,38 @@
  * For details, please see
  * https://pro.ant.design/docs/deploy
  */
+
+const { UMI_APP_API_BASE_URL } = process.env;
+
 export default {
   dev: {
     '/innospots/api/': {
-      target: 'http://your.dev.url/',
-      changeOrigin: true,
+      target: UMI_APP_API_BASE_URL,
+      changeOrigin: true
+    },
+    '/innospots/apps/api/': {
+      target: UMI_APP_API_BASE_URL,
+      changeOrigin: true
     },
     '/resources': {
-      target: 'http://your.dev.url/',
+      target: UMI_APP_API_BASE_URL,
       changeOrigin: true,
-      pathRewrite: { '/resources': '' },
-    },
+      pathRewrite: {'/resources': ''}
+    }
   },
+  local: {},
   test: {
     '/api/': {
       target: 'https://proapi.azurewebsites.net',
       changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
+      pathRewrite: {'^': ''}
+    }
   },
   pre: {
     '/api/': {
       target: 'your pre url',
       changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
-  },
+      pathRewrite: {'^': ''}
+    }
+  }
 };

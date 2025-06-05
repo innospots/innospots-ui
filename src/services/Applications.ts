@@ -62,3 +62,17 @@ export const changeAppStatus = (data?: any) => {
     method: 'post',
   });
 };
+
+// 应用安装
+export const installExtension = (extKey: string) => {
+  return fetch(`extension/installed/extension/${extKey}`, {
+    method: 'post',
+  });
+};
+
+// 修改应用状态
+export const changeExtensionStatus = (extKey: string, status: string) => {
+  return fetch(`extension/installed/${status}/${extKey}`, {
+    method: 'post',
+  });
+};

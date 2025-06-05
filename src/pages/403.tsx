@@ -18,17 +18,43 @@
  */
 
 import React from 'react';
-import { Result } from 'antd';
+import { Result, Button } from 'antd';
 
-import 'antd/dist/antd.css';
+import { useModel, history } from 'umi';
+
+import useI18n from '@/common/hooks/useI18n';
+import PageLoading from '@/components/PageLoading';
+
+// import 'antd/dist/antd.css';
+
 
 const NoFoundPage: React.FC = () => {
+  const { t, loading } = useI18n(['account', 'common']);
+  const userModel = useModel('Account', (model) => ({
+    logout: model.logout,
+  }));
+
+  if (loading) {
+    return <PageLoading />;
+  }
 
   return (
     <Result
       status="403"
       title="403"
       subTitle="Sorry, you do not have permission to access this page."
+      extra={[
+        <Button type="primary" key="console" onClick={() => {
+          history.back();
+        }}>
+          {t('common.button.back')}
+        </Button>,
+        <Button key="logout" onClick={() => {
+          userModel.logout();
+        }}>
+          {t('account.login.button.logout')}
+        </Button>,
+      ]}
     />
   );
 };

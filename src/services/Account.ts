@@ -20,7 +20,7 @@ import { fetch, dataRequest } from '@/common/request';
 
 export const postLoginData = (options: {
   data: any;
-  headers: {
+  headers?: {
     Authorization: string;
   };
 }) => {
@@ -29,6 +29,12 @@ export const postLoginData = (options: {
 
 export function fetchPublicKey<T> (): Promise<T> {
   return fetch<T>('login-auth/public-key', {
+    ignoreToken: true,
+  });
+};
+
+export function fetchOauthList<T> (): Promise<T> {
+  return fetch<T>('login-oauth/list', {
     ignoreToken: true,
   });
 };
@@ -44,6 +50,19 @@ export async function checkUserStatus(pageUrl: string) {
 
 export async function refreshToken() {
   return dataRequest.get('auth-token/refresh', {
+    ignoreToken: true,
+  });
+}
+
+export async function loginByOauth(data: any) {
+  return dataRequest.post('login-oauth', {
+    data,
+    ignoreToken: true,
+  });
+}
+
+export async function serverInfo() {
+  return dataRequest.get('server-info', {
     ignoreToken: true,
   });
 }

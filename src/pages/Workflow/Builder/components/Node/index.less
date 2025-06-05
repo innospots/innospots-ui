@@ -103,7 +103,7 @@
   &.nodeActive,
   &.nodeHover {
     .menu {
-      display: flex;
+      display: block;
     }
   }
 
@@ -116,22 +116,24 @@
   }
 
   .menu {
-    position: absolute;
     top: -26px;
-    right: 8px;
-    left: 8px;
-    display: none;
-    justify-content: space-between;
+    right: 0;
+    left: 0;
     height: 26px;
+    display: none;
+    position: absolute;
+    text-align: center;
 
     &.defaultNode {
-      justify-content: space-around;
+      // justify-content: space-around;
     }
 
     .icon {
       color: #c0cdda;
       font-size: 14px;
       cursor: pointer;
+      margin: 0 8px;
+      display: inline-block;
 
       &:hover {
         color: @active-color;
@@ -189,6 +191,7 @@
 
       .node-image-icon {
         width: 28px;
+        height: 28px;
       }
     }
   }

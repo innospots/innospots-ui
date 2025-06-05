@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 @import './components/Icons/FlagIcon/less/flag-icons.less';
 
 @import './assets/less/reset.less';
@@ -27,15 +29,36 @@ body,
   height: 100%;
 }
 
+@media print {
+  @page {
+    margin: 0;
+  }
+
+  body,
+  image {
+    margin: 0;
+    padding: 0;
+  }
+}
+
 .colorWeak {
   filter: invert(80%);
 }
 
+.custom-scrollbar {
+  overflow: auto;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
-  background-color: #0002;
+  height: 5px;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
   background: #0004;
   border-radius: 5px;
 }
@@ -43,11 +66,13 @@ body,
 .@{ant-prefix}-layout {
   min-height: 100vh;
 }
+
 .@{ant-prefix}-pro-sider.@{ant-prefix}-layout-sider.@{ant-prefix}-pro-sider-fixed {
   left: unset;
 }
+
 .@{ant-prefix}-input-affix-wrapper {
-  color: #c9cdd4 !important;
+  // color: #c9cdd4 !important;
 }
 
 .@{ant-prefix}-dropdown-menu {
@@ -65,14 +90,23 @@ canvas {
 }
 
 body {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  // text-rendering: optimizeLegibility;
+  // -webkit-font-smoothing: antialiased;
+  // -moz-osx-font-smoothing: grayscale;
 }
 
-ul,
-ol {
-  list-style: none;
+textarea {
+  resize: none;
+}
+
+:global(:not(.markdown-body)) {
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 }
 
 img {
@@ -83,12 +117,15 @@ img {
   .@{ant-prefix}-table {
     width: 100%;
     overflow-x: auto;
-    &-thead > tr,
-    &-tbody > tr {
-      > th,
-      > td {
+
+    &-thead>tr,
+    &-tbody>tr {
+
+      >th,
+      >td {
         white-space: pre;
-        > span {
+
+        >span {
           display: block;
         }
       }
@@ -97,8 +134,9 @@ img {
 }
 
 // Compatible with IE11
-@media screen and(-ms-high-contrast: active), (-ms-high-contrast: none) {
-  body .@{ant-prefix}-design-pro > .@{ant-prefix}-layout {
+@media screen and(-ms-high-contrast: active),
+(-ms-high-contrast: none) {
+  body .@{ant-prefix}-design-pro>.@{ant-prefix}-layout {
     min-height: 100vh;
   }
 }
@@ -129,6 +167,12 @@ img {
 .g-button {
   color: @text-color-secondary !important;
   cursor: pointer;
+
+  &.hover-danger {
+    &:hover {
+      color: @error-color !important;
+    }
+  }
 
   &:hover {
     color: @primary-color !important;
@@ -182,29 +226,8 @@ img {
   font-size: 12px;
 }
 
-.@{ant-prefix}-table-thead
-  > tr
-  > th:not(:last-child):not(.@{ant-prefix}-table-selection-column):not(.@{ant-prefix}-table-row-expand-icon-cell):not([colspan])::before {
+.@{ant-prefix}-table-thead>tr>th:not(:last-child):not(.@{ant-prefix}-table-selection-column):not(.@{ant-prefix}-table-row-expand-icon-cell):not([colspan])::before {
   display: none;
-}
-
-.ant-btn-green {
-  color: #fff;
-  background: #31cb8a;
-  border-color: #31cb8a;
-
-  &:hover {
-    color: #fff;
-    background: #51e0a4;
-    border-color: #51e0a4;
-  }
-
-  &:active,
-  &:focus {
-    color: #31cb8a;
-    background: #fff;
-    border-color: #31cb8a;
-  }
 }
 
 .required-marker {
@@ -216,6 +239,27 @@ img {
   line-height: 1;
 }
 
-.CodeMirror-hints {
-  z-index: 2000 !important;
+.nospace-in-button * {
+  letter-spacing: 0 !important;
+}
+
+.text-secondary {
+  color: #c9cdd4;
+}
+
+@drawer-footer-height: 42px;
+
+.drawer-body {
+  margin-right: -12px;
+  padding-right: 12px;
+  height: calc(100% - @drawer-footer-height);
+}
+
+.drawer-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  height: @drawer-footer-height;
+  background-color: #fff;
+  margin-bottom: -12px;
 }

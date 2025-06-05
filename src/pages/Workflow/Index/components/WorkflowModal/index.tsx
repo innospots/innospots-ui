@@ -68,9 +68,12 @@ const triggerDataList = [
 
 export const MODAL_NAME = 'WorkflowModal';
 
+let templateLoaded = false;
+
 const WorkflowModal: React.FC<{
+  workflowType: string;
   onSuccess: () => void;
-}> = ({onSuccess}) => {
+}> = ({workflowType, onSuccess}) => {
   const [modal, modalInfo] = useModal(MODAL_NAME);
 
   const {visible, modalType, initValues} = modalInfo;
@@ -88,24 +91,29 @@ const WorkflowModal: React.FC<{
     categoryOptions,
     workflowTemplates,
     saveWorkflowRequest,
+    setWorkflowTemplates,
     fetchWorkflowTemplatesRequest
   } = useModel('Workflow', (model) => ({
     categoryOptions: model.categoryOptions,
     workflowTemplates: model.workflowTemplates,
     saveWorkflowRequest: model.saveWorkflowRequest,
+    setWorkflowTemplates: model.setWorkflowTemplates,
     fetchWorkflowTemplatesRequest: model.fetchWorkflowTemplatesRequest
   }));
 
   useEffect(() => {
     if (visible) {
       baseForm.setFieldsValue(_.pick(initValues, ['name', 'categoryId']));
-    }
+    } else {
+      setWorkflowTemplates([]);
+    } 
   }, [visible, initValues]);
 
   useEffect(() => {
     if (visible) {
-      if (!workflowTemplates.length) {
-        fetchWorkflowTemplatesRequest.run({primitive: 'trigger'});
+      if (!workflowTemplates.length && !templateLoaded) {
+        templateLoaded = true;
+        fetchWorkflowTemplatesRequest.run({primitive: 'trigger', workflowType: initValues?.workflowType});
       } else {
         if (initValues?.triggerCode) {
           setTriggerCode(initValues.triggerCode);
@@ -113,16 +121,18 @@ const WorkflowModal: React.FC<{
           setTriggerCode(workflowTemplates[0].code);
         }
       }
+    } else {
+      templateLoaded = false;
     }
   }, [visible, initValues, workflowTemplates]);
 
   const saveFormData = async (values: any) => {
     const currentTrigger = _.find(workflowTemplates, item => item.code === triggerCode);
-    const result = await saveWorkflowRequest.runAsync(modalType, {
+    const result = await saveWorkflowRequest.runAsync(workflowType, modalType, {
       ...initValues,
       ...values,
       triggerCode,
-      templateCode: 'APPS',
+      templateCode: currentTrigger?.flowCode,
       description: currentTrigger?.description
     });
 
@@ -213,7 +223,7 @@ const WorkflowModal: React.FC<{
                 label={t('workflow.form.name.label')}
                 rules={[
                   {
-                    pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9]{1,32}$/,
+                    pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9 ]{1,32}$/,
                     message: t('workflow.form.input.name.error_message2')
                   }
                 ]}

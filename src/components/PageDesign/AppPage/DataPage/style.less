@@ -1,0 +1,152 @@
+/* @import '~antd/es/style/themes/index.less';*/
+/* @import '~antd/lib/style/themes/default.less';*/
+
+.result {
+  width: 100%;
+  height: 100%;
+  padding: 8px 24px;
+
+  &:global(.result-tabs-1) {
+    .tabs {
+      display: none;
+    }
+
+    .mainContent {
+      height: 100%;
+    }
+  }
+
+  .mainContent {
+    padding: 0 8px;
+    overflow: auto;
+    overflow-x: hidden;
+    position: relative;
+    height: calc(100% - 46px - 16px);
+
+    &:global {
+      &.main-content-chat {
+        padding: 16px 8px;
+        border-radius: 12px;
+        background-color: #f6fafd;
+      }
+    }
+  }
+
+  .cardTitle {
+    margin-bottom: 0;
+    align-items: center;
+    background: #fff;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    transition: height .3s ease;
+  }
+
+  .cardActions {
+    color: #6d859e;
+    height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    overflow: hidden;
+    background-color: #a0bbd8;
+    transition: height .3s ease;
+
+    .button {
+      color: #fff;
+      cursor: pointer;
+
+      &:hover {
+        color: @error-color;
+      }
+    }
+  }
+
+  .cardImage {
+    margin-bottom: 12px;
+  }
+
+  .cardItem {
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f2f8ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+
+    &:hover {
+      .cardActions {
+        height: 50px;
+      }
+
+      .cardTitle {
+        height: 40px;
+      }
+
+      .cardInner {
+        height: calc(100% - 90px);
+      }
+    }
+  }
+
+  .cardInner {
+    padding: 0 12px;
+    height: calc(100% - 50px);
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    transition: height .3s ease;
+
+    &.video,
+    &.embed {
+      padding: 0;
+      text-align: center;
+    }
+
+    &.image {
+      padding: 8px 0;
+    }
+  }
+
+  :global {
+    .@{ant-prefix}-tabs-tab {
+      padding: 12px;
+
+      & + .@{ant-prefix}-tabs-tab {
+        margin-left: 12px;
+      }
+    }
+  }
+}
+
+:global {
+  .tab-col {
+    // &-chat,
+    &-table {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      position: absolute;
+    }
+  }
+}
+
+:global(.tab-col-table) {
+
+  & > .tableWrapper {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.detailModalContent {
+  :global {
+    .data-content {
+      &-image,
+      &-embed,
+      &-video {
+        height: 600px;
+        text-align: center;
+      }
+    }
+  }
+}

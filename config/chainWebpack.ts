@@ -16,40 +16,42 @@
  *  limitations under the License.
  */
 
-import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
-const { ModuleFederationPlugin } = require("webpack").container;
+export default (config: any, { env, webpack }: any) => {
+  const IS_DEV = env === 'development';
 
-const IS_DEV = process.env.NODE_ENV !== 'production';
+  const { ModuleFederationPlugin } = webpack.container;
 
-export default config => {
-    config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
-        {
-            languages: ['']
-        },
-    ]);
-
-    config.plugin('module-feaderation-plugin').use(ModuleFederationPlugin,[{
+  config.plugin('module-feaderation-plugin').use(ModuleFederationPlugin, [
+    {
       // 对外提供的打包后的文件名（引入时使用）
       filename: 'coreModule.js',
       // 当前应用模块名称
       name: 'coreModule',
-      library: { type: "var", name: "coreModule" },
+      library: { type: 'var', name: 'coreModule' },
       // 暴露模块
       exposes: {
-        './CoreWidget': '@/components/widget/shareWidgets'
+        './CoreWidget': '@/components/widget/shareWidgets',
       },
-      shared: ["react", "react-dom"]
-    }]);
+      // shared: ['react', 'react-dom'],
+    },
+  ]);
 
-    const hash = !IS_DEV ? '.[contenthash:8]' : '';
-    config.output.filename(`static/js/[name]${hash}.js`);
-    config.output.chunkFilename(`static/js/[name]${hash}.async.js`);
+//   if (!IS_DEV) {
+//     const hash = '.[contenthash:8]';
+//     config.output.filename(`static/js/[name]${hash}.js`);
+//     config.output.chunkFilename(`static/js/[name]${hash}.async.js`);
 
-    config.plugin('extract-css').tap(args => [
-        {
-            ...args[0],
-            filename: `static/css/[name]${hash}.css`,
-            chunkFilename: `static/css/[name]${hash}.chunk.css`,
-        },
-    ]);
-}
+//     // 先初始化 extract-css 插件
+//     config.plugin('extract-css').use(require('mini-css-extract-plugin'));
+//     // 然后调用 .tap() 方法进行配置
+//     config.plugin('extract-css').tap((args) => [
+//       {
+//         ...args[0],
+//         filename: `static/css/[name]${hash}.css`,
+//         chunkFilename: `static/css/[name]${hash}.chunk.css`,
+//       },
+//     ]);
+//   }
+
+  return config;
+};

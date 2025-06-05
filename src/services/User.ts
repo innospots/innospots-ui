@@ -60,3 +60,44 @@ export const changePassword = (data: any) => {
     method: 'put',
   });
 };
+
+export const fetchUserGroups = () => {
+  return fetch('user-group/list');
+};
+
+export const saveUserGroup = (type: HandleType, data?: any) => {
+  return fetch('user-group', {
+    data,
+    method: type === 'edit' ? 'put' : 'post',
+  });
+};
+
+export const deleteUserGroup = (groupId: number | string) => {
+  return fetch(`user-group/${groupId}`, {
+    method: 'delete',
+  });
+};
+
+export const fetchGroupUsers = (groupId: number | string, params?: any) => {
+  return fetch(`user-group/${groupId}/users?includeSubGroup=false`, {
+    params,
+  });
+};
+
+export const updateGroupUsers = (groupId: number | string, userIds: any[]) => {
+  return fetch(`user-group/${groupId}/users`, {
+    method: 'put',
+    params: {
+      userIds,
+    },
+  });
+};
+
+export const updateGroupHeadUser = (groupId: number | string, headerUserId: number | string) => {
+  return fetch(`user-group/${groupId}/header`, {
+    method: 'put',
+    params: {
+      headerUserId,
+    },
+  });
+};

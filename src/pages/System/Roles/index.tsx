@@ -27,6 +27,7 @@ import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 
 import PageLoading from '@/components/PageLoading';
+import PageHelmet from '@/components/PageHelmet';
 import PageTitle from '@/components/PageTitle';
 import ListTable from '@/components/ListTable';
 import UserAvatar from '@/components/UserAvatar';
@@ -343,6 +344,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('role.main.heading_title')} />
       {renderPageTitle()}
       {renderPageContent()}
       {renderRoleModal()}

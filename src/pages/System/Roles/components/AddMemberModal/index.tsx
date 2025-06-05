@@ -23,19 +23,14 @@ import { useMemoizedFn } from 'ahooks';
 
 import { message, Spin, Transfer } from 'antd';
 
+import useModal from '@/common/hooks/useModal';
 import useI18n from '@/common/hooks/useI18n';
 import UserAvatar from '@/components/UserAvatar';
 import NiceModal from '@/components/Nice/NiceModal';
 
 import styles from './style.less';
-import useModal from '@/common/hooks/useModal';
 
 export const MODAL_NAME = 'AddMemberModal';
-
-type AddMemberModalProps = {
-  roleId: number;
-  currentUsers: number[];
-};
 
 const AddMemberModal: React.FC = () => {
   const { t } = useI18n(['role', 'common']);
@@ -61,7 +56,9 @@ const AddMemberModal: React.FC = () => {
 
   const fetchMemberData = async () => {
     try {
-      await userRequest.runAsync();
+      await userRequest.runAsync({
+        paging: false,
+      });
     } catch (e) {}
   };
 
@@ -119,12 +116,17 @@ const AddMemberModal: React.FC = () => {
     return (
       <Transfer
         oneWay
+        showSearch
         targetKeys={targetKeys}
+        pagination={{
+          simple: true,
+          pageSize: 20,
+        }}
         titles={[t('role.form.user.all'), t('role.form.user.selected')]}
         dataSource={userData.list}
         listStyle={{
-          width: 328,
-          height: 360,
+          width: 450,
+          height: 460,
         }}
         render={renderTransferItem}
         rowKey={(record) => record.userId}
@@ -135,7 +137,7 @@ const AddMemberModal: React.FC = () => {
 
   return (
     <NiceModal
-      width={748}
+      width={1000}
       visible={visible}
       title={t('role.main.button.add_user')}
       okButtonProps={{

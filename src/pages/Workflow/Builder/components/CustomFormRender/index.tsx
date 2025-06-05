@@ -20,6 +20,8 @@ import React from 'react';
 import { Input } from  'antd';
 import FormRender, { FRProps } from 'form-render';
 
+// import { IS_DEV } from '@/common/constants';
+
 import * as Widgets from '../NodeDataConfig/Widgets/widgets';
 
 const Password = Input.Password;
@@ -27,11 +29,12 @@ const Password = Input.Password;
 const CustomFormRender:React.FC<FRProps> = (props) => {
   return (
     <FormRender
-      removeHiddenData
       widgets={{
         ...Widgets,
         Password
       }}
+      // debug={IS_DEV}
+      removeHiddenData={false}
       { ...props }
     />
   )

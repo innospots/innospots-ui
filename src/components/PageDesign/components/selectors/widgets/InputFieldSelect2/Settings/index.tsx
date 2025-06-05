@@ -1,0 +1,30 @@
+import React from 'react';
+import {Input, Switch} from 'antd'
+
+import { WidgetSetting, SettingItem, WidgetNameSetting, WidgetCommonSetting, WidgetConditionRule, WidgetValidationRule } from '@/components/PageDesign/components/Viewport/Settings'
+
+const Settings:React.FC = () => {
+
+  return (
+    <WidgetSetting>
+      <WidgetNameSetting />
+      <WidgetCommonSetting />
+      <SettingItem required name={['settings', 'label']} label="标题">
+        <Input placeholder="请输入标题名称" />
+      </SettingItem>
+      <SettingItem name={['settings', 'multiple']} label="是否多选" valuePropName="checked">
+        <Switch />
+      </SettingItem>
+      <SettingItem required name={['settings', 'placeholder']} label="提示信息">
+        <Input placeholder="请输入提示信息" />
+      </SettingItem>
+      <SettingItem name={['settings', 'initialValue']} label="默认值">
+        <Input placeholder="请输入默认值" />
+      </SettingItem>
+      <WidgetValidationRule />
+      <WidgetConditionRule />
+    </WidgetSetting>
+  )
+}
+
+export default Settings

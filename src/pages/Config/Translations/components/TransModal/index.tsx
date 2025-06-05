@@ -15,16 +15,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-import React, { useEffect } from 'react';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { useModel } from 'umi';
-import { Row, Col, Form, Input, Space, Button, Drawer, message, Typography } from 'antd';
+import { useDeepCompareEffect } from 'ahooks';
+import { Row, Col, Form, Input, Select, Space, Button, Drawer, message, Typography } from 'antd';
 import { randomString, getFormattedLocale } from '@/common/utils';
 
 import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 import FlagIcon from '@/components/Icons/FlagIcon';
 import { DEFAULT_PAGINATION_SETTINGS } from '@/common/constants';
+
+import * as Service from '@/services/I18n';
+import { extractResult } from '@/common/utils';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -40,21 +44,56 @@ export type ModalProps = Props;
 
 export const MODAL_NAME = 'TransModal';
 
-const TransModal: React.FC = () => {
+const TransModal: React.FC<{
+  onSuccess?: (result?: any) => void;
+}> = ({ onSuccess }) => {
   const [formRes] = Form.useForm();
   const { t } = useI18n(['translation', 'common']);
 
-  const { saveTransRequest, translationRequest, translationHeaderColumn } = useModel('I18n');
+  const [dataStatus, setDataStatus] = useState({
+    code: false,
+  });
+
+  const {
+    appList,
+    saveTransRequest,
+    updateTransRequest,
+    translationRequest,
+    translationHeaderColumn,
+  } = useModel('I18n', model => ({
+    appList: model.appList,
+    saveTransRequest: model.saveTransRequest,
+    updateTransRequest: model.updateTransRequest,
+    translationRequest: model.translationRequest,
+    translationHeaderColumn: model.translationHeaderColumn,
+  }));
 
   const [modal, modalInfo] = useModal(MODAL_NAME);
+  const { visible, modalType, initValues = {} } = modalInfo;
 
-  const { visible, initValues = {} } = modalInfo;
+  const [transData, setTransData] = useState(initValues);
+  const [appModuleList, setAppModuleList] = useState([]);
 
   useEffect(() => {
     if (visible) {
       setInitValues();
+      if (modalType === 'edit' && !_.isEmpty(initValues)) {
+        setTransData(initValues.dictionary);
+      } else {
+        setTransData({});
+      }
     }
-  }, [visible, initValues]);
+  }, [visible, initValues, modalType]);
+
+  const fetchAppModuleList = async (app: string) => {
+    const result = await Service.getAppModuleList(app);
+    setAppModuleList(extractResult(result));
+  };
+
+  useDeepCompareEffect(() => {
+    // @ts-ignore
+    !_.isEmpty(transData.app) && fetchAppModuleList(transData.app);
+  }, [transData.app]);
 
   const setInitValues = () => {
     const values = {
@@ -65,13 +104,23 @@ const TransModal: React.FC = () => {
   };
 
   const handleFormSubmit = () => {
-    formRes.validateFields().then((values) => {
-      saveTranslationData({
-        ...initValues,
-        messages: {
-          ...values,
-        },
-      });
+    if (!transData.code) {
+      setDataStatus({ code: true });
+      return;
+    } else {
+      setDataStatus({ code: false });
+    }
+    formRes.validateFields().then(async (values) => {
+      const postData: any = {};
+      if (modalType === 'edit') {
+        postData.dictionary = _.extend({}, initValues?.dictionary, transData);
+      } else {
+        _.merge(postData, transData);
+      }
+      postData.messages = {
+        ...values,
+      };
+      saveTranslationData(postData);
     });
   };
 
@@ -80,11 +129,22 @@ const TransModal: React.FC = () => {
       let postData = { ...values };
 
       delete postData.key;
-      const result = await saveTransRequest.runAsync(postData);
+      let result:any = null;
+      if (modalType === 'edit') {
+        result = await updateTransRequest.runAsync(postData);
+      } else {
+        result = await saveTransRequest.runAsync(postData);
+      }
 
       if (result) {
         message.success(t('common.error_message.save.success'));
         modal.hide();
+
+        if (onSuccess) {
+          onSuccess();
+          return;
+        }
+
         translationRequest.run({
           ...DEFAULT_PAGINATION_SETTINGS,
           app: null,
@@ -99,7 +159,7 @@ const TransModal: React.FC = () => {
     <Drawer
       width={556}
       open={visible}
-      title={t('translation.form.edit.title')}
+      title={t(`translation.form.${modalType}.title`)}
       onClose={modal.hide}
       maskClosable={false}
       footer={
@@ -120,15 +180,58 @@ const TransModal: React.FC = () => {
       <Row>
         <Col span={24}>
           <Title level={5}>{t('translation.form.app')}</Title>
-          <span>{initValues.dictionary?.app}</span>
+          <div style={{ marginTop: 16 }}>
+            <Select
+              allowClear
+              style={{ width: '100%' }}
+              value={transData.app}
+              status={dataStatus.app ? 'error' : ''}
+              placeholder={t('translation.main.column.app')}
+              onChange={(value: any) => {
+                setTransData({ ...transData, app: value });
+              }}
+            >
+              {appList?.map((am, index) => (
+                <Select.Option key={[am, index].join('-')} value={am}>
+                  {am}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
         </Col>
         <Col span={24} style={{ marginTop: 24 }}>
           <Title level={5}>{t('translation.form.module')}</Title>
-          <span>{initValues.dictionary?.module}</span>
+          <div style={{ marginTop: 16 }}>
+            <Select
+              allowClear
+              style={{ width: '100%' }}
+              value={transData.module}
+              status={dataStatus.module ? 'error' : ''}
+              placeholder={t('translation.main.column.module')}
+              onChange={(value: any) => {
+                setTransData({ ...transData, module: value });
+              }}
+            >
+              {appModuleList?.map((am, index) => (
+                <Select.Option key={[am, index].join('-')} value={am}>
+                  {am}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
         </Col>
         <Col span={24} style={{ marginTop: 24 }}>
           <Title level={5}>{t('translation.form.resource')}</Title>
-          <span>{initValues.dictionary?.code}</span>
+          <div style={{ marginTop: 16 }}>
+            <Input
+              value={transData.code}
+              placeholder={t('common.input.placeholder')}
+              status={dataStatus.code ? 'error' : ''}
+              onChange={(e: any) => {
+                setTransData({ ...transData, code: e.target.value });
+              }}
+            />
+          </div>
         </Col>
 
         <Col span={24} style={{ marginTop: 48 }}>

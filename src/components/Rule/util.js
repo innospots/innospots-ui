@@ -24,10 +24,10 @@ export const isDate = (dataType) => dataType === 'DATE' || dataType === 'TIMESTA
 export const isBoolean = (dataType) => dataType === 'BOOLEAN';
 export const isString = (dataType) => dataType === 'STRING';
 export const isNumber = (dataType) =>
-    dataType === 'DOUBLE' || dataType === 'INTEGER' || dataType === 'LONG';
+  dataType === 'DOUBLE' || dataType === 'INTEGER' || dataType === 'LONG';
 export const isMultiValue = (termValue) => termValue === 'NOTIN' || termValue === 'IN';
 export const isSelectField = (field) =>
-    /* field.allowsDictionaryConfig &&  */ field.tagEnum && field.tagEnum.length > 0;
+  /* field.allowsDictionaryConfig &&  */ field.tagEnum && field.tagEnum.length > 0;
 
 /**
  * 不需要值的操作类型
@@ -35,6 +35,24 @@ export const isSelectField = (field) =>
  * @returns {boolean}
  */
 export const isEmptyValue = (type) => EMPTY_VALUE_TYPES.indexOf(type) > -1;
+
+export const getDefaultData = () => {
+  return {
+    relation: 'OR',
+    children: [
+      {
+        relation: 'AND',
+        children: [
+          {
+            field: {},
+            term: {},
+            // value: ''
+          },
+        ],
+      },
+    ],
+  };
+};
 
 /**
  * 获取操作符数据
@@ -48,17 +66,22 @@ export const getOperatorData = (value) => _.find(OPERATORS, (o) => o.value === v
  * @param type
  */
 export const getOperatorListByType = (type) => {
-    const list = [];
-    _.map(OPERATORS, (item) => {
-        if (!type || item.valueTypes === 'ALL' || _.indexOf(item.valueTypes, type) > -1) {
-            const cloneItem = _.clone(item);
-            delete cloneItem.valueTypes;
+  const list = [];
+  _.map(OPERATORS, (item) => {
+    // if (!type || item.valueTypes === 'ALL' || _.indexOf(item.valueTypes, type) > -1) {
+    if (item.valueTypes || !type) {
+      const cloneItem = _.clone(item);
+      delete cloneItem.valueTypes;
 
-            list.push(cloneItem);
-        }
-    });
+      list.push(cloneItem);
+    }
+  });
 
-    return list;
+  return list;
+};
+
+export const filterOperators = (types) => {
+  return OPERATORS.filter((item) => types.includes(item.value));
 };
 
 /**
@@ -68,9 +91,9 @@ export const getOperatorListByType = (type) => {
  * @param value
  */
 export const getStatementString = (fieldName, operator, value) => {
-    if (!_.isArray(value)) {
-        return (operator.statement || '')
-            .replace(/\$\{field\}/gi, fieldName)
-            .replace(/\$\{value\}/gi, value);
-    }
+  if (!_.isArray(value)) {
+    return (operator.statement || '')
+      .replace(/\$\{field\}/gi, fieldName)
+      .replace(/\$\{value\}/gi, value);
+  }
 };

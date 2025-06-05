@@ -73,6 +73,14 @@ export default () => {
     manual: true,
   });
 
+  const installExtensionRequest = useRequest(Service.installExtension, {
+    manual: true,
+  });
+
+  const changeExtensionStatusRequest = useRequest(Service.changeExtensionStatus, {
+    manual: true,
+  });
+
   return {
     appList,
     baseInfoData,
@@ -85,5 +93,8 @@ export default () => {
 
     applicationModulesRequest,
     applicationMenuItemsRequest,
+
+    installExtensionRequest,
+    changeExtensionStatusRequest,
   };
 };

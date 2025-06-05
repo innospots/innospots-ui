@@ -67,17 +67,25 @@ export interface IListQueryParams {
   paging?: boolean;
 }
 
-export type AppInfo = {
-  status: string;
-  outPorts: any;
-  inPorts: any;
-  icon: string
-  code: string
-  name: string
-  used: boolean
-  nodeId: number
-  primitive: string
-  appSource: string
-  description: string
-  nodeGroupId: number
+type AppInfoSettings = {
+  navPos?: 'top' | 'left'
+  isPublicVisit?: boolean
+  isShareShowNav?: boolean
+  showNavigation?: boolean
 }
+
+export type AppInfo = {
+  name: string,
+  categoryId: number,
+  description?: string,
+  status: string,
+  icon?: string,
+  resources?: Record<string, any>,
+  settings?: AppInfoSettings,
+  appKey: string,
+  appType: string,
+  templateKey?: string,
+  appPath?: string
+}
+
+export type ModelType = 'CODE' | 'DOC' | 'EMBEDDING' | 'IMAGE' | 'IMAGE_REC' | 'MATH' | 'STT' | 'TTS' | 'TEXT' | 'TRANSLATION' | 'TTV' | 'VTT';

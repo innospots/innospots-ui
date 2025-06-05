@@ -30,6 +30,7 @@ import useI18n from '@/common/hooks/useI18n';
 import useModal from '@/common/hooks/useModal';
 import PageLoading from '@/components/PageLoading';
 import InnoIcon from '@/components/Icons/InnoIcon';
+import PageHelmet from '@/components/PageHelmet';
 
 import MenuList from './components/SortableMenuList';
 import MenuModal, { MODAL_NAME } from './components/MenuModal';
@@ -37,7 +38,10 @@ import MenuModal, { MODAL_NAME } from './components/MenuModal';
 import styles from './style.less';
 
 const Index: React.FC = () => {
-  const { menus, fetchMenusRequest } = useModel('Menu');
+  const { menus, fetchMenusRequest } = useModel('Menu', model => ({
+    menus: model.menus,
+    fetchMenusRequest: model.fetchMenusRequest,
+  }));
 
   const [modal] = useModal(MODAL_NAME);
 
@@ -156,6 +160,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('menu.main.heading_title')} />
       {renderPageHeader()}
       {renderDataContent()}
       {renderMenuModal()}

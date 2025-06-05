@@ -29,89 +29,92 @@ import useI18n from '@/common/hooks/useI18n';
 import NiceModal from '@/components/Nice/NiceModal';
 
 const formItemLayout = {
-    labelCol: { span: 5 },
-    wrapperCol: { span: 19 },
+  labelCol: { span: 5 },
+  wrapperCol: { span: 19 },
 };
 
 export const MODAL_NAME = 'CategoryModal';
 
 const CategoryModal: React.FC = () => {
-    const [formRes] = Form.useForm();
-    const { saveCategoryRequest } = useModel('Workflow', (model) => ({
-        saveCategoryRequest: model.saveCategoryRequest,
-    }));
+  const [formRes] = Form.useForm();
+  const { saveCategoryRequest } = useModel('Workflow', (model) => ({
+    saveCategoryRequest: model.saveCategoryRequest,
+  }));
 
-    const [modal, modalInfo] = useModal(MODAL_NAME);
+  const [modal, modalInfo] = useModal(MODAL_NAME);
 
-    const { visible, modalType, initValues } = modalInfo;
+  const { visible, modalType, initValues } = modalInfo;
 
-    const { t } = useI18n(['workflow', 'common']);
+  const { t } = useI18n(['workflow', 'common']);
 
-    useEffect(() => {
-        if (visible) {
-            if (modalType === 'edit' && initValues) {
-                formRes.setFieldsValue(initValues);
-            }
-        }
-    }, [visible, modalType, initValues]);
+  useEffect(() => {
+    if (visible) {
+      if (modalType === 'edit' && initValues?.category) {
+        formRes.setFieldsValue(initValues.category);
+      }
+    }
+  }, [visible, modalType, initValues]);
 
-    const handleFormSubmit = () => {
-        formRes.validateFields().then((values) => {
-            saveCategoryData({
-                ...initValues,
-                ...values,
-            });
-        });
-    };
+  const handleFormSubmit = () => {
+    formRes.validateFields().then((values) => {
+      saveCategoryData({
+        ...(initValues?.category || {}),
+        ...values,
+      });
+    });
+  };
 
-    const saveCategoryData = async (values: any) => {
-        try {
-            const result = await saveCategoryRequest.runAsync(modalType, values);
-            if (result) {
-                message.success(t('common.error_message.save.success'));
-                modal.hide();
-            }
-        } catch (e) {}
-    };
+  const saveCategoryData = async (values: any) => {
+    try {
+      if (initValues?.workflowType) {
+        values.workflowType = initValues.workflowType;
+      }
+      const result = await saveCategoryRequest.runAsync(modalType, values);
+      if (result) {
+        message.success(t('common.error_message.save.success'));
+        modal.hide();
+      }
+    } catch (e) {}
+  };
 
-    const renderForm = () => {
-        return (
-            <Form form={formRes} preserve={false} {...formItemLayout} style={{ marginBottom: -24 }}>
-                <Form.Item
-                    name="categoryName"
-                    label={t('common.category.name.label')}
-                    rules={[
-                        {
-                            required: true,
-                            message: t('common.category.name.message'),
-                        },
-                        {
-                            pattern: NAME_PATTERN,
-                            message: t('common.category.name.message'),
-                        },
-                    ]}
-                >
-                    <Input maxLength={16} placeholder={t('common.category.name.placeholder')} />
-                </Form.Item>
-            </Form>
-        );
-    };
-
+  const renderForm = () => {
     return (
-        <NiceModal
-            width={488}
-            destroyOnClose
-            visible={visible}
-            title={<span style={{fontSize: 20}}>{t(`common.category.${modalType}.title`)}</span>}
-            okButtonProps={{
-                loading: saveCategoryRequest.loading,
-                onClick: handleFormSubmit,
-            }}
-            onCancel={modal.hide}
+      <Form form={formRes} preserve={false} {...formItemLayout}>
+        <Form.Item
+          name="categoryName"
+          label={t('common.category.name.label')}
+          rules={[
+            {
+              required: true,
+              message: t('common.category.name.message'),
+            },
+            {
+              pattern: NAME_PATTERN,
+              message: t('common.category.name.message'),
+            },
+          ]}
         >
-            {renderForm()}
-        </NiceModal>
+          <Input maxLength={16} placeholder={t('common.category.name.placeholder')} />
+        </Form.Item>
+      </Form>
     );
+  };
+
+  return (
+    <NiceModal
+      width={488}
+      destroyOnClose
+      visible={visible}
+      title={<span style={{ fontSize: 20 }}>{t(`common.category.${modalType}.title`)}</span>}
+      okButtonProps={{
+        loading: saveCategoryRequest.loading,
+        onClick: handleFormSubmit,
+      }}
+      onCancel={modal.hide}
+    >
+      {renderForm()}
+    </NiceModal>
+  );
 };
 
 export default CategoryModal;

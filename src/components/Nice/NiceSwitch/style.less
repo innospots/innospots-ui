@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 
 @switcher-border-radius: 4px;
 
@@ -24,20 +26,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 194px;
+  min-width: 194px;
   height: @height-base;
   padding: 4px;
   background: #f2f3f5;
   border-radius: @switcher-border-radius;
 
   .item {
-    width: 91px;
+    min-width: 91px;
     height: 30px;
     color: #4e5969;
     line-height: 30px;
     text-align: center;
     border-radius: @switcher-border-radius;
     cursor: pointer;
+    margin-right: 4px;
 
     &:hover:not(.active) {
       background-color: rgba(255, 255, 255, 0.8);
@@ -45,6 +48,7 @@
 
     .label {
       padding-left: 4px;
+      padding-right: 4px;
     }
 
     &.active {

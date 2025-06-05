@@ -15,15 +15,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import { useState } from 'react';
+import JSEncrypt from 'jsencrypt';
 
 import { useRequest } from 'ahooks';
 
 import * as Service from '@/services/Setting';
-import JSEncrypt from 'jsencrypt';
 
 import { fetchPublicKey } from '@/services/Account';
 
 export default () => {
+
+  const [orgInfo, setOrgInfo] = useState<Record<string, any>>({});
+
   const encrypt = (key: string, content: string) => {
     const encrypt = new JSEncrypt();
     encrypt.setPublicKey(key);
@@ -35,6 +39,9 @@ export default () => {
    */
   const infoConfigsRequest = useRequest(Service.fetchInfoConfigs, {
     manual: true,
+    onSuccess: (result: any) => {
+      setOrgInfo(result);
+    }
   });
 
   /**
@@ -42,6 +49,11 @@ export default () => {
    */
   const saveInfoConfigRequest = useRequest(Service.saveInfoConfig, {
     manual: true,
+    onSuccess: (result: any, params: any) => {
+      if (result && params[0]) {
+        setOrgInfo(params[0]);
+      }
+    }
   });
 
   /**
@@ -86,6 +98,7 @@ export default () => {
   return {
     saveEmailConfig,
 
+    orgInfo,
     infoConfigsRequest,
     emailConfigsRequest,
     saveInfoConfigRequest,

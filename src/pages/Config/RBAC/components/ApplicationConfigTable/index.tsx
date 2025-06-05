@@ -88,7 +88,7 @@ const ApplicationConfigTable: React.FC<{
 
   const onSubmit = () => {
     const menuItemRoles = {};
-    _.map(selectedRoles, (itemKey) => {
+    _.map(selectedRoles || [], (itemKey) => {
       menuItemRoles[itemKey] = [curRoleId * 1];
     });
 
@@ -112,16 +112,16 @@ const ApplicationConfigTable: React.FC<{
   const onCheckAllChange = useMemoizedFn((e: any, record: any) => {
     if (!isEditing) return;
 
-    const {checked} = e.target;
+    const {checked} = e?.target;
 
     _.each(record.opts, (item) => {
-      const index = selectedRoles.indexOf(item.itemKey);
+      const index = selectedRoles?.indexOf(item?.itemKey);
       if (checked) {
         if (index < 0) {
-          selectedRoles.push(item.itemKey);
+          selectedRoles?.push(item?.itemKey);
         }
       } else if (index > -1) {
-        selectedRoles.splice(index, 1);
+        selectedRoles?.splice(index, 1);
       }
     });
 
@@ -131,9 +131,9 @@ const ApplicationConfigTable: React.FC<{
   const handleRowExpand = useMemoizedFn((expanded, record) => {
     if (expanded) {
       // @ts-ignore
-      expandedKeys.push(record.itemKey);
+      expandedKeys?.push(record?.itemKey);
     } else {
-      expandedKeys.splice(expandedKeys.indexOf(record.itemKey), 1);
+      expandedKeys?.splice(expandedKeys?.indexOf(record?.itemKey), 1);
     }
     setExpandedKeys([...expandedKeys]);
   });
@@ -141,14 +141,14 @@ const ApplicationConfigTable: React.FC<{
   const onCheckboxChange = useMemoizedFn((e: any, itemKey: string) => {
     if (!isEditing) return;
 
-    const {checked} = e.target;
+    const {checked} = e?.target;
 
     if (checked) {
-      selectedRoles.push(itemKey);
+      selectedRoles?.push(itemKey);
     } else {
-      const index = selectedRoles.indexOf(itemKey);
+      const index = selectedRoles?.indexOf(itemKey);
       if (index > -1) {
-        selectedRoles.splice(index, 1);
+        selectedRoles?.splice(index, 1);
       }
     }
 
@@ -156,37 +156,37 @@ const ApplicationConfigTable: React.FC<{
   });
 
   const renderListTable = () => {
-    const columns:ColumnsType<any> = [
+    const columns: ColumnsType<any> = [
       {
         title: <span style={{paddingLeft: 32}}>{t('rbac.table.column.app')}</span>,
         width: 220,
         fixed: 'left',
         dataIndex: 'name',
         render: (name: string, record: any) => {
-          const expanded = expandedKeys.includes(record?.itemKey);
+          const expanded = expandedKeys?.includes(record?.itemKey);
           const [locale] = getFormattedLocale();
-          const value = record.i18nNames?.[locale] || name || '-';
+          const value = record?.i18nNames?.[locale] || name || '-';
 
           return (
             <Row align="middle">
               {record?.items && record?.items?.length && (
                 <Col flex="30px">
-                    <span
-                      className={styles.expandIcon}
-                      onClick={() => handleRowExpand(!expanded, record)}
-                    >
-                      {expanded ? (
-                        <InnoIcon type="caret-down" size={16}/>
-                      ) : (
-                        <InnoIcon type="caret-right" size={16}/>
-                      )}
-                    </span>
+                  <span
+                    className={styles.expandIcon}
+                    onClick={() => handleRowExpand(!expanded, record)}
+                  >
+                    {expanded ? (
+                      <InnoIcon type="caret-down" size={16}/>
+                    ) : (
+                      <InnoIcon type="caret-right" size={16}/>
+                    )}
+                  </span>
                 </Col>
               )}
-              {record.icon && renderMenuIcon(record.icon) && <Col flex="24px">{renderMenuIcon(record.icon)}</Col>}
+              {record?.icon && renderMenuIcon(record?.icon) && <Col flex="24px">{renderMenuIcon(record?.icon)}</Col>}
               <Col>
                 <Text
-                  style={{width: 120}}
+                  // style={{width: 120}}
                   ellipsis={{tooltip: value}}
                 >
                   {value}
@@ -200,14 +200,14 @@ const ApplicationConfigTable: React.FC<{
         title: t('rbac.table.column.action'),
         dataIndex: 'operate',
         render: (operate: any, record: any) => {
-          const operationItems = record.opts || [];
-          const hasOpts = !!operationItems.length;
+          const operationItems = record?.opts || [];
+          const hasOpts = !!operationItems?.length;
           const selectedItems = _.filter(
             operationItems,
-            (item) => selectedRoles.indexOf(item.itemKey) > -1,
+            (item) => selectedRoles?.indexOf(item?.itemKey) > -1,
           );
           const indeterminate =
-            selectedItems?.length > 0 && selectedItems?.length < operationItems.length;
+            selectedItems?.length > 0 && selectedItems?.length < operationItems?.length;
 
           return (
             <Row gutter={8} className={styles[isEditing ? '' : 'noChecked']} wrap>
@@ -223,14 +223,14 @@ const ApplicationConfigTable: React.FC<{
                 </Col>
               )}
               {operationItems.map((item, index) => (
-                <Col>
+                <Col key={[item?.itemKey, index].join('-')}>
                   <Checkbox
-                    value={item.itemKey}
-                    key={item.itemKey}
-                    checked={selectedRoles.indexOf(item.itemKey) > -1}
-                    onChange={(e) => onCheckboxChange(e, item.itemKey)}
+                    value={item?.itemKey}
+                    key={item?.itemKey}
+                    checked={selectedRoles.indexOf(item?.itemKey) > -1}
+                    onChange={(e) => onCheckboxChange(e, item?.itemKey)}
                   >
-                    {item.label || item.name}
+                    {item?.label || item?.name}
                   </Checkbox>
                 </Col>
               ))}
@@ -257,7 +257,7 @@ const ApplicationConfigTable: React.FC<{
               expandIcon: () => null,
             }}
             dataSource={menuItems}
-            loading={fetchMenuItemsRequest.loading || roleAuthDataRequest.loading}
+            loading={fetchMenuItemsRequest?.loading || roleAuthDataRequest?.loading}
           />
         </div>
       </div>

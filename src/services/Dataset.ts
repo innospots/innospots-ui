@@ -48,7 +48,7 @@ export const fetchSchemaRegistries = (params: {
 };
 
 export const fetchDatasetPreview = (params: any) => {
-  return fetch(`apps/schema/registry/fetch-samples`, {
+  return fetch(`schema/registry/fetch-samples`, {
     params: {
       ...DEFAULT_PAGINATION_SETTINGS,
       ...params,
@@ -58,42 +58,42 @@ export const fetchDatasetPreview = (params: any) => {
 };
 
 export const createCategory = (categoryName: string): any => {
-  return fetch(`apps/schema/category?categoryName=${categoryName}`, {
+  return fetch(`schema/category?categoryName=${categoryName}`, {
     method: 'post',
   });
 };
 
 export const updateCategory = (categoryId: number, categoryName: string) => {
-  return fetch(`apps/schema/category/${categoryId}?categoryName=${categoryName}`, {
+  return fetch(`schema/category/${categoryId}?categoryName=${categoryName}`, {
     method: 'put',
   });
 };
 
 export const saveDataset = (data: any, type: HandleType = 'add') => {
-  return fetch('apps/schema/data-set', {
+  return fetch('schema/registry', {
     data,
     method: type === 'add' ? 'POST' : 'PUT',
   });
 };
 
 export const deleteDataset = (id: number) => {
-  return fetch(`apps/schema/data-set/${id}`, {
+  return fetch(`schema/registry/${id}`, {
     method: 'delete',
   });
 };
 
 export const deleteCategory = (categoryId: number) => {
-  return fetch(`apps/schema/category/${categoryId}`, {
+  return fetch(`schema/category/${categoryId}`, {
     method: 'delete',
   });
 };
 
 export const fetchCategories = () => {
-  return fetch(`apps/schema/category/list`);
+  return fetch(`schema/category/list`);
 };
 
 export const fetchDataset = (data) => {
-  return fetch(`apps/schema/data-set/page`, {
+  return fetch(`schema/registry/page`, {
     params: {
       ...DEFAULT_PAGINATION_SETTINGS,
       ...data,
@@ -102,7 +102,7 @@ export const fetchDataset = (data) => {
 };
 
 export const fetchDatasetList = (params) => {
-  return fetch(`apps/schema/data-set/list`, {
+  return fetch(`schema/registry/list`, {
     params,
   });
 };
@@ -112,14 +112,14 @@ export function datasetExecute<T> (
   params?: {
     page: number;
     size: number;
-    credentialId: number;
+    credentialKey: number;
   },
 ): Promise<{
   rows: any[]
   columns: any[]
   pageBody: any
 }> {
-  return fetch(`apps/schema/data/execute`, {
+  return fetch(`schema/data/execute`, {
     data,
     params,
     method: 'post',

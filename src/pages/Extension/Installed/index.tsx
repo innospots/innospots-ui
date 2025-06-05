@@ -37,7 +37,7 @@ import {
   VerticalAlignBottomOutlined,
 } from '@ant-design/icons';
 
-import { useModel, useHistory } from 'umi';
+import { useModel, history } from 'umi';
 
 import { useSetState, useDeepCompareEffect } from 'ahooks';
 
@@ -51,6 +51,8 @@ import ListTable from '@/components/ListTable';
 import PageLoading from '@/components/PageLoading';
 import NiceAvatar from '@/components/Nice/NiceAvatar';
 import StatusTag from '@/components/StatusTag';
+import PageHelmet from '@/components/PageHelmet';
+import { isRequestSuccess } from '@/common/utils';
 
 const { Paragraph, Text } = Typography;
 
@@ -104,9 +106,12 @@ export const STATUS_TAG = {
   },
 };
 const Index: React.FC = () => {
-  const { changeAppStatus, installedAppList, getInstalledAppList } = useModel('Application');
+  const { changeAppStatus, installedAppList, getInstalledAppList } = useModel('Application', model => ({
+    changeAppStatus: model.changeAppStatus,
+    installedAppList: model.installedAppList,
+    getInstalledAppList: model.getInstalledAppList,
+  }));
 
-  const history = useHistory();
   const { t, loading: i18nLoading } = useI18n(['app', 'common']);
 
   const [queryData, setQueryData] = useSetState({});
@@ -132,11 +137,11 @@ const Index: React.FC = () => {
         <Col flex="auto">
           <Row justify="space-between" style={{ padding: '20px 0 0 24px' }}>
             <Col>
-              <PermissionSection itemKey="I18nCurrency-createCurrency">
-                <Button type="primary" onClick={() => handleHeaderButtonClick()}>
-                  {t('app.main.button.app_store')}
-                </Button>
-              </PermissionSection>
+              {/*<PermissionSection itemKey="I18nCurrency-createCurrency">*/}
+              {/*  <Button type="primary" onClick={() => handleHeaderButtonClick()}>*/}
+              {/*    {t('app.main.button.app_store')}*/}
+              {/*  </Button>*/}
+              {/*</PermissionSection>*/}
             </Col>
 
             <Col>
@@ -161,7 +166,7 @@ const Index: React.FC = () => {
       operateState: STATUS_TAG[record.status].operateState,
     });
 
-    if (result?.code === '10000') {
+    if (isRequestSuccess(result?.code)) {
       message.success(`${t(STATUS_TAG[record.status].tooltipText)}${t('common.options.success')}`);
       getListData();
     } else {
@@ -177,7 +182,6 @@ const Index: React.FC = () => {
         dataIndex: 'name',
         render: (name, record) => {
           const colors = STATUS_TAG_COLORS[record.status];
-
           return (
             <Row>
               <Col flex="32px" style={{ padding: '6px 0' }}>
@@ -343,6 +347,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHelmet title={t('app.main.title')} />
       {renderPageHeader()}
       {renderDataContent()}
     </>

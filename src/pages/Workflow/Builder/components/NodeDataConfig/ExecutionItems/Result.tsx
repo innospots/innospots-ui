@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-import React, {useMemo, useRef, useState, useEffect} from 'react';
+import React, {useMemo, useRef, useState, useEffect, useContext} from 'react';
 import _ from 'lodash';
 import cls from 'classnames';
 import {useSize} from 'ahooks';
@@ -26,7 +26,9 @@ import {Typography, Select, Row, Col} from 'antd';
 import type {ExecutionItemProps} from './types';
 import {formatListData} from '@/common/utils';
 import ListTable from '@/components/ListTable';
+import CurContext from '../../../common/context';
 
+import LS from '@/common/utils/LocalStorage';
 import useI18n from '@/common/hooks/useI18n';
 
 import styles from './index.less';
@@ -36,10 +38,15 @@ const {Text} = Typography;
 const Result: React.FC<ExecutionItemProps> = ({executeData}) => {
   const {t} = useI18n(['workflow']);
 
-  const conRef = useRef(null);
+  const conRef = useRef<any>(null);
   const sizeRef = useSize(conRef);
   const [filterOption, setFilterOption] = useState();
-  const executeLoading = useModel('Builder', (model) => model.executeLoading);
+  const { executeLoading, executionPageData, setExecutionPageData } = useModel('Builder', (model) => ({
+    executeLoading: model.executeLoading,
+    executionPageData: model.executionPageData,
+    setExecutionPageData: model.setExecutionPageData
+  }));
+  const {node, onExecute} = useContext(CurContext);
 
   const filterOptions = useMemo(() => {
     const outputs = (executeData || {}).outputs || [];
@@ -71,36 +78,66 @@ const Result: React.FC<ExecutionItemProps> = ({executeData}) => {
     }
   }, [filterOptions, filterOption]);
 
+  const handlePageChange = (page, size) => {
+    LS.set('EXEC_PAGE_SIZE', size);
+
+    setExecutionPageData({
+      ...executionPageData,
+      page, size
+    })
+  }
+
   const getExecResultList = useMemo(() => {
     const outputs = (executeData || {}).outputs || [];
     const outputField = filterOption
       ? _.find(outputs, (item) => item.name === filterOption)
       : outputs[0];
-    const dataList = formatListData((outputField || {}).results || []);
+    const resultData = (outputField || {}).results || {};
+    const dataList = formatListData(resultData.list || []);
+    const pagination = resultData.pagination;
     const dataRow = {
       ...dataList[0]
     };
 
+    if (pagination) {
+      pagination.showQuickJumper = true
+      pagination.pageSizeOptions = [
+        20,
+        50,
+        100,
+        200,
+        500
+      ]
+    }
+
     delete dataRow.__key;
 
     // const getWidth = (len) => len * 8
+
+    const getValue = v => {
+      if (v === '' || v === undefined || v === null) {
+        return '-';
+      } else if (_.isArray(v)) {
+        return v.map((item, index) => {
+          return (
+            <span key={index}>{ getValue(item) }</span>
+          )
+        })
+      } else if (_.isObject(v)) {
+        return JSON.stringify(v);
+      }
+      return v.toString();
+    }
 
     const columns = _.map(_.keys(dataRow), (k) => ({
       key: k,
       title: k,
       dataIndex: k,
       // width: getWidth(Math.min(Math.max((dataRow[k] + '').length, k.length), 200)),
-      render(value) {
-        if (value === '' || value === undefined || value === null) {
-          return '-';
-        } else if (_.isObject(value)) {
-          return JSON.stringify(value);
-        }
-        return value.toString();
-      }
+      render: getValue
     }));
 
-    const size = sizeRef || {};
+    const size = (sizeRef || {}) as any;
 
     return (
       <div ref={conRef} className={cls(styles.preview, styles.contentBox, 'content-box')}>
@@ -126,10 +163,13 @@ const Result: React.FC<ExecutionItemProps> = ({executeData}) => {
               size="small"
               scroll={{
                 x: columns.length * 150,
-                y: size.height ? size.height - 80 : 400
+                y: size.height ? size.height - 120 : 400
               }}
               columns={columns}
               dataSource={dataList}
+              pagination={pagination}
+              loading={executeLoading}
+              onPageChange={handlePageChange}
             />
           </div>
         ) : !executeLoading ? (

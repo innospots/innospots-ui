@@ -16,45 +16,25 @@
  *  limitations under the License.
  */
 
-@import '~antd/es/style/themes/index.less';
+/*
+ @import '~antd/es/style/themes/index.less';
+ */
 
-.upload {
+.leftWrapper {
+  height: 100%;
+  background-color: #f4f7fb;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
 
-  .label {
-    color: @text-color-secondary;
-    margin-top: 4px;
-  }
+.modalBody {
+  margin: -18px -23px;
+}
 
-  :global {
-    .node-icon {
-      font-size: 36px;
-    }
+.formWrapper {
+  padding: 32px 32px 8px;
 
-    .node-image-icon {
-      width: 72px;
-    }
-
-    .@{ant-prefix}-upload-list-picture-card-container,
-    .@{ant-prefix}-upload.@{ant-prefix}-upload-select-picture-card {
-      width: 84px;
-      height: 84px;
-    }
-
-    .@{ant-prefix}-upload-list-picture-card .@{ant-prefix}-upload-list-item-uploading .@{ant-prefix}-upload-list-item-info {
-      display: none;
-    }
-
-    .@{ant-prefix}-upload-list-picture-card-container {
-      font-size: 12px;
-
-      & + .@{ant-prefix}-upload {
-        //display: none;
-      }
-    }
-
-    .@{ant-prefix}-upload-list-picture-card .@{ant-prefix}-upload-list-item-actions {
-      display: flex;
-      align-items: center;
-    }
+  .title {
+    margin-bottom: 2em;
   }
 }

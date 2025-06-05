@@ -16,17 +16,19 @@
  *  limitations under the License.
  */
 
-import React, {useEffect} from 'react';
-import {Button, Col, Row, Spin, Statistic, Table, Tag, Tooltip} from 'antd';
+import React, {useEffect, useMemo} from 'react';
+import {Button, Col, Row, Spin, Statistic, Table, Tag, Tooltip, Typography} from 'antd';
 import {ArrowUpOutlined, LeftOutlined, RightOutlined} from '@ant-design/icons';
 import _ from 'lodash';
 import * as echarts from 'echarts';
 
-import {history, useModel} from 'umi';
+import {history, useModel, useParams, useSearchParams} from 'umi';
 import useI18n from '@/common/hooks/useI18n';
 import {getTimeDiff} from '@/common/utils/Datetime';
 import PageLoading from '@/components/PageLoading';
 import PageHelmet from '@/components/PageHelmet';
+
+import { jsonToUrlParams } from '@/common/utils';
 
 import styles from './index.less';
 
@@ -101,35 +103,53 @@ const STATISTIC_OBJ = {
   },
 };
 
+const { Title } = Typography;
+
 // 折线图容器节点
 let CHART_DOM: any = null;
 // 折线图节点
 let MY_CHART: any = null;
 
-const Index: React.FC<any> = ({location, match}) => {
+const Index: React.FC<any> = () => {
   const {
     strategyDetail,
     changeRecordList,
     executionRecordData,
     strategyStatisticData,
-
     fetchStrategyDetailRequest,
     fetchChangeRecordRequest,
     fetchExecutionRecordRequest,
     fetchStrategyStatisticRequest
-  } = useModel('Preview');
+  } = useModel('Preview', model => ({
+    strategyDetail: model.strategyDetail,
+    changeRecordList: model.changeRecordList,
+    executionRecordData: model.executionRecordData,
+    strategyStatisticData: model.strategyStatisticData,
+    fetchStrategyDetailRequest: model.fetchStrategyDetailRequest,
+    fetchChangeRecordRequest: model.fetchChangeRecordRequest,
+    fetchExecutionRecordRequest: model.fetchExecutionRecordRequest,
+    fetchStrategyStatisticRequest: model.fetchStrategyStatisticRequest
+  }));
 
-  const workflowId = location.query?.instanceId || 0;
+  const { workflowType } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
+
+  const workflowId = query?.instanceId || 0;
   const chartDom = document.getElementById('lineChart');
   const currentStat = STATISTIC_OBJ[strategyDetail?.triggerCode] || {};
   const {t, loading: i18nLoading} = useI18n(['strategy', 'workflow', 'common']);
 
   useEffect(() => {
-    fetchStrategyDetailRequest.run(workflowId);
-    fetchChangeRecordRequest.run(workflowId);
-    fetchStrategyStatisticRequest.run(workflowId);
-    fetchExecutionRecordRequest.run({workflowId});
-  }, []);
+    if (workflowType && workflowId) {
+      fetchStrategyDetailRequest.run(workflowType, workflowId);
+      fetchChangeRecordRequest.run(workflowId);
+      fetchStrategyStatisticRequest.run(workflowType, workflowId);
+      fetchExecutionRecordRequest.run(workflowType, {workflowId});
+    }
+  }, [workflowType, workflowId]);
 
   useEffect(() => {
     CHART_DOM = chartDom;
@@ -177,7 +197,7 @@ const Index: React.FC<any> = ({location, match}) => {
           name: t('workflow.overview.exec.scheduler.last_30_days'),
           // min: 0,
           // max: 250,
-          interval: 50,
+          // interval: 500,
           axisLabel: {
             formatter: '{value}',
           },
@@ -187,7 +207,7 @@ const Index: React.FC<any> = ({location, match}) => {
           name: '',
           // min: 0,
           // max: 25,
-          interval: 50,
+          // interval: 500,
           axisLabel: {
             formatter: '{value}',
           },
@@ -238,9 +258,11 @@ const Index: React.FC<any> = ({location, match}) => {
   const renderPageTitle = () => {
     return (
       <Row className={styles.pageTitle} justify="space-between">
-        <Col>{strategyDetail?.name || '---'}</Col>
         <Col>
-          <Button icon={<LeftOutlined/>} onClick={() => history.goBack()}>
+          <Title level={3}>{strategyDetail?.name || '---'}</Title>
+        </Col>
+        <Col>
+          <Button icon={<LeftOutlined/>} onClick={() => history.back()}>
             {t('workflow.board.button.back')}
           </Button>
         </Col>
@@ -328,9 +350,9 @@ const Index: React.FC<any> = ({location, match}) => {
     };
 
     const renderInfoCol = (cols) => {
-      return cols.map((item: any) => {
+      return cols.map((item: any, index: number) => {
         return (
-          <Row style={{height: `${100 / cols.length}%`}}>
+          <Row style={{height: `${100 / cols.length}%`}} key={['infoRow', index].join('-')}>
             <Col>
               <div className={styles.infoLabel}>{item.label}</div>
               <div className={styles.infoValue}>
@@ -349,9 +371,9 @@ const Index: React.FC<any> = ({location, match}) => {
     return (
       <Spin spinning={fetchStrategyDetailRequest.loading}>
         <Row className={styles.baseInfoCard}>
-          {Object.keys(infoObj).map((col: any) => {
+          {Object.keys(infoObj).map((col: any, index: number) => {
             return (
-              <Col span={infoObj[col].span}>{renderInfoCol(infoObj[col].items)}</Col>
+              <Col span={infoObj[col].span} key={['infoObj', index].join('-')}>{renderInfoCol(infoObj[col].items)}</Col>
             );
           })}
         </Row>
@@ -628,7 +650,9 @@ const Index: React.FC<any> = ({location, match}) => {
             <Col className={styles.moreLink}>
               <Button
                 type="link"
-                onClick={() => history.push(`/workflow/index/record${location.search}`)}
+                onClick={() => {
+                  history.push(`/workflow/index/record?${jsonToUrlParams(query)}`)
+                }}
               >
                 {t('workflow.overview.operation_log.more')}
                 <RightOutlined/>
@@ -643,7 +667,7 @@ const Index: React.FC<any> = ({location, match}) => {
               scroll={{y: 298}}
               rowKey="flowExecutionId"
               dataSource={dataSource}
-              columns={columns[strategyDetail?.triggerCode] || []}
+              columns={columns[strategyDetail?.triggerCode] || columns['CRONTIMER']}
             />
           </div>
         </div>

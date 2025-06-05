@@ -40,7 +40,7 @@ const Index: React.FC = () => {
       style={{ background: '#1245FA', borderRadius: 10 }}
     >
       <div className={styles.content}>
-        <a href={latestActivity.link} target="_blank">{latestActivity.title}</a>
+        <a href={latestActivity?.link} target="_blank">{latestActivity?.title}</a>
       </div>
     </Card>
   );
